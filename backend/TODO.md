@@ -1,0 +1,25 @@
+# Josen Leather & Canvas Backend TODO
+
+- [ ] Analyze requirements and define backend architecture
+- [ ] Set up Prisma with Supabase (Postgres) connection
+- [ ] Design and implement database schema:
+  - [ ] User (guest/registered, social login)
+  - [ ] Product (images, descriptions, SEO, reviews, recommendations)
+  - [ ] Cart
+  - [ ] Order (status, history, tracking)
+  - [ ] Payment (Paystack integration, MPesa, card)
+  - [ ] Delivery (courier integration, tracking, cost)
+  - [ ] Notification (email, SMS)
+  - [ ] Blog/SEO
+- [ ] Implement Auth module (JWT, social login)
+- [ ] Implement Product module (CRUD, search, SEO, reviews)
+- [ ] Implement Cart module (add/remove, guest/registered)
+- [ ] Implement Order module (checkout, status updates, history)
+- [ ] Integrate Paystack for payments (MPesa, card, real-time confirmation)
+- [ ] Implement Delivery module (courier API, tracking, cost estimation)
+- [ ] Implement Notification module (email/SMS on order/payment)
+- [ ] Implement Blog/SEO module
+- [ ] Implement Social Media integration (sharing, social login)
+- [ ] Expose REST/GraphQL endpoints for frontend
+- [ ] Test all modules and endpoints
+- [ ] Document API and setup instructions
