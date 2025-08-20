@@ -1,156 +1,443 @@
-'use client';
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SplineScene } from "@/components/ui/splite";
-import { Card } from "@/components/ui/card";
-import { Spotlight } from "@/components/ui/spotlight";
+import React, { useRef, useState, useEffect } from "react";
 
-const NavBarItems = [
-  { name: 'Home', href: '/' },
-  { name: 'About', href: '/about' },
-  { name: 'Contact', href: '/contact' },
+const NAV_LINKS = [
+  { label: "Home", href: "#" },
+  { label: "Products", href: "#products" },
+  { label: "About", href: "#about" },
+  { label: "Contact", href: "#contact" },
+];
+
+const PRODUCTS = [
+  {
+    id: 1,
+    name: "Executive Briefcase",
+    price: "KSh 15,900",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop&crop=center",
+    description: "Premium Italian leather with brass hardware"
+  },
+  {
+    id: 2,
+    name: "Vintage Messenger",
+    price: "KSh 12,500",
+    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop&crop=center",
+    description: "Handcrafted canvas and leather blend"
+  },
+  {
+    id: 3,
+    name: "Travel Duffle",
+    price: "KSh 18,700",
+    image: "https://images.unsplash.com/photo-1553735491-c5c7a065da9b?w=400&h=400&fit=crop&crop=center",
+    description: "Spacious weekend companion"
+  }
+];
+
+const FEATURES = [
+  "Premium Italian Leather",
+  "Handcrafted Excellence",
+  "Lifetime Warranty",
+  "Express Delivery"
 ];
 
 const LandingPage: React.FC = () => {
-  const navigate = useNavigate();
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
+  const [activeSection, setActiveSection] = useState(0);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleViewItems = () => {
-    console.log('Viewing products');
-    navigate('/products');
-  };
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 2,
+        y: (e.clientY / window.innerHeight - 0.5) * 2
+      });
+    };
+
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+      const sections = Math.floor(window.scrollY / (window.innerHeight * 0.8));
+      setActiveSection(Math.min(sections, 3));
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const FloatingElement = ({ children, delay = 0, amplitude = 20 }: { children: React.ReactNode, delay?: number, amplitude?: number }) => (
+    <div
+      className="floating-element"
+      style={{
+        transform: `translateY(${Math.sin(Date.now() * 0.001 + delay) * amplitude}px) rotate(${Math.sin(Date.now() * 0.0008 + delay) * 5}deg)`,
+        transition: 'transform 0.3s ease-out'
+      }}
+    >
+      {children}
+    </div>
+  );
 
   return (
-    <div className='h-screen w-screen overflow-hidden leather-bg leather-pattern leather-grain leather-texture'>
-      {/* Navigation Bar */}
-      <div className='absolute top-0 left-0 right-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md border-b border-amber-900/30'>
-        {NavBarItems.map((item, index) => (
-          <a 
-            key={index} 
-            href={item.href} 
-            className='text-amber-100 py-4 px-8 hover:bg-amber-900/20 transition-all duration-300 flex-1 text-center font-medium tracking-wide hover:text-amber-50'
-          >
-            {item.name}
-          </a>
-        ))}
+    <div ref={containerRef} className="relative overflow-x-hidden">
+      {/* Custom CSS */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(2deg); }
+        }
+        
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(101, 67, 33, 0.3); }
+          50% { box-shadow: 0 0 40px rgba(101, 67, 33, 0.6); }
+        }
+        
+        @keyframes shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        
+        .glass-nav {
+          backdrop-filter: blur(20px);
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-card {
+          backdrop-filter: blur(25px);
+          background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.15) 0%, 
+            rgba(255, 255, 255, 0.05) 100%
+          );
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .floating-element {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        .shimmer-text {
+          background: linear-gradient(90deg, 
+            #654321 25%, 
+            #8B4513 50%, 
+            #654321 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 3s linear infinite;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        
+        .glow-button {
+          animation: glow 2s ease-in-out infinite;
+          background: linear-gradient(135deg, #8B4513 0%, #654321 50%, #3D2817 100%);
+        }
+        
+        .parallax-bg {
+          transform: translateY(${scrollY * 0.5}px) scale(${1 + scrollY * 0.0002});
+          opacity: ${Math.max(0.1, 1 - scrollY * 0.001)};
+        }
+        
+        .hero-3d {
+          transform: perspective(1000px) 
+                    rotateX(${mousePos.y * 5}deg) 
+                    rotateY(${mousePos.x * 10}deg) 
+                    translateZ(${Math.abs(mousePos.x) * 50}px);
+          transition: transform 0.1s ease-out;
+        }
+        
+        .text-3d {
+          text-shadow: 
+            0 1px 0 #8B4513,
+            0 2px 0 #654321,
+            0 3px 0 #3D2817,
+            0 4px 5px rgba(0,0,0,0.3),
+            0 8px 10px rgba(0,0,0,0.2),
+            0 15px 20px rgba(0,0,0,0.1);
+        }
+      `}</style>
+
+      {/* Background with Parallax */}
+      <div className="fixed inset-0 -z-20">
+        <div 
+          className="parallax-bg w-full h-full bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-100"
+        />
+        <div 
+          className="absolute inset-0 bg-gradient-to-t from-amber-900/20 via-transparent to-orange-900/10"
+          style={{
+            transform: `translateY(${scrollY * -0.3}px)`
+          }}
+        />
       </div>
 
-      {/* Full Screen Hero Section with 3D Scene */}
-      <div className='h-full w-full flex items-center justify-center relative pt-16'>
-        {/* Main Content Card - Full Screen */}
-        <div className="w-full h-full leather-card relative overflow-hidden">
-          <Spotlight
-            className="-top-40 left-0 md:left-60 md:-top-20"
-            fill="#D4AF37"
-          />
-          
-          {/* Content Grid */}
-          <div className="h-full grid grid-cols-1 lg:grid-cols-2">
-            {/* Left content - E-commerce messaging */}
-            <div className="flex flex-col justify-center p-8 lg:p-16 relative z-10 space-y-8">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase">
-                    Handcrafted Excellence
-                  </p>
-                  <h1 className="text-5xl lg:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-amber-200 via-amber-100 to-amber-300 leading-tight">
-                    Premium
-                  </h1>
-                  <h1 className="text-5xl lg:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-amber-300 via-amber-200 to-amber-400 leading-tight">
-                    Leather
-                  </h1>
-                </div>
-                
-                <h2 className="text-2xl lg:text-3xl font-light text-amber-100 tracking-wide">
-                  Crafted to Perfection
-                </h2>
-                
-                <p className="text-lg text-amber-200/80 max-w-lg leading-relaxed">
-                  Discover our exquisite collection of handcrafted leather goods. 
-                  Each piece tells a story of quality, durability, and timeless elegance 
-                  that transcends generations.
-                </p>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  className='leather-button text-amber-50 px-10 py-4 rounded-lg font-semibold text-lg tracking-wide'
-                  onClick={handleViewItems}
-                >
-                  Explore Collection
-                </button>
-                <button className='bg-transparent border-2 border-amber-600/50 text-amber-200 px-10 py-4 rounded-lg font-semibold text-lg tracking-wide hover:bg-amber-900/20 hover:border-amber-500 transition-all duration-300'>
-                  Our Story
-                </button>
-              </div>
+      {/* Floating geometric shapes */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <FloatingElement delay={0} amplitude={30}>
+          <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-amber-400/20 to-orange-500/20 rounded-full blur-xl" />
+        </FloatingElement>
+        <FloatingElement delay={2} amplitude={25}>
+          <div className="absolute top-60 right-20 w-24 h-24 bg-gradient-to-r from-yellow-400/30 to-amber-500/30 rounded-lg rotate-45 blur-lg" />
+        </FloatingElement>
+        <FloatingElement delay={4} amplitude={20}>
+          <div className="absolute bottom-40 left-1/4 w-16 h-16 bg-gradient-to-r from-orange-400/40 to-red-500/40 rounded-full blur-md" />
+        </FloatingElement>
+      </div>
 
-              {/* Feature highlights */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-amber-900/30">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-300">100%</div>
-                  <div className="text-sm text-amber-200/70">Genuine Leather</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-300">25+</div>
-                  <div className="text-sm text-amber-200/70">Years Experience</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-300">1000+</div>
-                  <div className="text-sm text-amber-200/70">Happy Customers</div>
-                </div>
-              </div>
+      {/* Glassmorphism Navigation */}
+      <nav className="glass-nav fixed top-0 w-full z-50 px-8 py-4">
+        <div className="flex justify-between items-center max-w-7xl mx-auto">
+          <div className="text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
+            <img src="/logo.jpg" alt="Josen Logo" className="h-8 w-auto" />
+            JOSEN LEATHER AND CANVAS
+          </div>
+          <div className="flex gap-8">
+            {NAV_LINKS.map((link, index) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group"
+              >
+                {link.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
+              </a>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section with 3D Effects */}
+      <section ref={heroRef} className="min-h-screen flex items-center justify-center pt-20 px-8">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          {/* Text Content */}
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h1 className="text-6xl lg:text-7xl font-black text-3d leading-tight">
+                <span className="block shimmer-text">PREMIUM</span>
+                <span className="block text-amber-900">LEATHER</span>
+                <span className="block text-gradient bg-gradient-to-r from-orange-600 to-amber-800 bg-clip-text text-transparent">
+                  COLLECTION
+                </span>
+              </h1>
+              <p className="text-xl text-amber-800/80 leading-relaxed max-w-lg">
+                Discover extraordinary craftsmanship meets modern elegance. 
+                Each piece tells a story of heritage, quality, and timeless style.
+              </p>
             </div>
-            
-            {/* Right content - 3D Scene */}
-            <div className="relative h-full">
-              <div className="absolute inset-4 rounded-2xl overflow-hidden border border-amber-900/30 bg-black/20 backdrop-blur-sm">
-                <SplineScene
-                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                  className="w-full h-full"
+
+            {/* Floating Features */}
+            <div className="flex flex-wrap gap-4">
+              {FEATURES.map((feature, index) => (
+                <FloatingElement key={feature} delay={index} amplitude={10}>
+                  <div className="glass-card px-4 py-2 rounded-full text-sm font-medium text-amber-900">
+                    {feature}
+                  </div>
+                </FloatingElement>
+              ))}
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex gap-6">
+              <button className="glow-button px-8 py-4 text-white font-bold rounded-full text-lg hover:scale-105 transition-all duration-300 shadow-2xl">
+                Explore Collection
+              </button>
+              <button className="glass-card px-8 py-4 text-amber-900 font-bold rounded-full text-lg hover:scale-105 transition-all duration-300 border border-amber-300/30">
+                Watch Craftsmanship
+              </button>
+            </div>
+          </div>
+
+          {/* 3D Product Showcase */}
+          <div className="relative">
+            <div 
+              className="hero-3d relative z-10"
+              style={{
+                transform: `perspective(1200px) 
+                          rotateY(${mousePos.x * 15}deg) 
+                          rotateX(${-mousePos.y * 10}deg) 
+                          translateZ(${Math.abs(mousePos.x + mousePos.y) * 30}px)
+                          scale(${1 + Math.abs(mousePos.x) * 0.1})`
+              }}
+            >
+              <div className="glass-card p-8 rounded-3xl shadow-2xl">
+                <img
+                  src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&h=600&fit=crop&crop=center"
+                  alt="Premium Leather Bag"
+                  className="w-full h-auto rounded-2xl shadow-xl"
+                  style={{
+                    filter: 'drop-shadow(0 20px 40px rgba(101,67,33,0.3))'
+                  }}
                 />
               </div>
               
-              {/* Decorative elements */}
-              <div className="absolute top-8 right-8 w-32 h-32 border border-amber-600/30 rounded-full animate-pulse"></div>
-              <div className="absolute bottom-8 right-16 w-16 h-16 border border-amber-500/20 rounded-full animate-pulse delay-1000"></div>
+              {/* Floating Price Tag */}
+              <FloatingElement delay={1} amplitude={15}>
+                <div className="absolute -top-4 -right-4 glass-card px-4 py-2 rounded-full">
+                  <span className="text-lg font-bold text-amber-900">KSh 15,900</span>
+                </div>
+              </FloatingElement>
             </div>
+
+            {/* Background Glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-500/20 rounded-full blur-3xl scale-150 -z-10" />
+          </div>
+        </div>
+      </section>
+
+      {/* Products Section with Interactive 3D Grid */}
+      <section id="products" className="py-32 px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-black shimmer-text mb-4">
+              SIGNATURE COLLECTION
+            </h2>
+            <p className="text-xl text-amber-800/80 max-w-2xl mx-auto">
+              Each piece is meticulously handcrafted using the finest materials, 
+              ensuring durability that lasts generations.
+            </p>
           </div>
 
-          {/* Bottom feature strip */}
-          <div className="absolute bottom-0 left-0 right-0 bg-black/40 backdrop-blur-md border-t border-amber-900/30 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-full bg-amber-600/20 flex items-center justify-center">
-                  <span className="text-amber-400 text-xl">✦</span>
+          <div className="grid md:grid-cols-3 gap-8">
+            {PRODUCTS.map((product, index) => (
+              <FloatingElement key={product.id} delay={index * 0.5} amplitude={12}>
+                <div 
+                  className="glass-card rounded-3xl p-6 hover:scale-105 transition-all duration-500 cursor-pointer group"
+                  style={{
+                    transform: `perspective(800px) rotateY(${mousePos.x * 3}deg) rotateX(${-mousePos.y * 2}deg)`
+                  }}
+                >
+                  <div className="relative overflow-hidden rounded-2xl mb-6">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-amber-900 mb-2">
+                    {product.name}
+                  </h3>
+                  <p className="text-amber-700/80 mb-4">
+                    {product.description}
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-2xl font-bold shimmer-text">
+                      {product.price}
+                    </span>
+                    <button className="glass-card px-4 py-2 rounded-full text-amber-900 hover:bg-amber-100/20 transition-all duration-300">
+                      Add to Cart
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-amber-100 font-semibold">Premium Quality</h3>
-                  <p className="text-amber-200/70 text-sm">Hand-selected materials and expert craftsmanship</p>
-                </div>
-              </div>
+              </FloatingElement>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section with Morphing Text */}
+      <section className="py-32 px-8 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-5xl font-black text-3d mb-8">
+                <span className="block shimmer-text">CRAFTED</span>
+                <span className="block text-amber-900">FOR</span>
+                <span className="block text-gradient bg-gradient-to-r from-orange-600 to-amber-800 bg-clip-text text-transparent">
+                  EXCELLENCE
+                </span>
+              </h2>
               
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-full bg-amber-600/20 flex items-center justify-center">
-                  <span className="text-amber-400 text-xl">◆</span>
+              <div className="space-y-6">
+                <div className="glass-card p-6 rounded-2xl">
+                  <h3 className="text-2xl font-bold text-amber-900 mb-2">
+                    🏆 Award-Winning Design
+                  </h3>
+                  <p className="text-amber-800/80">
+                    Recognized internationally for innovative leather craftsmanship and sustainable practices.
+                  </p>
                 </div>
-                <div>
-                  <h3 className="text-amber-100 font-semibold">Timeless Design</h3>
-                  <p className="text-amber-200/70 text-sm">Classic styles that never go out of fashion</p>
+                
+                <div className="glass-card p-6 rounded-2xl">
+                  <h3 className="text-2xl font-bold text-amber-900 mb-2">
+                    🚚 Express Delivery
+                  </h3>
+                  <p className="text-amber-800/80">
+                    Same-day delivery in Nairobi, nationwide shipping with real-time tracking.
+                  </p>
+                </div>
+                
+                <div className="glass-card p-6 rounded-2xl">
+                  <h3 className="text-2xl font-bold text-amber-900 mb-2">
+                    💳 Secure Payments
+                  </h3>
+                  <p className="text-amber-800/80">
+                    M-Pesa integration, VISA/MasterCard support with bank-level security.
+                  </p>
                 </div>
               </div>
+            </div>
+
+            <div className="relative">
+              <FloatingElement amplitude={25}>
+                <div 
+                  className="hero-3d glass-card p-8 rounded-3xl"
+                  style={{
+                    transform: `perspective(1000px) rotateY(${-mousePos.x * 10}deg) rotateX(${mousePos.y * 5}deg)`
+                  }}
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=400&fit=crop&crop=center"
+                    alt="Craftsmanship"
+                    className="w-full h-auto rounded-2xl"
+                  />
+                </div>
+              </FloatingElement>
               
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-full bg-amber-600/20 flex items-center justify-center">
-                  <span className="text-amber-400 text-xl">♦</span>
-                </div>
-                <div>
-                  <h3 className="text-amber-100 font-semibold">Sustainable Craft</h3>
-                  <p className="text-amber-200/70 text-sm">Ethically sourced and environmentally conscious</p>
-                </div>
-              </div>
+              {/* Animated decorative elements */}
+              <div className="absolute -top-8 -left-8 w-16 h-16 bg-gradient-to-r from-amber-400/40 to-orange-500/40 rounded-full blur-lg floating-element" />
+              <div className="absolute -bottom-8 -right-8 w-12 h-12 bg-gradient-to-r from-yellow-400/50 to-amber-500/50 rounded-lg rotate-45 blur-md floating-element" style={{animationDelay: '1s'}} />
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Call to Action with Animated Background */}
+      <section className="py-32 px-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-900 to-orange-800" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-6xl font-black text-white mb-8 text-3d">
+            READY TO ELEVATE YOUR STYLE?
+          </h2>
+          <p className="text-xl text-white/90 mb-12 max-w-2xl mx-auto">
+            Join thousands of satisfied customers who've discovered the perfect blend 
+            of luxury, functionality, and timeless design.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <button className="glow-button text-white px-12 py-4 bg-white font-bold rounded-full text-xl hover:scale-105 transition-all duration-300 shadow-2xl">
+              Shop Now
+            </button>
+            <button className="glass-card px-12 py-4 text-white font-bold rounded-full text-xl hover:scale-105 transition-all duration-300 border border-white/30">
+              Book Consultation
+            </button>
+          </div>
+        </div>
+
+        {/* Floating elements in CTA */}
+        <FloatingElement delay={0} amplitude={20}>
+          <div className="absolute top-20 left-20 w-20 h-20 bg-white/10 rounded-full blur-xl" />
+        </FloatingElement>
+        <FloatingElement delay={2} amplitude={30}>
+          <div className="absolute bottom-20 right-20 w-16 h-16 bg-yellow-400/20 rounded-lg rotate-45 blur-lg" />
+        </FloatingElement>
+      </section>
     </div>
   );
 };

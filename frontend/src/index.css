@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/* Josen Leather & Canvas PLC color scheme (from logo)
+   - Primary Brown: #654321
+   - Accent Brown: #8B7D6B
+   - Background Cream: #F8F6F2
+*/
+:root {
+  --primary-brown: #654321;
+  --accent-brown: #8B7D6B;
+  --background-cream: #F8F6F2;
+}
+
+/* Apply logo color scheme globally */
+body {
+  background: var(--background-cream) url('/background.png') center center/cover no-repeat;
+  color: var(--primary-brown);
+  font-family: inherit;
+}
+
 @keyframes spotlight {
   0% {
     opacity: 0;
@@ -107,7 +125,7 @@
 }
 
 .leather-button {
-  background: linear-gradient(135deg, #8B7D6B 0%, #654321 50%, #3D2817 100%);
+  background: linear-gradient(135deg, var(--accent-brown) 0%, var(--primary-brown) 50%, #3D2817 100%);
   border: 1px solid rgba(139, 125, 107, 0.5);
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -117,6 +135,9 @@
 
 .leather-button:hover {
   background: linear-gradient(135deg, #9A8B79 0%, #754D2F 50%, #4A3020 100%);
+  /* Optionally use accent/primary brown for hover if desired:
+     background: linear-gradient(135deg, var(--accent-brown) 0%, var(--primary-brown) 50%, #4A3020 100%);
+  */
   transform: translateY(-2px);
   box-shadow: 
     inset 0 1px 0 rgba(255, 255, 255, 0.2),
