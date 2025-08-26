@@ -1,25 +1,19 @@
-# Josen Leather & Canvas Backend TODO
+# Selling and Checkout Feature (Admin Side) - Investigation Checklist
 
-- [ ] Analyze requirements and define backend architecture
-- [ ] Set up Prisma with Supabase (Postgres) connection
-- [ ] Design and implement database schema:
-  - [ ] User (guest/registered, social login)
-  - [ ] Product (images, descriptions, SEO, reviews, recommendations)
-  - [ ] Cart
-  - [ ] Order (status, history, tracking)
-  - [ ] Payment (Paystack integration, MPesa, card)
-  - [ ] Delivery (courier integration, tracking, cost)
-  - [ ] Notification (email, SMS)
-  - [ ] Blog/SEO
-- [ ] Implement Auth module (JWT, social login)
-- [ ] Implement Product module (CRUD, search, SEO, reviews)
-- [ ] Implement Cart module (add/remove, guest/registered)
-- [ ] Implement Order module (checkout, status updates, history)
-- [ ] Integrate Paystack for payments (MPesa, card, real-time confirmation)
-- [ ] Implement Delivery module (courier API, tracking, cost estimation)
-- [ ] Implement Notification module (email/SMS on order/payment)
-- [ ] Implement Blog/SEO module
-- [ ] Implement Social Media integration (sharing, social login)
-- [ ] Expose REST/GraphQL endpoints for frontend
-- [ ] Test all modules and endpoints
-- [ ] Document API and setup instructions
+- [ ] Analyze requirements for selling and checkout
+- [ ] Review backend cart, order, and payment modules for relevant endpoints
+- [ ] Check if admin controller/service exposes selling/checkout features
+- [ ] Determine if features are implemented for admin or only for customers
+- [x] Summarize findings and answer the question
+
+---
+
+## Investigation Summary
+
+**Are selling and checkout features implemented in the admin backend?**
+
+**No.**  
+The backend implements selling and checkout features (shopping cart, add/remove items, checkout, payment) in customer-facing modules (`cart`, `order`, `payment` controllers). The `admin` controller only manages admin users and does not expose any endpoints for selling or checkout. There are no admin-specific endpoints for cart, order, or payment operations.
+
+**Conclusion:**  
+Selling and checkout features are implemented for customers, not for the admin side.

@@ -5,26 +5,29 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
+  id            String         @id @default(uuid())
+  email         String         @unique
   password      String?
   name          String?
   phone         String?
-  socialType    String?  // facebook, twitter, etc.
-  socialId      String?  // social login id
-  isGuest       Boolean  @default(false)
+  socialType    String? // facebook, twitter, etc.
+  socialId      String? // social login id
+  isGuest       Boolean        @default(false)
+  role          String         @default("user") // 'admin' or 'user'
   orders        Order[]
   cart          Cart?
   reviews       Review[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Product {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   name          String
   description   String
   price         Float
@@ -33,101 +36,112 @@ model Product {
   seoDesc       String?
   metaTags      String[]
   reviews       Review[]
-  recommended   Product[] @relation("RecommendedProducts")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  recommended   Product[]   @relation("RecommendedProducts")
+  recommendedBy Product[]   @relation("RecommendedProducts")
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model Cart {
-  id            String   @id @default(uuid())
-  user          User?    @relation(fields: [userId], references: [id])
-  userId        String?
-  items         CartItem[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String     @id @default(uuid())
+  user      User?      @relation(fields: [userId], references: [id])
+  userId    String?    @unique
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model CartItem {
-  id            String   @id @default(uuid())
-  cart          Cart     @relation(fields: [cartId], references: [id])
-  cartId        String
-  product       Product  @relation(fields: [productId], references: [id])
-  productId     String
-  quantity      Int      @default(1)
+  id        String  @id @default(uuid())
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int     @default(1)
 }
 
 model Order {
-  id            String   @id @default(uuid())
-  user          User?    @relation(fields: [userId], references: [id])
-  userId        String?
-  items         OrderItem[]
-  status        String   // Processing, Shipped, Delivered, etc.
-  payment       Payment?
-  delivery      Delivery?
-  total         Float
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String      @id @default(uuid())
+  user      User?       @relation(fields: [userId], references: [id])
+  userId    String?
+  items     OrderItem[]
+  status    String // always required, but code must provide a string
+  payment   Payment?
+  delivery  Delivery?
+  total     Float
+  guestEmail String?
+  guestAddress String?
+  guestPhone String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 model OrderItem {
-  id            String   @id @default(uuid())
-  order         Order    @relation(fields: [orderId], references: [id])
-  orderId       String
-  product       Product  @relation(fields: [productId], references: [id])
-  productId     String
-  quantity      Int      @default(1)
-  price         Float
+  id        String  @id @default(uuid())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int     @default(1)
+  price     Float
 }
 
 model Payment {
-  id            String   @id @default(uuid())
-  order         Order    @relation(fields: [orderId], references: [id])
-  orderId       String   @unique
-  provider      String   // paystack, mpesa, card
-  status        String   // pending, confirmed, failed
-  reference     String   @unique
-  amount        Float
-  paidAt        DateTime?
+  id        String    @id @default(uuid())
+  order     Order     @relation(fields: [orderId], references: [id])
+  orderId   String    @unique
+  provider  String // paystack, mpesa, card
+  status    String // pending, confirmed, failed
+  reference String    @unique
+  amount    Float
+  paidAt    DateTime?
 }
 
 model Delivery {
-  id            String   @id @default(uuid())
-  order         Order    @relation(fields: [orderId], references: [id])
-  orderId       String   @unique
+  id            String  @id @default(uuid())
+  order         Order   @relation(fields: [orderId], references: [id])
+  orderId       String  @unique
   courier       String
   trackingCode  String?
-  status        String   // pending, shipped, delivered
+  status        String  // always required, but code must provide a string
   estimatedCost Float
   estimatedTime String?
+  recipientName String
+  recipientPhone String
+  address       String
+  lastLocation  String?
+  deliveryHistory Json? // Array of { status, timestamp, location }
 }
 
 model Notification {
-  id            String   @id @default(uuid())
-  user          User?    @relation(fields: [userId], references: [id])
-  userId        String?
-  type          String   // email, sms
-  message       String
-  sentAt        DateTime @default(now())
+  id      String   @id @default(uuid())
+  user    User?    @relation(fields: [userId], references: [id])
+  userId  String?
+  type    String // email, sms
+  message String
+  sentAt  DateTime @default(now())
 }
 
 model Blog {
-  id            String   @id @default(uuid())
-  title         String
-  content       String
-  seoTitle      String?
-  seoDesc       String?
-  metaTags      String[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  seoTitle  String?
+  seoDesc   String?
+  metaTags  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Review {
-  id            String   @id @default(uuid())
-  user          User?    @relation(fields: [userId], references: [id])
-  userId        String?
-  product       Product  @relation(fields: [productId], references: [id])
-  productId     String
-  rating        Int
-  comment       String
-  createdAt     DateTime @default(now())
+  id        String   @id @default(uuid())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
 }
