@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 
 const NAV_LINKS = [
   { label: "Home", href: "#" },
-  { label: "Products", href: "#products" },
+  { label: "Products", href: "/products" },
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
 ];
@@ -196,14 +197,25 @@ const LandingPage: React.FC = () => {
           </div>
           <div className="flex gap-8">
             {NAV_LINKS.map((link, index) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
-              </a>
+              link.href.startsWith('/') ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
+                </Link>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
+                </a>
+              )
             ))}
           </div>
         </div>
