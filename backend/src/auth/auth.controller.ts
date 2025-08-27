@@ -10,6 +10,11 @@ import { ApiTags, ApiBody } from '@nestjs/swagger';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('login')
+  login(@Body() loginDto: { email: string; password: string }) {
+    return this.authService.login(loginDto);
+  }
+
   @Post()
   @ApiBody({
     description: 'User credentials for authentication',
