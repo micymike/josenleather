@@ -1,27 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 
 @Injectable()
 export class PaymentService {
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createPaymentDto: CreatePaymentDto) {
+    return this.prisma.payment.create({ data: createPaymentDto });
   }
 
-  findAll() {
-    return `This action returns all payment`;
+  async findAll() {
+    return this.prisma.payment.findMany();
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} payment`;
+  async findOne(id: string) {
+    return this.prisma.payment.findUnique({ where: { id } });
   }
 
-  update(id: string, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
+  async update(id: string, updatePaymentDto: UpdatePaymentDto) {
+    return this.prisma.payment.update({ where: { id }, data: updatePaymentDto });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} payment`;
+  async remove(id: string) {
+    return this.prisma.payment.delete({ where: { id } });
   }
 
   // Initiate a Pesapal payment (card/MPesa)
@@ -55,9 +58,15 @@ export class PaymentService {
   // Update order/payment status after payment confirmation
   async updateOrderPaymentStatus(orderId: string, status: 'pending' | 'paid' | 'failed' | 'refunded') {
     // TODO: Update order/payment status in DB
-    // 1. Find order by ID
-    // 2. Update status
-    // 3. Notify customer if needed
-    return `Order ${orderId} status updated to ${status}`;
+    const payment = await this.prisma.payment.findUnique({ where: { orderId } });
+
+    if (!payment) {
+      throw new NotFoundException(`Payment for order ${orderId} not found`);
+    }
+
+    return this.prisma.payment.update({
+      where: { orderId },
+      data: { status, paidAt: status === 'paid' ? new Date() : undefined },
+    });
   }
 }

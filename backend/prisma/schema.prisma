@@ -32,6 +32,7 @@ model Product {
   description   String
   price         Float
   imageUrls     String[]
+  videoUrl      String? // Optional video URL
   seoTitle      String?
   seoDesc       String?
   metaTags      String[]

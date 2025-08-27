@@ -1,25 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { CartService } from '../cart/cart.service';
+import { PaymentService } from '../payment/payment.service';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cartService: CartService,
+    private readonly paymentService: PaymentService,
+  ) {}
 
   async create(createOrderDto: CreateOrderDto) {
-    // Store all fields, including guest info if userId is not present
     return this.prisma.order.create({
       data: {
         userId: createOrderDto.userId ?? null,
-        items: createOrderDto.items as any, // Adjust type as needed for Prisma schema
         status: createOrderDto.status || 'pending',
         total: createOrderDto.total,
-       // guestEmail: createOrderDto.guestEmail ?? null,
+        guestEmail: createOrderDto.guestEmail ?? null,
         guestAddress: createOrderDto.guestAddress ?? null,
         guestPhone: createOrderDto.guestPhone ?? null,
+        items: {
+          create: createOrderDto.items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
       },
     });
+  }
+
+  async checkout(userId: string, paymentProvider: string, guestInfo?: { email: string; address: string; phone: string }) {
+    const cart = await this.cartService.findOne(userId);
+
+    if (!cart || cart.items.length === 0) {
+      throw new BadRequestException('Cart is empty or not found');
+    }
+
+    let total = 0;
+    for (const item of cart.items) {
+      total += item.quantity * item.product.price;
+    }
+
+    const orderItems = cart.items.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.product.price,
+    }));
+
+    const order = await this.prisma.order.create({
+      data: {
+        userId: userId,
+        status: 'pending',
+        total,
+        guestEmail: guestInfo?.email,
+        guestAddress: guestInfo?.address,
+        guestPhone: guestInfo?.phone,
+        items: {
+          create: orderItems,
+        },
+      },
+    });
+
+    await this.paymentService.create({
+      orderId: order.id,
+      provider: paymentProvider,
+      amount: total,
+      status: 'pending',
+      reference: `REF-${Date.now()}-${order.id}`, // Generate a unique reference
+    });
+
+    await this.cartService.remove(cart.id); // Clear the cart
+
+    return order;
   }
 
   async findAll() {
@@ -33,16 +89,22 @@ export class OrderService {
   }
 
   async update(id: string, updateOrderDto: UpdateOrderDto) {
-    // Ensure userId is null if undefined to match Prisma expectations
-    const { userId, ...rest } = updateOrderDto;
+    const { userId, items, ...rest } = updateOrderDto;
     return this.prisma.order.update({
       where: { id },
-      data : {
+      data: {
         ...rest,
         userId: userId === undefined ? null : userId,
-      } as any,
+        items: {
+          deleteMany: {},
+          create: items?.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
+      },
     });
-   // return `This action updates order #${id}`;
   }
 
   async remove(id: string) {
