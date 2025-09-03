@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -13,9 +13,9 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new admin (payload is empty)' })
+  @ApiOperation({ summary: 'Create a new admin' })
   @ApiResponse({ status: 201, description: 'Admin created' })
-  @ApiBody({ type: CreateAdminDto, description: 'Empty payload' })
+  @ApiBody({ type: CreateAdminDto, description: 'Admin creation payload' })
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.create(createAdminDto);
   }
@@ -29,26 +29,26 @@ export class AdminController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get admin by ID' })
-  @ApiParam({ name: 'id', type: String })
+  @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Admin found' })
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.findOne(id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update admin by ID (payload is empty)' })
-  @ApiParam({ name: 'id', type: String })
-  @ApiBody({ type: UpdateAdminDto, description: 'Empty payload' })
+  @ApiOperation({ summary: 'Update admin by ID' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiBody({ type: UpdateAdminDto, description: 'Admin update payload' })
   @ApiResponse({ status: 200, description: 'Admin updated' })
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateAdminDto: UpdateAdminDto) {
+    return this.adminService.update(id, updateAdminDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete admin by ID' })
-  @ApiParam({ name: 'id', type: String })
+  @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'Admin deleted' })
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.remove(id);
   }
 }

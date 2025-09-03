@@ -12,7 +12,7 @@ model User {
   id            String         @id @default(uuid())
   email         String         @unique
   password      String?
-  name          String?
+  name          String         @unique
   phone         String?
   socialType    String? // facebook, twitter, etc.
   socialId      String? // social login id
@@ -31,6 +31,8 @@ model Product {
   name          String
   description   String
   price         Float
+  stock         Int
+  category      String
   imageUrls     String[]
   videoUrl      String? // Optional video URL
   seoTitle      String?

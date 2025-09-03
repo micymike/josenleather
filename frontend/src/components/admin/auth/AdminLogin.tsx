@@ -1,35 +1,35 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react'; // Assuming lucide-react is available for icons
+import { login } from '../../../lib/api'; // Import the login function
 
 const AdminLogin = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    console.log('Attempting login with formData:', formData); // Add this line for debugging
+
     try {
-      const response = await fetch('http://localhost:3000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+      const data = await login(formData.email, formData.password);
+      console.log('Backend response data:', data); // Add this line for debugging
 
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('adminToken', data.token);
+      if (data.access_token) { // Check for access_token instead of data.success
+        localStorage.setItem('adminToken', data.access_token); // Use access_token
         localStorage.setItem('adminUser', JSON.stringify(data.user));
         navigate('/admin');
       } else {
         setError(data.message || 'Login failed');
       }
-    } catch (err) {
-      setError('Connection error');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Connection error');
     } finally {
       setLoading(false);
     }
@@ -60,18 +60,25 @@ const AdminLogin = () => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/30"
-                  placeholder="Email address"
+                  placeholder="your Email"
                 />
               </div>
-              <div className="group">
+              <div className="group relative"> {/* Added relative for absolute positioning of toggle */}
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'} // Dynamically change type
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/30"
+                  className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all duration-300 group-hover:bg-white/30 pr-10" // Added pr-10 for icon spacing
                   placeholder="Password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/70 hover:text-white focus:outline-none"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />} {/* Eye/EyeOff icon */}
+                </button>
               </div>
             </div>
 
@@ -99,7 +106,7 @@ const AdminLogin = () => {
         </div>
         
         <p className="text-center text-amber-200 text-sm animate-in fade-in duration-500 delay-700">
-          Demo: admin@josenleather.com / admin123
+          
         </p>
       </div>
     </div>

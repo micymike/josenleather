@@ -1,14 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getAdmins, getProducts, getOrders, getBlogs } from '../../lib/api';
 
 const AdminDashboard = () => {
   const [showAddProduct, setShowAddProduct] = useState(false);
-  
-  const stats = [
+  const [stats, setStats] = useState([
     { title: 'Total Products', value: '0', icon: '📦', color: 'from-amber-500 to-amber-600', bg: 'bg-amber-50' },
     { title: 'Pending Orders', value: '0', icon: '📋', color: 'from-orange-500 to-orange-600', bg: 'bg-orange-50' },
     { title: 'Total Revenue', value: '$0', icon: '💰', color: 'from-yellow-500 to-yellow-600', bg: 'bg-yellow-50' },
     { title: 'Blog Posts', value: '0', icon: '📝', color: 'from-amber-600 to-orange-600', bg: 'bg-amber-50' }
-  ];
+  ]);
+
+  useEffect(() => {
+    // Fetch dashboard stats from backend APIs
+    const fetchStats = async () => {
+      try {
+        const products = await getProducts();
+        // For orders, require admin token from localStorage
+        let orders: any[] = [];
+        const token = localStorage.getItem('adminToken');
+        if (token) {
+          orders = await getOrders(token);
+        }
+        const blogs = await getBlogs();
+        setStats([
+          { title: 'Total Products', value: products.length.toString(), icon: '📦', color: 'from-amber-500 to-amber-600', bg: 'bg-amber-50' },
+          { title: 'Pending Orders', value: orders.filter((o: any) => o.status === 'pending').length.toString(), icon: '📋', color: 'from-orange-500 to-orange-600', bg: 'bg-orange-50' },
+          { title: 'Total Revenue', value: '$' + orders.reduce((sum: number, o: any) => sum + (o.total || 0), 0).toLocaleString(), icon: '💰', color: 'from-yellow-500 to-yellow-600', bg: 'bg-yellow-50' },
+          { title: 'Blog Posts', value: blogs.length.toString(), icon: '📝', color: 'from-amber-600 to-orange-600', bg: 'bg-amber-50' }
+        ]);
+      } catch (err) {
+        // fallback to zeros
+      }
+    };
+    fetchStats();
+  }, []);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">

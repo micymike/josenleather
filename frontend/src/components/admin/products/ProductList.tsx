@@ -1,8 +1,30 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const ProductList = () => {
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await fetch('/products');
+        if (!res.ok) throw new Error('Failed to fetch products');
+        const data = await res.json();
+        setProducts(data);
+      } catch (err) {
+        setError('Error fetching products');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -25,11 +47,60 @@ const ProductList = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                No products found. <Link to="/admin/products/add" className="text-blue-600">Add your first product</Link>
-              </td>
-            </tr>
+            {loading ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                  Loading products...
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-4 text-center text-red-500">
+                  <div>
+                    <div>{error}</div>
+                    <button
+                      onClick={() => {
+                        setLoading(true);
+                        setError('');
+                        fetch('/products')
+                          .then(res => {
+                            if (!res.ok) throw new Error('Failed to fetch products');
+                            return res.json();
+                          })
+                          .then(data => setProducts(data))
+                          .catch(err => setError(err.message || 'Error fetching products'))
+                          .finally(() => setLoading(false));
+                      }}
+                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Retry
+                    </button>
+                    <div className="mt-2 text-xs text-gray-400">
+                      Please check your internet connection or contact the administrator if the problem persists.
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            ) : products.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                  No products found. <Link to="/admin/products/add" className="text-blue-600">Add your first product</Link>
+                </td>
+              </tr>
+            ) : (
+              products.map((product: any) => (
+                <tr key={product.id}>
+                  <td className="px-6 py-4">{product.name}</td>
+                  <td className="px-6 py-4">{product.price}</td>
+                  <td className="px-6 py-4">{product.stock}</td>
+                  <td className="px-6 py-4">
+                    {/* Actions like edit/delete can be added here */}
+                    <Link to={`/admin/products/edit/${product.id}`} className="text-blue-600 mr-2">Edit</Link>
+                    <Link to={`/admin/products/delete/${product.id}`} className="text-red-600">Delete</Link>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

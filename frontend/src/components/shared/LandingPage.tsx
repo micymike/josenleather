@@ -33,10 +33,24 @@ const PRODUCTS = [
 ];
 
 const FEATURES = [
-  "Premium Italian Leather",
-  "Handcrafted Excellence",
-  "Lifetime Warranty",
-  "Express Delivery"
+  "✅ Full-Grain Leather – Premium quality that ages beautifully",
+  "✅ Waxed Canvas – Weather-resistant and built for the elements",
+  "✅ Handcrafted Details – Precision-made with care and integrity",
+  "✅ Functional Design – Designed to serve, built to endure"
+];
+
+const COLLECTIONS = [
+  { icon: "👜", name: "Malkia Collection", desc: "Minimalist, expressive, and elegant — perfect for those who find strength in simplicity." },
+  { icon: "🌿", name: "Safari Collection", desc: "Raw elegance — perfect blend with nature, agility and simplicity." },
+  { icon: "👑", name: "Binti Mfalme Collection", desc: "A refined leather handbag that balances classic beauty with modern grace." },
+  { icon: "🧳", name: "Mfalme Classic Collection", desc: "Bridging tradition and innovation — ideal for professionals on the move." },
+  { icon: "🌍", name: "Expeditioner Travel Collection", desc: "Durable, stylish, and travel-ready — designed for those who explore with purpose." },
+  { icon: "🎒", name: "Hakuna Matata Collection", desc: "Lightweight and adventurous — a perfect match for on-the-go lifestyles." },
+  { icon: "👔", name: "Ventura Leather Belt and Wallet Collection", desc: "Timeless accessories that add understated luxury to any wardrobe." }
+];
+
+const WHY_CHOOSE = [
+  "🌱 Sustainably sourced materials"
 ];
 
 const LandingPage: React.FC = () => {
@@ -84,28 +98,24 @@ const LandingPage: React.FC = () => {
   return (
     <div ref={containerRef} className="relative overflow-x-hidden">
       {/* Custom CSS */}
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(2deg); }
         }
-        
         @keyframes glow {
           0%, 100% { box-shadow: 0 0 20px rgba(101, 67, 33, 0.3); }
           50% { box-shadow: 0 0 40px rgba(101, 67, 33, 0.6); }
         }
-        
         @keyframes shimmer {
           0% { background-position: -200% center; }
           100% { background-position: 200% center; }
         }
-        
         .glass-nav {
           backdrop-filter: blur(20px);
           background: rgba(255, 255, 255, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
         .glass-card {
           backdrop-filter: blur(25px);
           background: linear-gradient(135deg, 
@@ -115,11 +125,9 @@ const LandingPage: React.FC = () => {
           border: 1px solid rgba(255, 255, 255, 0.2);
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
-        
         .floating-element {
           animation: float 6s ease-in-out infinite;
         }
-        
         .shimmer-text {
           background: linear-gradient(90deg, 
             #654321 25%, 
@@ -132,17 +140,14 @@ const LandingPage: React.FC = () => {
           -webkit-text-fill-color: transparent;
           background-clip: text;
         }
-        
         .glow-button {
           animation: glow 2s ease-in-out infinite;
           background: linear-gradient(135deg, #8B4513 0%, #654321 50%, #3D2817 100%);
         }
-        
         .parallax-bg {
           transform: translateY(${scrollY * 0.5}px) scale(${1 + scrollY * 0.0002});
           opacity: ${Math.max(0.1, 1 - scrollY * 0.001)};
         }
-        
         .hero-3d {
           transform: perspective(1000px) 
                     rotateX(${mousePos.y * 5}deg) 
@@ -150,7 +155,6 @@ const LandingPage: React.FC = () => {
                     translateZ(${Math.abs(mousePos.x) * 50}px);
           transition: transform 0.1s ease-out;
         }
-        
         .text-3d {
           text-shadow: 
             0 1px 0 #8B4513,
@@ -227,16 +231,20 @@ const LandingPage: React.FC = () => {
           {/* Text Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <h1 className="text-6xl lg:text-7xl font-black text-3d leading-tight">
-                <span className="block shimmer-text">PREMIUM</span>
-                <span className="block text-amber-900">LEATHER</span>
-                <span className="block text-gradient bg-gradient-to-r from-orange-600 to-amber-800 bg-clip-text text-transparent">
-                  COLLECTION
-                </span>
+              <h1 className="text-5xl lg:text-6xl font-black text-3d leading-tight text-amber-900">
+                Handcrafted Leather Bags & Waxed Canvas Goods Made to Last a Lifetime
               </h1>
               <p className="text-xl text-amber-800/80 leading-relaxed max-w-lg">
-                Discover extraordinary craftsmanship meets modern elegance. 
-                Each piece tells a story of heritage, quality, and timeless style.
+                Josen Leather and Canvas creates heirloom-quality bags, belts, wallets, and accessories — handcrafted with full-grain leather,
+                rugged waxed canvas, and high-grade hardware. Every piece is built with soul, carried with purpose, and designed to stand the test
+                of time.
+              </p>
+              <h2 className="text-2xl font-bold text-amber-900 mt-4">
+                Timeless Design. Exceptional Craftsmanship.
+              </h2>
+              <p className="text-lg text-amber-800">
+                We don&#39;t just make leather goods — we craft meaningful companions for your everyday life and lifelong journeys. Our products
+                blend tradition and utility, with every cut and stitch reflecting a commitment to quality, durability, and style.
               </p>
             </div>
 
@@ -304,11 +312,14 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-5xl font-black shimmer-text mb-4">
-              SIGNATURE COLLECTION
+              Explore Our Signature Leather & Canvas Collections
             </h2>
             <p className="text-xl text-amber-800/80 max-w-2xl mx-auto">
-              Each piece is meticulously handcrafted using the finest materials, 
-              ensuring durability that lasts generations.
+              {COLLECTIONS.map((col, idx) => (
+                <span key={col.name} className="block mb-2">
+                  {col.icon} <b>{col.name}</b> - {col.desc}
+                </span>
+              ))}
             </p>
           </div>
 
@@ -357,14 +368,14 @@ const LandingPage: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-5xl font-black text-3d mb-8">
-                <span className="block shimmer-text">CRAFTED</span>
-                <span className="block text-amber-900">FOR</span>
-                <span className="block text-gradient bg-gradient-to-r from-orange-600 to-amber-800 bg-clip-text text-transparent">
-                  EXCELLENCE
-                </span>
+                Why Choose Josen?
               </h2>
-              
-              <div className="space-y-6">
+              <ul className="list-none space-y-4 text-lg text-amber-900">
+                {WHY_CHOOSE.map((why, idx) => (
+                  <li key={idx}>{why}</li>
+                ))}
+              </ul>
+              <div className="space-y-6 mt-8">
                 <div className="glass-card p-6 rounded-2xl">
                   <h3 className="text-2xl font-bold text-amber-900 mb-2">
                     🏆 Award-Winning Design
@@ -373,7 +384,6 @@ const LandingPage: React.FC = () => {
                     Recognized internationally for innovative leather craftsmanship and sustainable practices.
                   </p>
                 </div>
-                
                 <div className="glass-card p-6 rounded-2xl">
                   <h3 className="text-2xl font-bold text-amber-900 mb-2">
                     🚚 Express Delivery
@@ -382,7 +392,6 @@ const LandingPage: React.FC = () => {
                     Same-day delivery in Nairobi, nationwide shipping with real-time tracking.
                   </p>
                 </div>
-                
                 <div className="glass-card p-6 rounded-2xl">
                   <h3 className="text-2xl font-bold text-amber-900 mb-2">
                     💳 Secure Payments
@@ -393,7 +402,6 @@ const LandingPage: React.FC = () => {
                 </div>
               </div>
             </div>
-
             <div className="relative">
               <FloatingElement amplitude={25}>
                 <div 
@@ -409,8 +417,6 @@ const LandingPage: React.FC = () => {
                   />
                 </div>
               </FloatingElement>
-              
-              {/* Animated decorative elements */}
               <div className="absolute -top-8 -left-8 w-16 h-16 bg-gradient-to-r from-amber-400/40 to-orange-500/40 rounded-full blur-lg floating-element" />
               <div className="absolute -bottom-8 -right-8 w-12 h-12 bg-gradient-to-r from-yellow-400/50 to-amber-500/50 rounded-lg rotate-45 blur-md floating-element" style={{animationDelay: '1s'}} />
             </div>
@@ -422,7 +428,6 @@ const LandingPage: React.FC = () => {
       <section className="py-32 px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-amber-900 to-orange-800" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-6xl font-black text-white mb-8 text-3d">
             READY TO ELEVATE YOUR STYLE?
@@ -431,7 +436,6 @@ const LandingPage: React.FC = () => {
             Join thousands of satisfied customers who've discovered the perfect blend 
             of luxury, functionality, and timeless design.
           </p>
-          
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <button className="glow-button text-white px-12 py-4 bg-white font-bold rounded-full text-xl hover:scale-105 transition-all duration-300 shadow-2xl">
               Shop Now
@@ -441,8 +445,6 @@ const LandingPage: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {/* Floating elements in CTA */}
         <FloatingElement delay={0} amplitude={20}>
           <div className="absolute top-20 left-20 w-20 h-20 bg-white/10 rounded-full blur-xl" />
         </FloatingElement>

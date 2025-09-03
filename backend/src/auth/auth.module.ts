@@ -7,8 +7,9 @@ import { PrismaModule } from '../prisma/prisma.module';
 @Module({
   imports: [
     JwtModule.register({
-      secret: 'your_jwt_secret', // Replace with env variable in production
-      signOptions: { expiresIn: '1d' },
+      // Use environment variable for JWT secret and expiry
+      secret: process.env.JWT_SECRET || 'change_this_in_env',
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '1d' },
     }),
     PrismaModule,
   ],

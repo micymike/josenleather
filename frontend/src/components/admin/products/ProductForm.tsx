@@ -12,11 +12,41 @@ const ProductForm = () => {
     images: [] as File[]
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement product creation/update logic
-    console.log('Product data:', formData);
-    navigate('/admin/products');
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        setError('Not authenticated');
+        setLoading(false);
+        return;
+      }
+      // Prepare FormData for product and images
+      const { name, description, price, stock, category, images } = formData;
+      const form = new FormData();
+      form.append('name', name);
+      form.append('description', description);
+      form.append('price', price);
+      form.append('stock', stock);
+      form.append('category', category);
+      if (images && images.length > 0) {
+        images.forEach((file) => {
+          form.append('images', file);
+        });
+      }
+      // Import createProduct dynamically to avoid circular import issues
+      const { createProduct } = await import('../../../lib/api');
+      await createProduct(form, token);
+      navigate('/admin/products');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to save product');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,6 +58,15 @@ const ProductForm = () => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Add Product</h1>
+      {loading && (
+        <div className="flex justify-center items-center mb-4">
+          <svg className="animate-spin h-6 w-6 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+          <span className="text-blue-600 font-medium">Uploading product...</span>
+        </div>
+      )}
       <div className="bg-white rounded-lg shadow p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

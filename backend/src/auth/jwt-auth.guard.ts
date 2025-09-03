@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
@@ -9,21 +9,21 @@ export class JwtAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
     const authHeader = request.headers['authorization'];
-    if (!authHeader) return false;
+    if (!authHeader) throw new UnauthorizedException('Missing Authorization header');
 
-    const token = authHeader.split(' ')[1];
-    if (!token) return false;
+    const [scheme, token] = authHeader.split(' ');
+    if (scheme !== 'Bearer' || !token) throw new UnauthorizedException('Invalid Authorization header format');
 
     try {
       const payload = this.jwtService.verify(token);
-      // Optionally, check for admin role in payload
-      if (payload && payload.role === 'admin') {
-        request['user'] = payload;
-        return true;
-      }
-      return false;
+      if (!payload) throw new UnauthorizedException('Invalid token');
+      // Require admin role for protected admin routes
+      if (payload.role !== 'admin') throw new ForbiddenException('Insufficient permissions');
+      (request as any).user = payload;
+      return true;
     } catch (err) {
-      return false;
+      if (err instanceof ForbiddenException || err instanceof UnauthorizedException) throw err;
+      throw new UnauthorizedException('Invalid or expired token');
     }
   }
 }

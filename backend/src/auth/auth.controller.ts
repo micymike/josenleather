@@ -1,72 +1,55 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { ApiTags, ApiBody } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('auth')
-
-@Controller('auth')
+@Controller('auth/admin')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('login')
-  login(@Body() loginDto: { email: string; password: string }) {
-    return this.authService.login(loginDto);
-  }
-
+  // Register admin/user (public)
   @Post()
   @ApiBody({
     description: 'User credentials for authentication',
     type: CreateAuthDto,
-    examples: {
-      valid: {
-        summary: 'Valid payload',
-        value: {
-          username: 'David Ngesa',
-          password: 'josenleather@2025',
-        },
-      },
-    },
   })
   create(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.create(createAuthDto);
   }
 
-  // Login endpoint: returns JWT with user id, email, and role
+  // Login endpoint (public)
   @Post('login')
   @ApiBody({
     description: 'User login',
     type: CreateAuthDto,
-    examples: {
-      admin: {
-        summary: 'Admin login',
-        value: {
-          username: 'David Ngesa',
-          password: 'josenleather@2025',
-        },
-      },
-    },
   })
   async login(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.login(createAuthDto);
   }
 
+  // Protected admin operations
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAll() {
     return this.authService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.authService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
     return this.authService.update(id, updateAuthDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.authService.remove(id);

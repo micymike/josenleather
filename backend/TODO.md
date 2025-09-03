@@ -1,19 +1,38 @@
-# Selling and Checkout Feature (Admin Side) - Investigation Checklist
+# TODO: Fix Supabase Storage RLS Error for Product Image Upload
 
-- [ ] Analyze requirements for selling and checkout
-- [ ] Review backend cart, order, and payment modules for relevant endpoints
-- [ ] Check if admin controller/service exposes selling/checkout features
-- [ ] Determine if features are implemented for admin or only for customers
-- [x] Summarize findings and answer the question
+- [x] Analyze ProductService.create to determine affected table/bucket
+- [x] Check for RLS policy definitions in codebase
+- [x] Confirm storage bucket and table mapping
+- [ ] Update Supabase Storage RLS policy for 'product' bucket
+- [ ] Test image upload functionality
+- [ ] Verify error is resolved
 
----
+## Instructions for Updating Supabase Storage RLS Policy
 
-## Investigation Summary
+1. Go to the Supabase dashboard.
+2. Navigate to Storage > product bucket > Policies.
+3. Add or update a policy to allow "insert" (upload) for the required role.
 
-**Are selling and checkout features implemented in the admin backend?**
+Example SQL for authenticated users:
+```sql
+alter table storage.objects enable row level security;
 
-**No.**  
-The backend implements selling and checkout features (shopping cart, add/remove items, checkout, payment) in customer-facing modules (`cart`, `order`, `payment` controllers). The `admin` controller only manages admin users and does not expose any endpoints for selling or checkout. There are no admin-specific endpoints for cart, order, or payment operations.
+create policy "Allow authenticated upload to product bucket"
+on storage.objects
+for insert
+using (
+  bucket_id = 'product' AND auth.role() = 'authenticated'
+);
+```
 
-**Conclusion:**  
-Selling and checkout features are implemented for customers, not for the admin side.
+Example SQL for service_role:
+```sql
+create policy "Allow service_role upload to product bucket"
+on storage.objects
+for insert
+using (
+  bucket_id = 'product'
+);
+```
+
+After updating the policy, test the image upload again to confirm the error is resolved.

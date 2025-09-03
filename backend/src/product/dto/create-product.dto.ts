@@ -16,6 +16,15 @@ export class CreateProductDto {
   @IsNumber()
   price: number;
 
+  @ApiProperty({ description: 'Product stock', type: Number })
+  @IsNumber()
+  stock: number;
+
+  @ApiProperty({ description: 'Product category' })
+  @IsString()
+  @IsNotEmpty()
+  category: string;
+
   @ApiProperty({ description: 'Array of product image URLs (max 5)', type: [String] })
   @IsArray()
   @IsString({ each: true })
