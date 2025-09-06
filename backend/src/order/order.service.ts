@@ -4,6 +4,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CartService } from '../cart/cart.service';
 import { PaymentService } from '../payment/payment.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class OrderService {
@@ -11,10 +12,11 @@ export class OrderService {
     private readonly prisma: PrismaService,
     private readonly cartService: CartService,
     private readonly paymentService: PaymentService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
-    return this.prisma.order.create({
+    const order = await this.prisma.order.create({
       data: {
         userId: createOrderDto.userId ?? null,
         status: createOrderDto.status || 'pending',
@@ -31,6 +33,15 @@ export class OrderService {
         },
       },
     });
+
+    // Notify buyer and admin
+    const orderRef = order.id;
+    const adminContact = { email: process.env.ADMIN_EMAIL || '', phone: process.env.ADMIN_PHONE || '' };
+    const buyerContact = { email: order.guestEmail || '', phone: order.guestPhone || '' };
+    await this.notificationService.sendOrderConfirmation(buyerContact, { orderRef }, false);
+    await this.notificationService.sendOrderConfirmation(adminContact, { orderRef }, true);
+
+    return order;
   }
 
   async checkout(userId: string, paymentProvider: string, guestInfo?: { email: string; address: string; phone: string }) {
@@ -75,6 +86,13 @@ export class OrderService {
 
     await this.cartService.remove(cart.id); // Clear the cart
 
+    // Notify buyer and admin
+    const orderRef = order.id;
+    const adminContact = { email: process.env.ADMIN_EMAIL || '', phone: process.env.ADMIN_PHONE || '' };
+    const buyerContact = { email: order.guestEmail || '', phone: order.guestPhone || '' };
+    await this.notificationService.sendOrderConfirmation(buyerContact, { orderRef }, false);
+    await this.notificationService.sendOrderConfirmation(adminContact, { orderRef }, true);
+
     return order;
   }
 
@@ -90,7 +108,7 @@ export class OrderService {
 
   async update(id: string, updateOrderDto: UpdateOrderDto) {
     const { userId, items, ...rest } = updateOrderDto;
-    return this.prisma.order.update({
+    const order = await this.prisma.order.update({
       where: { id },
       data: {
         ...rest,
@@ -105,6 +123,14 @@ export class OrderService {
         },
       },
     });
+
+    // Notify buyer of status update
+    const buyerContact = { email: order.guestEmail || '', phone: order.guestPhone || '' };
+    if (rest.status) {
+      await this.notificationService.sendOrderStatusUpdate(buyerContact, order.id, rest.status);
+    }
+
+    return order;
   }
 
   async remove(id: string) {

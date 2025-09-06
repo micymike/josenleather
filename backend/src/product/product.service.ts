@@ -42,17 +42,28 @@ export class ProductService {
 
     // Set imageUrls in DTO
     const productData = {
-      ...createProductDto,
-      imageUrls,
+      name: createProductDto.name,
+      description: createProductDto.description,
       price: typeof createProductDto.price === 'string' ? parseFloat(createProductDto.price) : createProductDto.price,
       stock: typeof createProductDto.stock === 'string' ? parseInt(createProductDto.stock, 10) : createProductDto.stock,
+      category: createProductDto.category,
+      class: createProductDto.class,
+      subClass: createProductDto.subClass,
+      material: createProductDto.material,
+      imageUrls: imageUrls.length > 0 ? imageUrls : [],
+      videoUrl: createProductDto.videoUrl,
+      seoTitle: createProductDto.seoTitle,
+      seoDesc: createProductDto.seoDesc,
+      metaTags: createProductDto.metaTags,
     };
 
     return this.prisma.product.create({ data: productData });
   }
 
   async findAll() {
-    return this.prisma.product.findMany();
+    const products = await this.prisma.product.findMany();
+    console.log('findAll products:', products.length);
+    return products;
   }
 
   async findOne(id: string) {
@@ -65,5 +76,11 @@ export class ProductService {
 
   async remove(id: string) {
     return this.prisma.product.delete({ where: { id } });
+  }
+
+  async count() {
+    const count = await this.prisma.product.count();
+    console.log('count products:', count);
+    return count;
   }
 }

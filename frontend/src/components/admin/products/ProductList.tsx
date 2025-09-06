@@ -1,29 +1,58 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import ProductForm from './ProductForm';
+import { fetchKshToUsdRate, convertKshToUsd } from '../../../lib/utils';
+
+const api_url = import.meta.env.VITE_API_URL;
 
 const ProductList = () => {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [usdRate, setUsdRate] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const res = await fetch('/products');
-        if (!res.ok) throw new Error('Failed to fetch products');
-        const data = await res.json();
-        setProducts(data);
-      } catch (err) {
-        setError('Error fetching products');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProducts();
+    // Fetch exchange rate on mount
+    const fetchRate = async () => {
+      const rate = await fetchKshToUsdRate();
+      setUsdRate(rate);
+    };
+    fetchRate();
   }, []);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${api_url}/products`);
+      if (!res.ok) throw new Error('Failed to fetch products');
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      setError('Error fetching products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${api_url}/products/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error('Failed to delete product');
+      setProducts(products.filter((product: any) => product.id !== id));
+    } catch (err) {
+      alert('Error deleting product');
+    }
+  };
 
   return (
     <div className="p-6">
@@ -40,6 +69,7 @@ const ProductList = () => {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
@@ -49,28 +79,17 @@ const ProductList = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
                   Loading products...
                 </td>
               </tr>
             ) : error ? (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-red-500">
+                <td colSpan={5} className="px-6 py-4 text-center text-red-500">
                   <div>
                     <div>{error}</div>
                     <button
-                      onClick={() => {
-                        setLoading(true);
-                        setError('');
-                        fetch('/products')
-                          .then(res => {
-                            if (!res.ok) throw new Error('Failed to fetch products');
-                            return res.json();
-                          })
-                          .then(data => setProducts(data))
-                          .catch(err => setError(err.message || 'Error fetching products'))
-                          .finally(() => setLoading(false));
-                      }}
+                      onClick={fetchProducts}
                       className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                     >
                       Retry
@@ -83,20 +102,39 @@ const ProductList = () => {
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
                   No products found. <Link to="/admin/products/add" className="text-blue-600">Add your first product</Link>
                 </td>
               </tr>
             ) : (
               products.map((product: any) => (
                 <tr key={product.id}>
+                  <td className="px-6 py-4">
+                    {product.imageUrls && product.imageUrls.length > 0 ? (
+                      <img
+                        src={product.imageUrls[0]}
+                        alt={product.name}
+                        className="h-12 w-12 object-cover rounded"
+                      />
+                    ) : (
+                      <span className="text-gray-400">No image</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4">{product.name}</td>
-                  <td className="px-6 py-4">{product.price}</td>
+                  <td className="px-6 py-4">
+                    {usdRate !== null
+                      ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      : '...'}
+                  </td>
                   <td className="px-6 py-4">{product.stock}</td>
                   <td className="px-6 py-4">
-                    {/* Actions like edit/delete can be added here */}
                     <Link to={`/admin/products/edit/${product.id}`} className="text-blue-600 mr-2">Edit</Link>
-                    <Link to={`/admin/products/delete/${product.id}`} className="text-red-600">Delete</Link>
+                    <button
+                      onClick={() => handleDelete(product.id)}
+                      className="text-red-600"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))
@@ -117,76 +155,7 @@ const ProductList = () => {
               ✕
             </button>
           </div>
-          <form className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
-              <input 
-                type="text" 
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-              <textarea 
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent h-32"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price</label>
-                <input 
-                  type="number" 
-                  step="0.01"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Stock</label>
-                <input 
-                  type="number"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-              <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent" required>
-                <option value="">Select Category</option>
-                <option value="bags">Bags</option>
-                <option value="wallets">Wallets</option>
-                <option value="belts">Belts</option>
-                <option value="accessories">Accessories</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
-              <input 
-                type="file" 
-                multiple 
-                accept="image/*"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-              />
-            </div>
-            <div className="flex gap-4">
-              <button 
-                type="submit"
-                className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all duration-300 font-medium"
-              >
-                Save Product
-              </button>
-              <button 
-                type="button"
-                onClick={() => setShowAddProduct(false)}
-                className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-all duration-300 font-medium"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+          <ProductForm />
         </div>
       )}
     </div>

@@ -235,7 +235,7 @@ const LandingPage: React.FC = () => {
                 Handcrafted Leather Bags & Waxed Canvas Goods Made to Last a Lifetime
               </h1>
               <p className="text-xl text-amber-800/80 leading-relaxed max-w-lg">
-                Josen Leather and Canvas creates heirloom-quality bags, belts, wallets, and accessories — handcrafted with full-grain leather,
+                Josen Leather and Canvas creates heirloom-quality bags, belts, wallets, and accessories handcrafted with full-grain leather,
                 rugged waxed canvas, and high-grade hardware. Every piece is built with soul, carried with purpose, and designed to stand the test
                 of time.
               </p>
@@ -243,7 +243,7 @@ const LandingPage: React.FC = () => {
                 Timeless Design. Exceptional Craftsmanship.
               </h2>
               <p className="text-lg text-amber-800">
-                We don&#39;t just make leather goods — we craft meaningful companions for your everyday life and lifelong journeys. Our products
+                We don&#39;t just make leather goods we craft meaningful companions for your everyday life and lifelong journeys. Our products
                 blend tradition and utility, with every cut and stitch reflecting a commitment to quality, durability, and style.
               </p>
             </div>

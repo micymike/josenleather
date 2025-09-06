@@ -5,6 +5,7 @@ interface CartItem {
   name: string;
   price: number;
   image: string;
+  imageUrls?: string[];
   quantity: number;
 }
 
@@ -21,19 +22,40 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    try {
+      const stored = localStorage.getItem('cartItems');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
 
   const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number) => {
     setCartItems(prev => {
       const existing = prev.find(i => i.id === item.id);
       if (existing) {
-        return prev.map(i => 
-          i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i
+        return prev.map(i =>
+          i.id === item.id
+            ? {
+                ...i,
+                quantity: i.quantity + quantity,
+                // If new item has imageUrls, update them
+                ...(item.imageUrls ? { imageUrls: item.imageUrls } : {}),
+              }
+            : i
         );
       }
       return [...prev, { ...item, quantity }];
     });
   };
+
+  // Persist cartItems to localStorage on change
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    } catch {}
+  }, [cartItems]);
 
   const removeFromCart = (id: number) => {
     setCartItems(prev => prev.filter(item => item.id !== id));

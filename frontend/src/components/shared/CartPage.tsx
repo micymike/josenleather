@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import ProductPage from './ProductPage';
+// We'll extract the ProductImageCarousel from ProductPage
+import CheckoutForm from './CheckoutForm';
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -197,18 +200,22 @@ const CartPage: React.FC = () => {
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="flex gap-4">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-24 h-24 object-cover rounded-xl"
-                      />
-                      
+                      {item.imageUrls && item.imageUrls.length > 1 ? (
+                        <ProductImageCarousel imageUrls={item.imageUrls} productName={item.name} />
+                      ) : (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-24 h-24 object-cover rounded-xl"
+                        />
+                      )}
+
                       <div className="flex-1">
                         <h4 className="text-xl font-bold text-amber-900 mb-2">{item.name}</h4>
                         <p className="text-lg font-semibold shimmer-text mb-4">
                           KSh {item.price.toLocaleString()}
                         </p>
-                        
+
                         <div className="flex items-center justify-between">
                           <div className="flex items-center border border-amber-300/30 rounded-lg">
                             <button
@@ -225,7 +232,7 @@ const CartPage: React.FC = () => {
                               +
                             </button>
                           </div>
-                          
+
                           <div className="flex items-center gap-4">
                             <span className="text-xl font-bold text-amber-900">
                               KSh {(item.price * item.quantity).toLocaleString()}
@@ -243,12 +250,90 @@ const CartPage: React.FC = () => {
                   </div>
                 ))}
               </div>
+              {/* Guest Checkout Form */}
+              <CheckoutSection />
             </div>
           </div>
         )}
       </div>
     </div>
   );
+};
+
+/** Carousel component for product images (copied from ProductPage) */
+const ProductImageCarousel: React.FC<{ imageUrls: string[]; productName: string }> = ({ imageUrls, productName }) => {
+  const [current, setCurrent] = React.useState(0);
+
+  // Auto-advance every 5 seconds
+  React.useEffect(() => {
+    if (imageUrls.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [imageUrls.length]);
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrent((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1));
+  };
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrent((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div className="relative w-24 h-24 flex items-center justify-center">
+      <img
+        src={imageUrls[current]}
+        alt={productName}
+        className="w-24 h-24 object-cover rounded-xl transition-transform duration-700"
+      />
+      {/* Left arrow */}
+      <button
+        onClick={prevImage}
+        className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 shadow hover:bg-white z-10"
+        style={{ display: imageUrls.length > 1 ? 'block' : 'none' }}
+        aria-label="Previous image"
+      >
+        &#8592;
+      </button>
+      {/* Right arrow */}
+      <button
+        onClick={nextImage}
+        className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 shadow hover:bg-white z-10"
+        style={{ display: imageUrls.length > 1 ? 'block' : 'none' }}
+        aria-label="Next image"
+      >
+        &#8594;
+      </button>
+      {/* Dots */}
+      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+        {imageUrls.map((_, idx) => (
+          <span
+            key={idx}
+            className={`inline-block w-1.5 h-1.5 rounded-full ${idx === current ? 'bg-orange-500' : 'bg-gray-300'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const CheckoutSection: React.FC = () => {
+  const [orderRef, setOrderRef] = React.useState<string | null>(null);
+  if (orderRef) {
+    return (
+      <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+        <h3 className="text-2xl font-bold text-green-700 mb-2">Order Placed!</h3>
+        <p className="mb-2">Your order reference is:</p>
+        <div className="text-lg font-mono text-green-900 mb-4">{orderRef}</div>
+        <p className="text-green-800">A confirmation has been sent to your email and phone.</p>
+      </div>
+    );
+  }
+  return <CheckoutForm onOrderPlaced={setOrderRef} />;
 };
 
 export default CartPage;

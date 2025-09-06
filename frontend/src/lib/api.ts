@@ -45,6 +45,17 @@ export const getProducts = async () => {
     }
 };
 
+export const getProductCount = async () => {
+    try {
+        const response = await api.get('/products/count');
+        console.log('Product count response:', response.data);
+        return response.data.count;
+    } catch (error) {
+        console.error('Get product count error:', error);
+        return 0;
+    }
+};
+
 export const getProductById = async (id: string) => {
     try {
         const response = await api.get(`/products/${id}`);

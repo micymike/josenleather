@@ -1,69 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { getProducts } from '../../lib/api';
+import { fetchKshToUsdRate, convertKshToUsd } from '../../lib/utils';
+
+interface Product {
+  id: string | number;
+  name: string;
+  price: number;
+  imageUrls: string[];
+  description: string;
+  category: string;
+  rating: number;
+}
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
   { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
-];
-
-const PRODUCTS = [
-  {
-    id: 1,
-    name: "Executive Briefcase",
-    price: 15900,
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop&crop=center",
-    description: "Premium Italian leather with brass hardware",
-    category: "bags",
-    rating: 4.8
-  },
-  {
-    id: 2,
-    name: "Vintage Messenger",
-    price: 12500,
-    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop&crop=center",
-    description: "Handcrafted canvas and leather blend",
-    category: "bags",
-    rating: 4.6
-  },
-  {
-    id: 3,
-    name: "Travel Duffle",
-    price: 18700,
-    image: "https://images.unsplash.com/photo-1553735491-c5c7a065da9b?w=400&h=400&fit=crop&crop=center",
-    description: "Spacious weekend companion",
-    category: "bags",
-    rating: 4.9
-  },
-  {
-    id: 4,
-    name: "Leather Wallet",
-    price: 4500,
-    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop&crop=center",
-    description: "Slim design with RFID protection",
-    category: "wallets",
-    rating: 4.7
-  },
-  {
-    id: 5,
-    name: "Classic Belt",
-    price: 3200,
-    image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=400&h=400&fit=crop&crop=center",
-    description: "Genuine leather with silver buckle",
-    category: "belts",
-    rating: 4.5
-  },
-  {
-    id: 6,
-    name: "Key Holder",
-    price: 1800,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center",
-    description: "Compact leather key organizer",
-    category: "accessories",
-    rating: 4.4
-  }
 ];
 
 const ProductPage: React.FC = () => {
@@ -73,8 +28,11 @@ const ProductPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [priceRange, setPriceRange] = useState([0, 20000]);
   const [sortBy, setSortBy] = useState('');
-  const [filteredProducts, setFilteredProducts] = useState(PRODUCTS);
-  const { getTotalItems } = useCart();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [usdRate, setUsdRate] = useState<number | null>(null);
+  const { getTotalItems, addToCart } = useCart();
+  const [addedProductId, setAddedProductId] = useState<string | number | null>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -96,7 +54,27 @@ const ProductPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let filtered = PRODUCTS.filter(product => {
+    // Fetch products from API on mount
+    const fetchProducts = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+    fetchProducts();
+
+    // Fetch exchange rate on mount
+    const fetchRate = async () => {
+      const rate = await fetchKshToUsdRate();
+      setUsdRate(rate);
+    };
+    fetchRate();
+  }, []);
+
+  useEffect(() => {
+    let filtered = products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = !selectedCategory || product.category === selectedCategory;
       const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
@@ -108,7 +86,7 @@ const ProductPage: React.FC = () => {
     if (sortBy === 'rating') filtered.sort((a, b) => b.rating - a.rating);
 
     setFilteredProducts(filtered);
-  }, [searchTerm, selectedCategory, priceRange, sortBy]);
+  }, [products, searchTerm, selectedCategory, priceRange, sortBy]);
 
   const FloatingElement = ({ children, delay = 0, amplitude = 20 }: { children: React.ReactNode, delay?: number, amplitude?: number }) => (
     <div
@@ -124,7 +102,7 @@ const ProductPage: React.FC = () => {
 
   return (
     <div className="relative overflow-x-hidden min-h-screen">
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(2deg); }
@@ -180,22 +158,23 @@ const ProductPage: React.FC = () => {
       </div>
 
       {/* Glassmorphism Navigation */}
-      <nav className="glass-nav fixed top-0 w-full z-50 px-8 py-4" style={{
+      <nav className="glass-nav fixed top-0 w-full z-50 px-4 md:px-8 py-4" style={{
         backdropFilter: 'blur(20px)',
         background: 'rgba(255, 255, 255, 0.1)',
         border: '1px solid rgba(255, 255, 255, 0.2)'
       }}>
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-2 md:gap-0">
           <Link to="/" className="text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
             <img src="/logo.jpg" alt="Josen Logo" className="h-8 w-auto" />
-            JOSEN LEATHER AND CANVAS
+            <span className="hidden sm:inline">JOSEN LEATHER AND CANVAS</span>
+            <span className="inline sm:hidden">JOSEN</span>
           </Link>
-          <div className="flex gap-8 items-center">
+          <div className="flex gap-4 md:gap-8 items-center mt-2 md:mt-0">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
-                className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group"
+                className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-base md:text-lg"
               >
                 {link.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
@@ -216,51 +195,83 @@ const ProductPage: React.FC = () => {
         </div>
       </nav>
 
-      <div className="pt-24 px-8 max-w-7xl mx-auto">
+      <div className="pt-24 px-2 sm:px-4 md:px-8 max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-5xl font-black shimmer-text mb-4">OUR COLLECTION</h1>
-          <p className="text-xl text-amber-800/80">Discover premium leather craftsmanship</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black shimmer-text mb-4">OUR COLLECTION</h1>
+          <p className="text-base sm:text-lg md:text-xl text-amber-800/80">Discover premium leather craftsmanship</p>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col-reverse md:flex-row gap-4 md:gap-8">
           {/* Products Grid - Left Side */}
           <div className="flex-1">
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {filteredProducts.map((product, index) => (
                 <FloatingElement key={product.id} delay={index * 0.2} amplitude={12}>
                   <div 
-                    className="glass-card rounded-3xl p-6 hover:scale-105 transition-all duration-500 cursor-pointer group animate-in slide-in-from-bottom duration-500"
+                    className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-6 hover:scale-105 transition-all duration-500 cursor-pointer group animate-in slide-in-from-bottom duration-500"
                     style={{
                       transform: `perspective(800px) rotateY(${mousePos.x * 3}deg) rotateX(${-mousePos.y * 2}deg)`,
                       animationDelay: `${index * 100}ms`
                     }}
                   >
-                    <div className="relative overflow-hidden rounded-2xl mb-6">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
+                    <div className="relative overflow-hidden rounded-xl md:rounded-2xl mb-4 md:mb-6">
+                      {/* Image Carousel */}
+                      {product.imageUrls && product.imageUrls.length > 1 ? (
+                        <ProductImageCarousel imageUrls={product.imageUrls} productName={product.name} />
+                      ) : (
+                        <img
+                          src={product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/logo.jpg'}
+                          alt={product.name}
+                          className="w-full h-40 md:h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <Link
                         to={`/product/${product.id}`}
-                        className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all duration-300 opacity-0 group-hover:opacity-100"
+                        className="absolute top-2 md:top-3 right-2 md:right-3 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all duration-300 opacity-0 group-hover:opacity-100"
                       >
                         👁️
                       </Link>
                     </div>
                     
-                    <h3 className="text-lg font-bold text-amber-900 mb-2">{product.name}</h3>
-                    <p className="text-amber-700/80 mb-3 text-sm">{product.description}</p>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xl font-bold shimmer-text">KSh {product.price.toLocaleString()}</span>
+                    <h3 className="text-base md:text-lg font-bold text-amber-900 mb-1 md:mb-2">{product.name}</h3>
+                    <p className="text-amber-700/80 mb-2 md:mb-3 text-xs md:text-sm">{product.description}</p>
+                    <div className="flex justify-between items-center mb-1 md:mb-2">
+                      <span className="text-lg md:text-xl font-bold shimmer-text">
+                        {usdRate !== null
+                          ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : '...'}
+                      </span>
                       <div className="flex items-center">
                         <span className="text-yellow-500">⭐</span>
-                        <span className="text-sm text-amber-700 ml-1">{product.rating}</span>
+                        <span className="text-xs md:text-sm text-amber-700 ml-1">{product.rating}</span>
                       </div>
                     </div>
-                    <button className="w-full glass-card px-4 py-2 rounded-full text-amber-900 hover:bg-amber-100/20 transition-all duration-300 text-sm font-medium">
-                      Add to Cart
+                    <button
+                      className="w-full glass-card px-3 py-2 md:px-4 md:py-2 rounded-full text-amber-900 hover:bg-amber-100/20 transition-all duration-300 text-xs md:text-sm font-medium"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Convert id to number, skip if not a valid number
+                        const cartId = typeof product.id === 'string' ? parseInt(product.id) : product.id;
+                        if (typeof cartId === 'number' && !isNaN(cartId)) {
+                          addToCart(
+                            {
+                              id: cartId,
+                              name: product.name,
+                              price: usdRate !== null ? Number((convertKshToUsd(product.price, usdRate)).toFixed(2)) : product.price,
+                              image: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '',
+                              imageUrls: product.imageUrls || [],
+                            },
+                            1
+                          );
+                          setAddedProductId(product.id);
+                          setTimeout(() => setAddedProductId(null), 1200);
+                        } else {
+                          alert('Product ID is invalid and cannot be added to cart.');
+                        }
+                      }}
+                    >
+                      {addedProductId === product.id ? "Added!" : "Add to Cart"}
                     </button>
                   </div>
                 </FloatingElement>
@@ -268,30 +279,30 @@ const ProductPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Filters - Right Side */}
-          <div className="w-80">
-            <div className="glass-card rounded-3xl p-6 sticky top-24">
-              <h3 className="text-2xl font-bold text-amber-900 mb-6">Filters</h3>
+          {/* Filters - Right Side (becomes top on mobile) */}
+          <div className="w-full md:w-80 mb-4 md:mb-0">
+            <div className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-6 md:sticky md:top-24">
+              <h3 className="text-xl md:text-2xl font-bold text-amber-900 mb-4 md:mb-6">Filters</h3>
               
               {/* Search */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-amber-800 mb-2">Search Products</label>
+              <div className="mb-4 md:mb-6">
+                <label className="block text-xs md:text-sm font-medium text-amber-800 mb-1 md:mb-2">Search Products</label>
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full p-3 border border-amber-300/30 rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                  className="w-full p-2 md:p-3 border border-amber-300/30 rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent text-xs md:text-base"
                   placeholder="Search..."
                 />
               </div>
 
               {/* Category Filter */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-amber-800 mb-2">Category</label>
+              <div className="mb-4 md:mb-6">
+                <label className="block text-xs md:text-sm font-medium text-amber-800 mb-1 md:mb-2">Category</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-3 border border-amber-300/30 rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400"
+                  className="w-full p-2 md:p-3 border border-amber-300/30 rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 text-xs md:text-base"
                 >
                   <option value="">All Categories</option>
                   <option value="bags">Bags</option>
@@ -302,8 +313,8 @@ const ProductPage: React.FC = () => {
               </div>
 
               {/* Price Range */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-amber-800 mb-2">Price Range</label>
+              <div className="mb-4 md:mb-6">
+                <label className="block text-xs md:text-sm font-medium text-amber-800 mb-1 md:mb-2">Price Range</label>
                 <div className="space-y-2">
                   <input
                     type="range"
@@ -313,7 +324,7 @@ const ProductPage: React.FC = () => {
                     onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
                     className="w-full"
                   />
-                  <div className="flex justify-between text-sm text-amber-700">
+                  <div className="flex justify-between text-xs md:text-sm text-amber-700">
                     <span>KSh 0</span>
                     <span>KSh {priceRange[1].toLocaleString()}</span>
                   </div>
@@ -321,12 +332,12 @@ const ProductPage: React.FC = () => {
               </div>
 
               {/* Sort By */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-amber-800 mb-2">Sort By</label>
+              <div className="mb-4 md:mb-6">
+                <label className="block text-xs md:text-sm font-medium text-amber-800 mb-1 md:mb-2">Sort By</label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full p-3 border border-amber-300/30 rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400"
+                  className="w-full p-2 md:p-3 border border-amber-300/30 rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 text-xs md:text-base"
                 >
                   <option value="">Default</option>
                   <option value="price-low">Price: Low to High</option>
@@ -337,11 +348,72 @@ const ProductPage: React.FC = () => {
 
               {/* Results Count */}
               <div className="text-center text-amber-800">
-                <span className="font-medium">{filteredProducts.length} products found</span>
+                <span className="font-medium text-xs md:text-base">{filteredProducts.length} products found</span>
               </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+/** Carousel component for product images */
+const ProductImageCarousel: React.FC<{ imageUrls: string[]; productName: string }> = ({ imageUrls, productName }) => {
+  const [current, setCurrent] = React.useState(0);
+
+  // Auto-advance every 5 seconds
+  React.useEffect(() => {
+    if (imageUrls.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [imageUrls.length]);
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrent((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1));
+  };
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrent((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div className="relative w-full h-40 md:h-48 flex items-center justify-center">
+      <img
+        src={imageUrls[current]}
+        alt={productName}
+        className="w-full h-40 md:h-48 object-cover transition-transform duration-700"
+      />
+      {/* Left arrow */}
+      <button
+        onClick={prevImage}
+        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 shadow hover:bg-white z-10"
+        style={{ display: imageUrls.length > 1 ? 'block' : 'none' }}
+        aria-label="Previous image"
+      >
+        &#8592;
+      </button>
+      {/* Right arrow */}
+      <button
+        onClick={nextImage}
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 shadow hover:bg-white z-10"
+        style={{ display: imageUrls.length > 1 ? 'block' : 'none' }}
+        aria-label="Next image"
+      >
+        &#8594;
+      </button>
+      {/* Dots */}
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+        {imageUrls.map((_, idx) => (
+          <span
+            key={idx}
+            className={`inline-block w-2 h-2 rounded-full ${idx === current ? 'bg-orange-500' : 'bg-gray-300'}`}
+          />
+        ))}
       </div>
     </div>
   );

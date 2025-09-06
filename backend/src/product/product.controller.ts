@@ -34,6 +34,16 @@ export class ProductController {
     return this.productService.findAll();
   }
 
+  // Public: get total product count
+  @Get('count')
+  @ApiOperation({ summary: 'Get total product count' })
+  @ApiResponse({ status: 200, description: 'Total product count' })
+  async count() {
+    console.log('HIT /products/count endpoint');
+    const count = await this.productService.count();
+    return { count: typeof count === 'number' ? count : 0 };
+  }
+
   // Public: get product by ID
   @Get(':id')
   @ApiOperation({ summary: 'Get product by ID' })
@@ -63,4 +73,6 @@ export class ProductController {
   remove(@Param('id') id: string) {
     return this.productService.remove(id);
   }
+
+
 }

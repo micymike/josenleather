@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNumber, IsArray, ArrayMaxSize, IsOptional, IsUrl, IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateProductDto {
   @ApiProperty({ description: 'Product name' })
@@ -7,30 +8,50 @@ export class CreateProductDto {
   @IsNotEmpty()
   name: string;
 
+  @ApiProperty({ description: 'Product category' })
+  @IsString()
+  @IsNotEmpty()
+  category: string;
+
   @ApiProperty({ description: 'Product description' })
   @IsString()
   @IsNotEmpty()
   description: string;
 
   @ApiProperty({ description: 'Product price', type: Number })
+  @Type(() => Number)
   @IsNumber()
   price: number;
 
   @ApiProperty({ description: 'Product stock', type: Number })
+  @Type(() => Number)
   @IsNumber()
   stock: number;
 
-  @ApiProperty({ description: 'Product category' })
+
+  @ApiProperty({ description: 'Array of product image URLs (max 5)', type: [String], required: false })
+  @IsOptional()
+  imageUrls?: string[];
+
+  @ApiProperty({ description: 'Product type' })
   @IsString()
   @IsNotEmpty()
-  category: string;
+  productType: string;
 
-  @ApiProperty({ description: 'Array of product image URLs (max 5)', type: [String] })
-  @IsArray()
-  @IsString({ each: true })
-  @ArrayMaxSize(5)
-  @IsUrl({ require_tld: false }, { each: true })
-  imageUrls: string[];
+  @ApiProperty({ description: 'Product class' })
+  @IsString()
+  @IsNotEmpty()
+  class: string;
+
+  @ApiProperty({ description: 'Product sub class' })
+  @IsString()
+  @IsNotEmpty()
+  subClass: string;
+
+  @ApiProperty({ description: 'Product material' })
+  @IsString()
+  @IsNotEmpty()
+  material: string;
 
   @ApiProperty({ description: 'Optional video URL', required: false })
   @IsOptional()

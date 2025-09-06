@@ -8,6 +8,11 @@ export class UpdateProductDto {
   @IsNotEmpty()
   name?: string;
 
+  @ApiProperty({ description: 'Product category', required: false })
+  @IsOptional()
+  @IsString()
+  category?: string;
+
   @ApiProperty({ description: 'Product description', required: false })
   @IsOptional()
   @IsString()
@@ -18,6 +23,8 @@ export class UpdateProductDto {
   @IsOptional()
   @IsNumber()
   price?: number;
+
+  // category removed, use productType only
 
   @ApiProperty({ description: 'Array of product image URLs (max 5)', type: [String], required: false })
   @IsOptional()
@@ -42,6 +49,26 @@ export class UpdateProductDto {
   @IsOptional()
   @IsString()
   seoDesc?: string;
+
+  @ApiProperty({ description: 'Product type', required: false })
+  @IsOptional()
+  @IsString()
+  productType?: string;
+
+  @ApiProperty({ description: 'Product class', required: false })
+  @IsOptional()
+  @IsString()
+  class?: string;
+
+  @ApiProperty({ description: 'Product sub class', required: false })
+  @IsOptional()
+  @IsString()
+  subClass?: string;
+
+  @ApiProperty({ description: 'Product material', required: false })
+  @IsOptional()
+  @IsString()
+  material?: string;
 
   @ApiProperty({ description: 'Array of meta tags', type: [String], required: false })
   @IsOptional()

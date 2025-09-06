@@ -4,6 +4,11 @@ export class Product {
   description: string;
   price: number;
   imageUrls: string[];
+  category: string;
+  productType: string;
+  class: string;
+  subClass: string;
+  material: string;
   seoTitle?: string;
   seoDesc?: string;
   metaTags?: string[];

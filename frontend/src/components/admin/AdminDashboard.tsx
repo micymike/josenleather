@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAdmins, getProducts, getOrders, getBlogs } from '../../lib/api';
+import { getAdmins, getProducts, getOrders, getBlogs, getProductCount } from '../../lib/api';
 
 const AdminDashboard = () => {
   const [showAddProduct, setShowAddProduct] = useState(false);
@@ -13,24 +13,38 @@ const AdminDashboard = () => {
   useEffect(() => {
     // Fetch dashboard stats from backend APIs
     const fetchStats = async () => {
+      let productCount = 0;
+      let orders: any[] = [];
+      let blogs: any[] = [];
+
       try {
-        const products = await getProducts();
-        // For orders, require admin token from localStorage
-        let orders: any[] = [];
+        productCount = await getProductCount();
+        console.log('Received product count:', productCount);
+      } catch (err) {
+        console.error('Failed to fetch product count:', err);
+      }
+
+      try {
         const token = localStorage.getItem('adminToken');
         if (token) {
           orders = await getOrders(token);
         }
-        const blogs = await getBlogs();
-        setStats([
-          { title: 'Total Products', value: products.length.toString(), icon: '📦', color: 'from-amber-500 to-amber-600', bg: 'bg-amber-50' },
-          { title: 'Pending Orders', value: orders.filter((o: any) => o.status === 'pending').length.toString(), icon: '📋', color: 'from-orange-500 to-orange-600', bg: 'bg-orange-50' },
-          { title: 'Total Revenue', value: '$' + orders.reduce((sum: number, o: any) => sum + (o.total || 0), 0).toLocaleString(), icon: '💰', color: 'from-yellow-500 to-yellow-600', bg: 'bg-yellow-50' },
-          { title: 'Blog Posts', value: blogs.length.toString(), icon: '📝', color: 'from-amber-600 to-orange-600', bg: 'bg-amber-50' }
-        ]);
       } catch (err) {
-        // fallback to zeros
+        console.error('Failed to fetch orders:', err);
       }
+
+      try {
+        blogs = await getBlogs();
+      } catch (err) {
+        console.error('Failed to fetch blogs:', err);
+      }
+
+      setStats([
+        { title: 'Total Products', value: productCount.toString(), icon: '📦', color: 'from-amber-500 to-amber-600', bg: 'bg-amber-50' },
+        { title: 'Pending Orders', value: orders.filter((o: any) => o.status === 'pending').length.toString(), icon: '📋', color: 'from-orange-500 to-orange-600', bg: 'bg-orange-50' },
+        { title: 'Total Revenue', value: '$' + orders.reduce((sum: number, o: any) => sum + (o.total || 0), 0).toLocaleString(), icon: '💰', color: 'from-yellow-500 to-yellow-600', bg: 'bg-yellow-50' },
+        { title: 'Blog Posts', value: blogs.length.toString(), icon: '📝', color: 'from-amber-600 to-orange-600', bg: 'bg-amber-50' }
+      ]);
     };
     fetchStats();
   }, []);

@@ -33,6 +33,9 @@ model Product {
   price         Float
   stock         Int
   category      String
+  class         String?
+  subClass      String?
+  material      String?
   imageUrls     String[]
   videoUrl      String? // Optional video URL
   seoTitle      String?
