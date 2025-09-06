@@ -42,7 +42,7 @@ const CartPage: React.FC = () => {
 
   return (
     <div className="relative overflow-x-hidden min-h-screen">
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-20px); }
