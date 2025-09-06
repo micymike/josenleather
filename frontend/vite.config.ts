@@ -13,6 +13,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
-    },
+    }
   },
+  server: {
+    port: 3000,
+    host: true,
+    allowedHosts: ['josenleather.onrender.com']
+  }
 })
