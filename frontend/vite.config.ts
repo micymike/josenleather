@@ -18,6 +18,6 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
-    allowedHosts: ['josenleather.onrender.com']
+    allowedHosts: ['josenleather.onrender.com', 'www.josenleather.com']
   }
 })
