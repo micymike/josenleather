@@ -6,9 +6,14 @@ export async function fetchKshToUsdRate(): Promise<number> {
   try {
     const res = await fetch('https://api.exchangerate.host/latest?base=KES&symbols=USD');
     const data = await res.json();
-    // data.rates.USD is USD per 1 KES, so 1 KES = x USD
-    // To get KES per 1 USD, use 1 / data.rates.USD
-    return data.rates.USD;
+    // Defensive: check if data.rates and data.rates.USD exist
+    if (data && data.rates && typeof data.rates.USD === 'number') {
+      return data.rates.USD;
+    } else {
+      console.error('Exchange rate API response missing USD rate:', data);
+      // Fallback to a reasonable default (as of 2025, ~0.007 USD per KSh)
+      return 0.007;
+    }
   } catch (e) {
     console.error('Failed to fetch exchange rate:', e);
     // Fallback to a reasonable default (as of 2025, ~0.007 USD per KSh)

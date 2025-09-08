@@ -10,17 +10,33 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   // Guest checkout (open)
-  @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
+@Post()
+create(@Body() createOrderDto: CreateOrderDto, @Req() req: Request) {
+  // LOG: Raw request body
+  // eslint-disable-next-line no-console
+  console.log('POST /orders RAW BODY:', JSON.stringify(req.body, null, 2));
+  // LOG: Mapped DTO
+  // eslint-disable-next-line no-console
+  console.log('POST /orders DTO:', JSON.stringify(createOrderDto, null, 2));
     // If userId is provided, reject (should use /secure endpoint)
     if (createOrderDto.userId) {
+      // eslint-disable-next-line no-console
+      console.error('Order rejected: userId provided in guest checkout');
       throw new Error('Registered users must use /orders/secure endpoint');
     }
     // Require guest info
     if (!createOrderDto.guestEmail || !createOrderDto.guestAddress) {
+      // eslint-disable-next-line no-console
+      console.error('Order rejected: missing guestEmail or guestAddress', createOrderDto);
       throw new Error('Guest email and address are required for guest checkout');
     }
-    return this.orderService.create(createOrderDto);
+    try {
+      return this.orderService.create(createOrderDto);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('OrderService.create error:', err);
+      throw err;
+    }
   }
 
   // Registered user checkout (secure)

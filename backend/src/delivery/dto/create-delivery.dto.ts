@@ -10,4 +10,9 @@ export class CreateDeliveryDto {
   trackingCode?: string;
   lastLocation?: string;
   deliveryHistory?: any[]; // Array of { status, timestamp, location }
+
+  // Added for shipping calculation
+  goodsValueUSD: number;
+  destinationCity: string;
+  destinationCountry: string;
 }

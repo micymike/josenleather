@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 /* Twilio removed */
-import * as africastalking from 'africastalking';
+import africastalking from 'africastalking';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()

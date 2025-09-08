@@ -7,6 +7,25 @@ import { UpdateDeliveryDto } from './dto/update-delivery.dto';
 export class DeliveryService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // Shipping calculation logic
+  private calculateShippingCost(goodsValueUSD: number, destinationCity: string, destinationCountry: string): number | null {
+    // Free shipping globally for goods above $700
+    if (goodsValueUSD > 700) {
+      return 0;
+    }
+    // International shipping (outside Kenya): carrier charges apply, not calculated here
+    if (destinationCountry.trim().toLowerCase() !== 'kenya') {
+      return null;
+    }
+    // Nairobi/metropolis
+    const nairobiCities = ['nairobi', 'nairobi metropolis', 'nairobi metropolitan'];
+    if (nairobiCities.includes(destinationCity.trim().toLowerCase())) {
+      return 300;
+    }
+    // Within Kenya, outside Nairobi
+    return 500;
+  }
+
   async create(createDeliveryDto: CreateDeliveryDto) {
     // Initialize deliveryHistory with the initial status
     const history = [
@@ -16,11 +35,24 @@ export class DeliveryService {
         location: createDeliveryDto.lastLocation || null,
       },
     ];
+
+    // Calculate shipping cost if not provided
+    let estimatedCost = createDeliveryDto.estimatedCost;
+    if (estimatedCost === undefined || estimatedCost === null) {
+      const calculated = this.calculateShippingCost(
+        createDeliveryDto.goodsValueUSD,
+        createDeliveryDto.destinationCity,
+        createDeliveryDto.destinationCountry
+      );
+      // If calculated is null (international), set to 0 (carrier charges apply)
+      estimatedCost = calculated !== null && calculated !== undefined ? calculated : 0;
+    }
+
     return this.prisma.delivery.create({
       data: {
         ...createDeliveryDto,
         status: createDeliveryDto.status || 'pending',
-        estimatedCost: createDeliveryDto.estimatedCost ?? 0,
+        estimatedCost: estimatedCost,
         deliveryHistory: history as unknown as object, // ensure JSON
       },
     });

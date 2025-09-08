@@ -58,9 +58,14 @@ const ProductPage: React.FC = () => {
     const fetchProducts = async () => {
       try {
         const data = await getProducts();
-        setProducts(data);
+        // Defensive: ensure products is always an array
+        setProducts(Array.isArray(data) ? data : []);
+        if (!Array.isArray(data)) {
+          console.error('getProducts() did not return an array:', data);
+        }
       } catch (error) {
         console.error('Error fetching products:', error);
+        setProducts([]);
       }
     };
     fetchProducts();
@@ -129,11 +134,24 @@ const ProductPage: React.FC = () => {
   return (
     <React.Fragment>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productStructuredData) }} />
+      {usdRate === 0.007 && (
+        <div className="bg-yellow-200 text-yellow-900 text-center py-2 px-4 font-semibold">
+          USD exchange rate unavailable. Prices are estimated using a fallback rate and may not be accurate.
+        </div>
+      )}
       <div className="relative overflow-x-hidden min-h-screen">
         <style>{`
           @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(2deg); }
+          }
+          @keyframes slideInFromTop {
+            0% { transform: translateY(-100%) translateX(-50%); opacity: 0; }
+            100% { transform: translateY(0) translateX(-50%); opacity: 1; }
+          }
+          @keyframes slideOutToTop {
+            0% { transform: translateY(0) translateX(-50%); opacity: 1; }
+            100% { transform: translateY(-100%) translateX(-50%); opacity: 0; }
           }
           .glass-card {
             backdrop-filter: blur(25px);
@@ -159,9 +177,20 @@ const ProductPage: React.FC = () => {
             -webkit-text-fill-color: transparent;
             background-clip: text;
           }
+          .success-notification {
+            animation: slideInFromTop 0.4s ease-out;
+          }
+          .success-notification.fade-out {
+            animation: slideOutToTop 0.3s ease-in;
+          }
           @keyframes shimmer {
             0% { background-position: -200% center; }
             100% { background-position: 200% center; }
+          }
+          @media (max-width: 640px) {
+            .floating-element {
+              animation: none;
+            }
           }
         `}</style>
         {/* Background */}
@@ -178,24 +207,47 @@ const ProductPage: React.FC = () => {
             <div className="absolute top-60 right-20 w-24 h-24 bg-gradient-to-r from-yellow-400/30 to-amber-500/30 rounded-lg rotate-45 blur-lg" />
           </FloatingElement>
         </div>
+        {/* Success Notification */}
+        {addedProductId !== null && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[60] success-notification">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px] max-w-[90vw] backdrop-blur-sm border border-green-400/30">
+              <div className="flex-shrink-0">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-sm">Added to cart!</p>
+                <p className="text-xs text-green-100">Product successfully added</p>
+              </div>
+              <Link
+                to="/cart"
+                className="flex-shrink-0 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105"
+              >
+                View Cart
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Glassmorphism Navigation */}
-        <nav className="glass-nav fixed top-0 w-full z-50 px-4 md:px-8 py-4" style={{
+        <nav className="glass-nav fixed top-0 w-full z-50 px-3 sm:px-4 md:px-8 py-3 md:py-4" style={{
           backdropFilter: 'blur(20px)',
           background: 'rgba(255, 255, 255, 0.1)',
           border: '1px solid rgba(255, 255, 255, 0.2)'
         }}>
-          <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-2 md:gap-0">
-            <Link to="/" className="text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
-              <img src="/logo.jpg" alt="Josen Logo" className="h-8 w-auto" />
-              <span className="hidden sm:inline">JOSEN LEATHER AND CANVAS</span>
-              <span className="inline sm:hidden">JOSEN</span>
+          <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto gap-2 sm:gap-0">
+            <Link to="/" className="text-xl sm:text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
+              <img src="/logo.jpg" alt="Josen Logo" className="h-6 sm:h-8 w-auto" />
+              <span className="hidden sm:inline text-base sm:text-xl md:text-2xl">JOSEN LEATHER AND CANVAS</span>
+              <span className="inline sm:hidden text-lg">JOSEN</span>
             </Link>
-            <div className="flex gap-4 md:gap-8 items-center mt-2 md:mt-0">
+            <div className="flex gap-3 sm:gap-4 md:gap-8 items-center mt-2 sm:mt-0">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.label}
                   to={link.href}
-                  className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-base md:text-lg"
+                  className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-sm sm:text-base md:text-lg"
                 >
                   {link.label}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
@@ -207,7 +259,7 @@ const ProductPage: React.FC = () => {
               >
                 🛒
                 {getTotalItems() > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-[10px] sm:text-xs">
                     {getTotalItems()}
                   </span>
                 )}
@@ -215,25 +267,25 @@ const ProductPage: React.FC = () => {
             </div>
           </div>
         </nav>
-        <div className="pt-24 px-2 sm:px-4 md:px-8 max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black shimmer-text mb-4">OUR COLLECTION</h1>
-            <p className="text-base sm:text-lg md:text-xl text-amber-800/80">Discover premium leather craftsmanship</p>
+        <div className="pt-20 sm:pt-24 px-3 sm:px-4 md:px-8 max-w-7xl mx-auto">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black shimmer-text mb-2 sm:mb-4">OUR COLLECTION</h1>
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-amber-800/80">Discover premium leather craftsmanship</p>
           </div>
-          <div className="flex flex-col-reverse md:flex-row gap-4 md:gap-8">
+          <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:gap-8">
             {/* Products Grid - Left Side */}
-            <div className="flex-1">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+            <div className="flex-1 order-2 lg:order-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                 {filteredProducts.map((product, index) => (
                   <FloatingElement key={product.id} delay={index * 0.2} amplitude={12}>
                     <div 
-                      className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-6 hover:scale-105 transition-all duration-500 cursor-pointer group animate-in slide-in-from-bottom duration-500"
+                      className="glass-card rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-6 hover:scale-105 transition-all duration-500 cursor-pointer group animate-in slide-in-from-bottom duration-500"
                       style={{
-                        transform: `perspective(800px) rotateY(${mousePos.x * 3}deg) rotateX(${-mousePos.y * 2}deg)`,
+                        transform: window.innerWidth > 768 ? `perspective(800px) rotateY(${mousePos.x * 3}deg) rotateX(${-mousePos.y * 2}deg)` : 'none',
                         animationDelay: `${index * 100}ms`
                       }}
                     >
-                      <div className="relative overflow-hidden rounded-xl md:rounded-2xl mb-4 md:mb-6">
+                      <div className="relative overflow-hidden rounded-lg sm:rounded-xl md:rounded-2xl mb-3 sm:mb-4 md:mb-6">
                         {/* Image Carousel */}
                         {product.imageUrls && product.imageUrls.length > 1 ? (
                           <ProductImageCarousel imageUrls={product.imageUrls} productName={product.name} />
@@ -241,53 +293,52 @@ const ProductPage: React.FC = () => {
                           <img
                             src={product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/logo.jpg'}
                             alt={product.name}
-                            className="w-full h-40 md:h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+                            className="w-full h-32 sm:h-40 md:h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                           />
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         <Link
                           to={`/product/${product.id}`}
-                          className="absolute top-2 md:top-3 right-2 md:right-3 bg-white/90 backdrop-blur-sm p-2 rounded-full hover:bg-white transition-all duration-300 opacity-0 group-hover:opacity-100"
+                          className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-1.5 sm:p-2 rounded-full hover:bg-white transition-all duration-300 opacity-0 group-hover:opacity-100"
                         >
                           👁️
                         </Link>
                       </div>
-                      <h3 className="text-base md:text-lg font-bold text-amber-900 mb-1 md:mb-2">{product.name}</h3>
-                      <p className="text-amber-700/80 mb-2 md:mb-3 text-xs md:text-sm">{product.description}</p>
-                      <div className="flex justify-between items-center mb-1 md:mb-2">
-                        <span className="text-lg md:text-xl font-bold shimmer-text">
-                          {usdRate !== null
-                            ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                            : '...'}
-                        </span>
+                      <h3 className="text-sm sm:text-base md:text-lg font-bold text-amber-900 mb-1 sm:mb-2 line-clamp-2">{product.name}</h3>
+                      <p className="text-amber-700/80 mb-2 sm:mb-3 text-xs sm:text-sm line-clamp-2">{product.description}</p>
+                      <div className="flex justify-between items-center mb-2 sm:mb-3">
+<span className="text-base sm:text-lg md:text-xl font-bold shimmer-text">
+  {usdRate !== null
+    ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : `KSh ${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+</span>
                         <div className="flex items-center">
-                          <span className="text-yellow-500">⭐</span>
-                          <span className="text-xs md:text-sm text-amber-700 ml-1">{product.rating}</span>
+                          <span className="text-yellow-500 text-sm">⭐</span>
+                          <span className="text-xs sm:text-sm text-amber-700 ml-1">{product.rating}</span>
                         </div>
                       </div>
                       <button
-                        className="w-full glass-card px-3 py-2 md:px-4 md:py-2 rounded-full text-amber-900 hover:bg-amber-100/20 transition-all duration-300 text-xs md:text-sm font-medium"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Convert id to number, skip if not a valid number
-                          const cartId = typeof product.id === 'string' ? parseInt(product.id) : product.id;
-                          if (typeof cartId === 'number' && !isNaN(cartId)) {
-                            addToCart(
-                              {
-                                id: cartId,
-                                name: product.name,
-                                price: usdRate !== null ? Number((convertKshToUsd(product.price, usdRate)).toFixed(2)) : product.price,
-                                image: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '',
-                                imageUrls: product.imageUrls || [],
-                              },
-                              1
-                            );
-                            setAddedProductId(product.id);
-                            setTimeout(() => setAddedProductId(null), 1200);
-                          } else {
-                            alert('Product ID is invalid and cannot be added to cart.');
-                          }
-                        }}
+                        className="w-full glass-card px-3 py-2 sm:px-4 sm:py-2.5 rounded-full text-amber-900 hover:bg-amber-100/20 transition-all duration-300 text-xs sm:text-sm font-medium active:scale-95"
+onClick={(e) => {
+  e.stopPropagation();
+  // Always use product.id as string for cart
+  if (typeof product.id === 'string' && product.id.trim() !== '') {
+    addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.price, // Always store original KSh price
+        image: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '',
+        imageUrls: product.imageUrls || [],
+      },
+      1
+    );
+    setAddedProductId(product.id);
+    setTimeout(() => setAddedProductId(null), 3000);
+  } else {
+    alert('Product ID is invalid and cannot be added to cart.');
+  }
+}}
                       >
                         {addedProductId === product.id ? "Added!" : "Add to Cart"}
                       </button>
@@ -297,27 +348,27 @@ const ProductPage: React.FC = () => {
               </div>
             </div>
             {/* Filters - Right Side (becomes top on mobile) */}
-            <div className="w-full md:w-80 mb-4 md:mb-0">
-              <div className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-6 md:sticky md:top-24">
-                <h3 className="text-xl md:text-2xl font-bold text-amber-900 mb-4 md:mb-6">Filters</h3>
+            <div className="w-full lg:w-80 mb-4 lg:mb-0 order-1 lg:order-2">
+              <div className="glass-card rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-6 lg:sticky lg:top-24">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-amber-900 mb-3 sm:mb-4 md:mb-6">Filters</h3>
                 {/* Search */}
-                <div className="mb-4 md:mb-6">
-                  <label className="block text-xs md:text-sm font-medium text-amber-800 mb-1 md:mb-2">Search Products</label>
+                <div className="mb-3 sm:mb-4 md:mb-6">
+                  <label className="block text-xs sm:text-sm font-medium text-amber-800 mb-1 sm:mb-2">Search Products</label>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-2 md:p-3 border border-amber-300/30 rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent text-xs md:text-base"
-                    placeholder="Search..."
+                    className="w-full p-2 sm:p-3 border border-amber-300/30 rounded-lg sm:rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 focus:border-transparent text-sm sm:text-base"
+                    placeholder="Search products..."
                   />
                 </div>
                 {/* Category Filter */}
-                <div className="mb-4 md:mb-6">
-                  <label className="block text-xs md:text-sm font-medium text-amber-800 mb-1 md:mb-2">Category</label>
+                <div className="mb-3 sm:mb-4 md:mb-6">
+                  <label className="block text-xs sm:text-sm font-medium text-amber-800 mb-1 sm:mb-2">Category</label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full p-2 md:p-3 border border-amber-300/30 rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 text-xs md:text-base"
+                    className="w-full p-2 sm:p-3 border border-amber-300/30 rounded-lg sm:rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 text-sm sm:text-base"
                   >
                     <option value="">All Categories</option>
                     <option value="bags">Bags</option>
@@ -327,8 +378,8 @@ const ProductPage: React.FC = () => {
                   </select>
                 </div>
                 {/* Price Range */}
-                <div className="mb-4 md:mb-6">
-                  <label className="block text-xs md:text-sm font-medium text-amber-800 mb-1 md:mb-2">Price Range</label>
+                <div className="mb-3 sm:mb-4 md:mb-6">
+                  <label className="block text-xs sm:text-sm font-medium text-amber-800 mb-1 sm:mb-2">Price Range</label>
                   <div className="space-y-2">
                     <input
                       type="range"
@@ -336,21 +387,21 @@ const ProductPage: React.FC = () => {
                       max="20000"
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                      className="w-full"
+                      className="w-full accent-amber-600"
                     />
-                    <div className="flex justify-between text-xs md:text-sm text-amber-700">
+                    <div className="flex justify-between text-xs sm:text-sm text-amber-700">
                       <span>KSh 0</span>
                       <span>KSh {priceRange[1].toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
                 {/* Sort By */}
-                <div className="mb-4 md:mb-6">
-                  <label className="block text-xs md:text-sm font-medium text-amber-800 mb-1 md:mb-2">Sort By</label>
+                <div className="mb-3 sm:mb-4 md:mb-6">
+                  <label className="block text-xs sm:text-sm font-medium text-amber-800 mb-1 sm:mb-2">Sort By</label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full p-2 md:p-3 border border-amber-300/30 rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 text-xs md:text-base"
+                    className="w-full p-2 sm:p-3 border border-amber-300/30 rounded-lg sm:rounded-xl bg-white/50 focus:ring-2 focus:ring-amber-400 text-sm sm:text-base"
                   >
                     <option value="">Default</option>
                     <option value="price-low">Price: Low to High</option>
@@ -359,8 +410,8 @@ const ProductPage: React.FC = () => {
                   </select>
                 </div>
                 {/* Results Count */}
-                <div className="text-center text-amber-800">
-                  <span className="font-medium text-xs md:text-base">{filteredProducts.length} products found</span>
+                <div className="text-center text-amber-800 bg-amber-50/50 rounded-lg p-2">
+                  <span className="font-medium text-xs sm:text-sm">{filteredProducts.length} products found</span>
                 </div>
               </div>
             </div>
@@ -395,16 +446,16 @@ const ProductImageCarousel: React.FC<{ imageUrls: string[]; productName: string 
   };
 
   return (
-    <div className="relative w-full h-40 md:h-48 flex items-center justify-center">
+    <div className="relative w-full h-32 sm:h-40 md:h-48 flex items-center justify-center">
       <img
         src={imageUrls[current]}
         alt={productName}
-        className="w-full h-40 md:h-48 object-cover transition-transform duration-700"
+        className="w-full h-32 sm:h-40 md:h-48 object-cover transition-transform duration-700"
       />
       {/* Left arrow */}
       <button
         onClick={prevImage}
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 shadow hover:bg-white z-10"
+        className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 sm:p-1.5 shadow hover:bg-white z-10 text-xs sm:text-sm"
         style={{ display: imageUrls.length > 1 ? 'block' : 'none' }}
         aria-label="Previous image"
       >
@@ -413,18 +464,18 @@ const ProductImageCarousel: React.FC<{ imageUrls: string[]; productName: string 
       {/* Right arrow */}
       <button
         onClick={nextImage}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 shadow hover:bg-white z-10"
+        className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-1 sm:p-1.5 shadow hover:bg-white z-10 text-xs sm:text-sm"
         style={{ display: imageUrls.length > 1 ? 'block' : 'none' }}
         aria-label="Next image"
       >
         &#8594;
       </button>
       {/* Dots */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+      <div className="absolute bottom-1 sm:bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
         {imageUrls.map((_, idx) => (
           <span
             key={idx}
-            className={`inline-block w-2 h-2 rounded-full ${idx === current ? 'bg-orange-500' : 'bg-gray-300'}`}
+            className={`inline-block w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${idx === current ? 'bg-orange-500' : 'bg-gray-300'}`}
           />
         ))}
       </div>

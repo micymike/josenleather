@@ -1,0 +1,63 @@
+### 1. Free global shipping (goodsValueUSD > 700)
+POST http://localhost:3000/delivery
+Content-Type: application/json
+Authorization: Bearer <YOUR_JWT_TOKEN>
+
+{
+  "orderId": "order1",
+  "address": "123 Main St, New York, USA",
+  "recipientName": "John Doe",
+  "recipientPhone": "+1234567890",
+  "courier": "DHL",
+  "goodsValueUSD": 800,
+  "destinationCity": "New York",
+  "destinationCountry": "USA"
+}
+
+### 2. Nairobi/metropolis (goodsValueUSD < 700)
+POST http://localhost:3000/delivery
+Content-Type: application/json
+Authorization: Bearer <YOUR_JWT_TOKEN>
+
+{
+  "orderId": "order2",
+  "address": "456 Kenyatta Ave, Nairobi, Kenya",
+  "recipientName": "Jane Doe",
+  "recipientPhone": "+254700000000",
+  "courier": "G4S",
+  "goodsValueUSD": 500,
+  "destinationCity": "Nairobi",
+  "destinationCountry": "Kenya"
+}
+
+### 3. Outside Nairobi but in Kenya (goodsValueUSD < 700)
+POST http://localhost:3000/delivery
+Content-Type: application/json
+Authorization: Bearer <YOUR_JWT_TOKEN>
+
+{
+  "orderId": "order3",
+  "address": "789 Moi Ave, Mombasa, Kenya",
+  "recipientName": "Ali Mwangi",
+  "recipientPhone": "+254711111111",
+  "courier": "Wells Fargo",
+  "goodsValueUSD": 600,
+  "destinationCity": "Mombasa",
+  "destinationCountry": "Kenya"
+}
+
+### 4. International carrier charges apply (goodsValueUSD < 700, outside Kenya)
+POST http://localhost:3000/delivery
+Content-Type: application/json
+Authorization: Bearer <YOUR_JWT_TOKEN>
+
+{
+  "orderId": "order4",
+  "address": "101 Oxford St, London, UK",
+  "recipientName": "Emily Smith",
+  "recipientPhone": "+447700900000",
+  "courier": "FedEx",
+  "goodsValueUSD": 650,
+  "destinationCity": "London",
+  "destinationCountry": "UK"
+}

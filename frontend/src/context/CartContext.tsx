@@ -2,9 +2,9 @@ import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
-  price: number;
+  price: number; // Always stored in KSh (original currency)
   image: string;
   imageUrls?: string[];
   quantity: number;
@@ -13,8 +13,8 @@ interface CartItem {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: Omit<CartItem, 'quantity'>, quantity: number) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  removeFromCart: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
   clearCart: () => void;
@@ -26,7 +26,26 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
       const stored = localStorage.getItem('cartItems');
-      return stored ? JSON.parse(stored) : [];
+      if (stored) {
+        const items = JSON.parse(stored);
+        // Migration: Remove invalid items and fix USD prices
+        const isValidUUID = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const validItems = items.filter((item: CartItem) => isValidUUID(String(item.id)));
+        
+        const migratedItems = validItems.map((item: CartItem) => {
+          if (item.price < 10) { // Likely USD price, convert back to KSh
+            return { ...item, price: Math.round(item.price / 0.007) };
+          }
+          return item;
+        });
+        
+        // Save corrected data if any changes occurred
+        if (migratedItems.length !== items.length || migratedItems.some((item, index) => item.price !== validItems[index].price)) {
+          localStorage.setItem('cartItems', JSON.stringify(migratedItems));
+        }
+        return migratedItems;
+      }
+      return [];
     } catch {
       return [];
     }
@@ -41,7 +60,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             ? {
                 ...i,
                 quantity: i.quantity + quantity,
-                // If new item has imageUrls, update them
                 ...(item.imageUrls ? { imageUrls: item.imageUrls } : {}),
               }
             : i
@@ -58,11 +76,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch {}
   }, [cartItems]);
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string) => {
     setCartItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;

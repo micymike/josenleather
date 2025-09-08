@@ -259,9 +259,9 @@ const ProductDetail: React.FC = () => {
               <button 
                 onClick={() => {
                   addToCart({
-                    id: product.id,
+                    id: String(product.id), // Ensure ID is stored as string
                     name: product.name,
-                    price: product.price,
+                    price: product.price, // Always store original KSh price
                     image: product.image
                   }, quantity);
                   setShowPopup(true);
