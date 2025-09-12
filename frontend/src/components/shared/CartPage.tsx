@@ -293,15 +293,20 @@ const ProductImageCarousel: React.FC<{ imageUrls: string[]; productName: string 
   );
 };
 
+import OrderTrackingStatus from "./OrderTrackingStatus";
+
 const CheckoutSection: React.FC = () => {
   const [orderRef, setOrderRef] = React.useState<string | null>(null);
   if (orderRef) {
     return (
       <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-        <h3 className="text-2xl font-bold text-green-700 mb-2">Order Placed!</h3>
-        <p className="mb-2">Your order reference is:</p>
+        <h3 className="text-2xl font-bold text-green-700 mb-2">Order Received!</h3>
+        <p className="mb-2">
+          Your order has been received and is being processed.<br />
+          Please check your email for tracking information.
+        </p>
         <div className="text-lg font-mono text-green-900 mb-4">{orderRef}</div>
-        <p className="text-green-800">A confirmation has been sent to your email and phone.</p>
+        <OrderTrackingStatus status="Received" />
       </div>
     );
   }

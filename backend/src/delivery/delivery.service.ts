@@ -79,7 +79,7 @@ export class DeliveryService {
       ];
     }
 
-    return this.prisma.delivery.update({
+    const updatedDelivery = await this.prisma.delivery.update({
       where: { id },
       data: {
         ...updateDeliveryDto,
@@ -87,6 +87,58 @@ export class DeliveryService {
         deliveryHistory: newHistory as unknown as object,
       },
     });
+
+    // Fetch order and get recipient email from contact details
+    let receiver_email = null;
+    try {
+      const order = await this.prisma.order.findUnique({ where: { id: delivery.orderId } });
+      if (order && order.guestEmail) {
+        receiver_email = order.guestEmail as any;
+      }
+    } catch (err) {
+      console.error('Error fetching recipient email:', err);
+    }
+
+    if (receiver_email) {
+      const nodemailer = require('nodemailer');
+      const smtp_server = 'smtp.gmail.com';
+      const port = 587;
+      const smtp_username = 'uniconnect693@gmail.com';
+      const password = 'kdxlnpqemrkrnusi';
+
+      const sender_email = smtp_username;
+      const subject = 'Delivery Status Updated';
+      const body = `Your delivery status has been updated to: ${updateDeliveryDto.status || delivery.status}`;
+
+      const transporter = nodemailer.createTransport({
+        host: smtp_server,
+        port: port,
+        secure: false,
+        auth: {
+          user: smtp_username,
+          pass: password,
+        },
+      });
+
+      const mailOptions = {
+        from: sender_email,
+        to: receiver_email,
+        subject: subject,
+        text: body,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending email:', error);
+        } else {
+          console.log('Email sent:', info.response);
+        }
+      });
+    } else {
+      console.warn('No recipient email found for delivery notification.');
+    }
+
+    return updatedDelivery;
   }
 
   async findByTrackingCode(trackingCode: string) {

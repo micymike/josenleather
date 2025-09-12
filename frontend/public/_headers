@@ -1,0 +1,11 @@
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'
+
+/assets/*.js
+  Content-Type: application/javascript; charset=utf-8
+
+/src/*.tsx
+  Content-Type: application/javascript; charset=utf-8
+
+/src/*.ts
+  Content-Type: application/javascript; charset=utf-8

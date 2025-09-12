@@ -93,17 +93,7 @@ const ProductPage: React.FC = () => {
     setFilteredProducts(filtered);
   }, [products, searchTerm, selectedCategory, priceRange, sortBy]);
 
-  const FloatingElement = ({ children, delay = 0, amplitude = 20 }: { children: React.ReactNode, delay?: number, amplitude?: number }) => (
-    <div
-      className="floating-element"
-      style={{
-        transform: `translateY(${Math.sin(Date.now() * 0.001 + delay) * amplitude}px) rotate(${Math.sin(Date.now() * 0.0008 + delay) * 5}deg)`,
-        transition: 'transform 0.3s ease-out'
-      }}
-    >
-      {children}
-    </div>
-  );
+  // FloatingElement removed for static layout
 
   // Schema.org Product structured data
   const productStructuredData = filteredProducts.map((product) => ({
@@ -141,18 +131,6 @@ const ProductPage: React.FC = () => {
       )}
       <div className="relative overflow-x-hidden min-h-screen">
         <style>{`
-          @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
-          }
-          @keyframes slideInFromTop {
-            0% { transform: translateY(-100%) translateX(-50%); opacity: 0; }
-            100% { transform: translateY(0) translateX(-50%); opacity: 1; }
-          }
-          @keyframes slideOutToTop {
-            0% { transform: translateY(0) translateX(-50%); opacity: 1; }
-            100% { transform: translateY(-100%) translateX(-50%); opacity: 0; }
-          }
           .glass-card {
             backdrop-filter: blur(25px);
             background: linear-gradient(135deg, 
@@ -162,51 +140,13 @@ const ProductPage: React.FC = () => {
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
           }
-          .floating-element {
-            animation: float 6s ease-in-out infinite;
-          }
-          .shimmer-text {
-            background: linear-gradient(90deg, 
-              #654321 25%, 
-              #8B4513 50%, 
-              #654321 75%
-            );
-            background-size: 200% 100%;
-            animation: shimmer 3s linear infinite;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
-          .success-notification {
-            animation: slideInFromTop 0.4s ease-out;
-          }
-          .success-notification.fade-out {
-            animation: slideOutToTop 0.3s ease-in;
-          }
-          @keyframes shimmer {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-          }
-          @media (max-width: 640px) {
-            .floating-element {
-              animation: none;
-            }
-          }
         `}</style>
         {/* Background */}
         <div className="fixed inset-0 -z-20">
           <div className="w-full h-full bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-100" />
           <div className="absolute inset-0 bg-gradient-to-t from-amber-900/20 via-transparent to-orange-900/10" />
         </div>
-        {/* Floating shapes */}
-        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-          <FloatingElement delay={0} amplitude={30}>
-            <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-amber-400/20 to-orange-500/20 rounded-full blur-xl" />
-          </FloatingElement>
-          <FloatingElement delay={2} amplitude={25}>
-            <div className="absolute top-60 right-20 w-24 h-24 bg-gradient-to-r from-yellow-400/30 to-amber-500/30 rounded-lg rotate-45 blur-lg" />
-          </FloatingElement>
-        </div>
+        {/* Floating shapes removed for static layout */}
         {/* Success Notification */}
         {addedProductId !== null && (
           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[60] success-notification">
@@ -277,73 +217,68 @@ const ProductPage: React.FC = () => {
             <div className="flex-1 order-2 lg:order-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                 {filteredProducts.map((product, index) => (
-                  <FloatingElement key={product.id} delay={index * 0.2} amplitude={12}>
-                    <div 
-                      className="glass-card rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-6 hover:scale-105 transition-all duration-500 cursor-pointer group animate-in slide-in-from-bottom duration-500"
-                      style={{
-                        transform: window.innerWidth > 768 ? `perspective(800px) rotateY(${mousePos.x * 3}deg) rotateX(${-mousePos.y * 2}deg)` : 'none',
-                        animationDelay: `${index * 100}ms`
+                  <div 
+                    key={product.id}
+                    className="glass-card rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-6 cursor-pointer group"
+                  >
+                    <div className="relative overflow-hidden rounded-lg sm:rounded-xl md:rounded-2xl mb-3 sm:mb-4 md:mb-6">
+                      {/* Image Carousel */}
+                      {product.imageUrls && product.imageUrls.length > 1 ? (
+                        <ProductImageCarousel imageUrls={product.imageUrls} productName={product.name} />
+                      ) : (
+                        <img
+                          src={product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/logo.jpg'}
+                          alt={product.name}
+                          className="w-full h-32 sm:h-40 md:h-48 object-cover"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0" />
+                      <Link
+                        to={`/product/${product.id}`}
+                        className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-1.5 sm:p-2 rounded-full"
+                      >
+                        👁️
+                      </Link>
+                    </div>
+                    <h3 className="text-sm sm:text-base md:text-lg font-bold text-amber-900 mb-1 sm:mb-2 line-clamp-2">{product.name}</h3>
+                    <p className="text-amber-700/80 mb-2 sm:mb-3 text-xs sm:text-sm line-clamp-2">{product.description}</p>
+                    <div className="flex justify-between items-center mb-2 sm:mb-3">
+                      <span className="text-base sm:text-lg md:text-xl font-bold">
+                        {usdRate !== null
+                          ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : `KSh ${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                      </span>
+                      <div className="flex items-center">
+                        <span className="text-yellow-500 text-sm">⭐</span>
+                        <span className="text-xs sm:text-sm text-amber-700 ml-1">{product.rating}</span>
+                      </div>
+                    </div>
+                    <button
+                      className="w-full glass-card px-3 py-2 sm:px-4 sm:py-2.5 rounded-full text-amber-900 hover:bg-amber-100/20 text-xs sm:text-sm font-medium"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Always use product.id as string for cart
+                        if (typeof product.id === 'string' && product.id.trim() !== '') {
+                          addToCart(
+                            {
+                              id: product.id,
+                              name: product.name,
+                              price: product.price, // Always store original KSh price
+                              image: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '',
+                              imageUrls: product.imageUrls || [],
+                            },
+                            1
+                          );
+                          setAddedProductId(product.id);
+                          setTimeout(() => setAddedProductId(null), 3000);
+                        } else {
+                          alert('Product ID is invalid and cannot be added to cart.');
+                        }
                       }}
                     >
-                      <div className="relative overflow-hidden rounded-lg sm:rounded-xl md:rounded-2xl mb-3 sm:mb-4 md:mb-6">
-                        {/* Image Carousel */}
-                        {product.imageUrls && product.imageUrls.length > 1 ? (
-                          <ProductImageCarousel imageUrls={product.imageUrls} productName={product.name} />
-                        ) : (
-                          <img
-                            src={product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/logo.jpg'}
-                            alt={product.name}
-                            className="w-full h-32 sm:h-40 md:h-48 object-cover group-hover:scale-110 transition-transform duration-700"
-                          />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <Link
-                          to={`/product/${product.id}`}
-                          className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm p-1.5 sm:p-2 rounded-full hover:bg-white transition-all duration-300 opacity-0 group-hover:opacity-100"
-                        >
-                          👁️
-                        </Link>
-                      </div>
-                      <h3 className="text-sm sm:text-base md:text-lg font-bold text-amber-900 mb-1 sm:mb-2 line-clamp-2">{product.name}</h3>
-                      <p className="text-amber-700/80 mb-2 sm:mb-3 text-xs sm:text-sm line-clamp-2">{product.description}</p>
-                      <div className="flex justify-between items-center mb-2 sm:mb-3">
-<span className="text-base sm:text-lg md:text-xl font-bold shimmer-text">
-  {usdRate !== null
-    ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-    : `KSh ${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-</span>
-                        <div className="flex items-center">
-                          <span className="text-yellow-500 text-sm">⭐</span>
-                          <span className="text-xs sm:text-sm text-amber-700 ml-1">{product.rating}</span>
-                        </div>
-                      </div>
-                      <button
-                        className="w-full glass-card px-3 py-2 sm:px-4 sm:py-2.5 rounded-full text-amber-900 hover:bg-amber-100/20 transition-all duration-300 text-xs sm:text-sm font-medium active:scale-95"
-onClick={(e) => {
-  e.stopPropagation();
-  // Always use product.id as string for cart
-  if (typeof product.id === 'string' && product.id.trim() !== '') {
-    addToCart(
-      {
-        id: product.id,
-        name: product.name,
-        price: product.price, // Always store original KSh price
-        image: product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '',
-        imageUrls: product.imageUrls || [],
-      },
-      1
-    );
-    setAddedProductId(product.id);
-    setTimeout(() => setAddedProductId(null), 3000);
-  } else {
-    alert('Product ID is invalid and cannot be added to cart.');
-  }
-}}
-                      >
-                        {addedProductId === product.id ? "Added!" : "Add to Cart"}
-                      </button>
-                    </div>
-                  </FloatingElement>
+                      {addedProductId === product.id ? "Added!" : "Add to Cart"}
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>

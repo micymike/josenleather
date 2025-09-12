@@ -11,6 +11,23 @@ const AdminDashboard = () => {
   ]);
 
   useEffect(() => {
+    // Inject OneSignal SDK and initialize
+    const script = document.createElement('script');
+    script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+    script.defer = true;
+    document.body.appendChild(script);
+
+    (window as any).OneSignalDeferred = (window as any).OneSignalDeferred || [];
+    (window as any).OneSignalDeferred.push(async function(OneSignal: any) {
+      await OneSignal.init({
+        appId: "9c2b21d1-2a24-4fdc-b253-2af835698b62",
+        safari_web_id: "web.onesignal.auto.1947bcbb-3df5-45a5-b464-0be0e15f4a2c",
+        notifyButton: {
+          enable: true,
+        },
+      });
+    });
+
     // Fetch dashboard stats from backend APIs
     const fetchStats = async () => {
       let productCount = 0;
