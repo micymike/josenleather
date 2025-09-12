@@ -182,6 +182,39 @@ export class NotificationService {
             </div>
           `,
         });
+
+        // Send push notification to the user via OneSignal tag
+        const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
+        const ONESIGNAL_API_KEY = process.env.ONESIGNAL_API_KEY;
+        if (ONESIGNAL_APP_ID && ONESIGNAL_API_KEY) {
+          const pushPayload = {
+            app_id: ONESIGNAL_APP_ID,
+            filters: [
+              { field: "tag", key: "user_email", relation: "=", value: to.email }
+            ],
+            headings: { en: "Order Status Update" },
+            contents: { en: `Your order #${orderId} status has been updated: ${status}` },
+            url: `https://www.josenleather.com/orders/${orderId}`,
+            data: { orderId, status }
+          };
+          try {
+            const res = await fetch("https://onesignal.com/api/v1/notifications", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Basic ${ONESIGNAL_API_KEY}`,
+              },
+              body: JSON.stringify(pushPayload),
+            });
+            if (!res.ok) {
+              this.logger.error("Failed to send user push notification", await res.text());
+            } else {
+              this.logger.log("User push notification sent via OneSignal");
+            }
+          } catch (e) {
+            this.logger.error("Error sending user push notification", e);
+          }
+        }
       } catch (e) {
         this.logger.error('Failed to send email', e);
       }

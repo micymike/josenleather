@@ -61,6 +61,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       }
       const data = await res.json();
       console.log('Order placed successfully:', data);
+
+      // Tag user's device with their email for push notifications
+      if (email) {
+        (window as any).OneSignalDeferred = (window as any).OneSignalDeferred || [];
+        (window as any).OneSignalDeferred.push(function(OneSignal: any) {
+          OneSignal.sendTag("user_email", email);
+        });
+      }
+
       clearCart();
       onOrderPlaced(data.id || data.orderRef || 'ORDER');
     } catch (err: any) {
