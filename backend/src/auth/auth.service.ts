@@ -29,28 +29,23 @@ export class AuthService {
   }
 
   async login(createAuthDto: CreateAuthDto) {
-    if (!createAuthDto.email) {
-      throw new UnauthorizedException('Email is required');
+    const adminEmail = process.env.ADMIN_USER_EMAIL?.replace(/"/g, '');
+    const adminPassword = process.env.ADMIN_USER_PASSWORD;
+
+    if (
+      createAuthDto.email === adminEmail &&
+      createAuthDto.password === adminPassword
+    ) {
+      const payload = {
+        sub: 'admin',
+        email: adminEmail,
+        role: 'admin',
+      };
+      const token = this.jwtService.sign(payload);
+      return { access_token: token, user: { id: 'admin', email: adminEmail, role: 'admin' } };
     }
-    const { data: user, error } = await supabase
-      .from('User')
-      .select('*')
-      .eq('email', createAuthDto.email)
-      .single();
-    if (error || !user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    const isPasswordValid = await bcrypt.compare(createAuthDto.password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    };
-    const token = this.jwtService.sign(payload);
-    return { access_token: token, user: { id: user.id, email: user.email, role: user.role } };
+
+    throw new UnauthorizedException('Invalid credentials');
   }
 
   async ensureAdminUser() {
