@@ -103,7 +103,7 @@ export class AuthService {
 
   async findOne(id: string) {
     const { data, error } = await supabase
-      .from('user')
+      .from('User')
       .select('*')
       .eq('id', id)
       .single();
