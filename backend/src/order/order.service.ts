@@ -1,38 +1,49 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CartService } from '../cart/cart.service';
 import { PaymentService } from '../payment/payment.service';
 import { NotificationService } from '../notification/notification.service';
+import { supabase } from '../supabase/supabase.client';
 
 @Injectable()
 export class OrderService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly cartService: CartService,
     private readonly paymentService: PaymentService,
     private readonly notificationService: NotificationService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
-    const order = await this.prisma.order.create({
-      data: {
+    // Insert order
+    const { data: order, error: orderError } = await supabase
+      .from('order')
+      .insert([{
         userId: createOrderDto.userId ?? null,
         status: createOrderDto.status || 'pending',
         total: createOrderDto.total,
         guestEmail: createOrderDto.guestEmail ?? null,
         guestAddress: createOrderDto.guestAddress ?? null,
         guestPhone: createOrderDto.guestPhone ?? null,
-        items: {
-          create: createOrderDto.items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-        },
-      },
-    });
+      }])
+      .select()
+      .single();
+
+    if (orderError) throw new BadRequestException(orderError.message);
+
+    // Insert order items
+    if (createOrderDto.items && createOrderDto.items.length > 0) {
+      const itemsToInsert = createOrderDto.items.map((item) => ({
+        orderId: order.id,
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+      const { error: itemsError } = await supabase
+        .from('order_item')
+        .insert(itemsToInsert);
+      if (itemsError) throw new BadRequestException(itemsError.message);
+    }
 
     // Notify buyer and admin
     const orderRef = order.id;
@@ -56,35 +67,45 @@ export class OrderService {
       total += item.quantity * item.product.price;
     }
 
-    const orderItems = cart.items.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      price: item.product.price,
-    }));
-
-    const order = await this.prisma.order.create({
-      data: {
+    // Insert order
+    const { data: order, error: orderError } = await supabase
+      .from('order')
+      .insert([{
         userId: userId,
         status: 'pending',
         total,
         guestEmail: guestInfo?.email,
         guestAddress: guestInfo?.address,
         guestPhone: guestInfo?.phone,
-        items: {
-          create: orderItems,
-        },
-      },
-    });
+      }])
+      .select()
+      .single();
+
+    if (orderError) throw new BadRequestException(orderError.message);
+
+    // Insert order items
+    const orderItems = cart.items.map((item) => ({
+      orderId: order.id,
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.product.price,
+    }));
+    if (orderItems.length > 0) {
+      const { error: itemsError } = await supabase
+        .from('order_item')
+        .insert(orderItems);
+      if (itemsError) throw new BadRequestException(itemsError.message);
+    }
 
     await this.paymentService.create({
       orderId: order.id,
       provider: paymentProvider,
       amount: total,
       status: 'pending',
-      reference: `REF-${Date.now()}-${order.id}`, // Generate a unique reference
+      reference: `REF-${Date.now()}-${order.id}`,
     });
 
-    await this.cartService.remove(cart.id); // Clear the cart
+    await this.cartService.remove(cart.id);
 
     // Notify buyer and admin
     const orderRef = order.id;
@@ -97,32 +118,58 @@ export class OrderService {
   }
 
   async findAll() {
-    return this.prisma.order.findMany();
-   // return 'This action returns all orders';
+    const { data, error } = await supabase.from('order').select('*');
+    if (error) throw new BadRequestException(error.message);
+    return data;
   }
 
   async findOne(id: string) {
-   return this.prisma.order.findUnique({ where: { id } });
-  //  return `This action returns order #${id}`;
+    const { data, error } = await supabase
+      .from('order')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw new NotFoundException(error.message);
+    return data;
   }
 
   async update(id: string, updateOrderDto: UpdateOrderDto) {
     const { userId, items, ...rest } = updateOrderDto;
-    const order = await this.prisma.order.update({
-      where: { id },
-      data: {
+
+    // Update order
+    const { data: order, error: orderError } = await supabase
+      .from('order')
+      .update({
         ...rest,
         userId: userId === undefined ? null : userId,
-        items: {
-          deleteMany: {},
-          create: items?.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-        },
-      },
-    });
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (orderError) throw new BadRequestException(orderError.message);
+
+    // Update order items: delete all and re-insert
+    if (items) {
+      const { error: deleteError } = await supabase
+        .from('order_item')
+        .delete()
+        .eq('orderId', id);
+      if (deleteError) throw new BadRequestException(deleteError.message);
+
+      if (items.length > 0) {
+        const itemsToInsert = items.map((item) => ({
+          orderId: id,
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        }));
+        const { error: insertError } = await supabase
+          .from('order_item')
+          .insert(itemsToInsert);
+        if (insertError) throw new BadRequestException(insertError.message);
+      }
+    }
 
     // Notify buyer of status update
     const buyerContact = { email: order.guestEmail || '', phone: order.guestPhone || '' };
@@ -134,7 +181,21 @@ export class OrderService {
   }
 
   async remove(id: string) {
-     return this.prisma.order.delete({ where: { id } });
-   // return `This action removes order #${id}`;
+    // Delete order items first
+    const { error: itemsError } = await supabase
+      .from('order_item')
+      .delete()
+      .eq('orderId', id);
+    if (itemsError) throw new BadRequestException(itemsError.message);
+
+    // Delete order
+    const { data, error } = await supabase
+      .from('order')
+      .delete()
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw new BadRequestException(error.message);
+    return data;
   }
 }

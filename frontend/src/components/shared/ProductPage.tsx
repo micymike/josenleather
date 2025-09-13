@@ -17,8 +17,8 @@ interface Product {
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const ProductPage: React.FC = () => {
@@ -208,6 +208,11 @@ const ProductPage: React.FC = () => {
           </div>
         </nav>
         <div className="pt-20 sm:pt-24 px-3 sm:px-4 md:px-8 max-w-7xl mx-auto">
+          {/* Brief Info Section */}
+          <div className="flex flex-col items-center justify-center mb-6 sm:mb-8">
+            <img src="/logo.jpg" alt="Josen Logo" className="h-16 w-auto mb-2" />
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-amber-900 mb-1">Premium Leather & Canvas Goods</h2>
+          </div>
           <div className="mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black shimmer-text mb-2 sm:mb-4">OUR COLLECTION</h1>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-amber-800/80">Discover premium leather craftsmanship</p>

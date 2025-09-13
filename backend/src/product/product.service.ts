@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { supabase } from '../supabase/supabase.client';
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor() {}
 
   async create(createProductDto: CreateProductDto, images: Array<Express.Multer.File>) {
     let imageUrls: string[] = [];
@@ -57,29 +56,60 @@ export class ProductService {
       metaTags: createProductDto.metaTags,
     };
 
-    return this.prisma.product.create({ data: productData });
+    const { data, error } = await supabase
+      .from('product')
+      .insert([productData])
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
   }
 
   async findAll() {
-    const products = await this.prisma.product.findMany();
-    console.log('findAll products:', products.length);
-    return products;
+    const { data, error } = await supabase.from('product').select('*');
+    if (error) throw new Error(error.message);
+    console.log('findAll products:', data ? data.length : 0);
+    return data;
   }
 
   async findOne(id: string) {
-    return this.prisma.product.findUnique({ where: { id } });
+    const { data, error } = await supabase
+      .from('product')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw new Error(error.message);
+    return data;
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    return this.prisma.product.update({ where: { id }, data: updateProductDto });
+    const { data, error } = await supabase
+      .from('product')
+      .update(updateProductDto)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return data;
   }
 
   async remove(id: string) {
-    return this.prisma.product.delete({ where: { id } });
+    const { data, error } = await supabase
+      .from('product')
+      .delete()
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return data;
   }
 
   async count() {
-    const count = await this.prisma.product.count();
+    const { count, error } = await supabase
+      .from('product')
+      .select('id', { count: 'exact', head: true });
+    if (error) throw new Error(error.message);
     console.log('count products:', count);
     return count;
   }

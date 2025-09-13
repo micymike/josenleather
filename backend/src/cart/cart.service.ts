@@ -1,122 +1,209 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
+import { supabase } from '../supabase/supabase.client';
 
 @Injectable()
 export class CartService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor() {}
 
   async create(createCartDto: CreateCartDto) {
     const { userId, items } = createCartDto;
-    return this.prisma.cart.create({
-      data: {
-        userId,
-        items: {
-          create: items?.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-          })),
-        },
-      },
-    });
+    // Create cart
+    const { data: cart, error: cartError } = await supabase
+      .from('cart')
+      .insert([{ userId }])
+      .select()
+      .single();
+    if (cartError) throw new Error(cartError.message);
+
+    // Insert items
+    if (items && items.length > 0) {
+      const itemsToInsert = items.map((item) => ({
+        cartId: cart.id,
+        productId: item.productId,
+        quantity: item.quantity,
+      }));
+      const { error: itemsError } = await supabase
+        .from('cart_item')
+        .insert(itemsToInsert);
+      if (itemsError) throw new Error(itemsError.message);
+    }
+
+    return this.findOne(cart.id);
   }
 
   async findAll() {
-    return this.prisma.cart.findMany({
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-        user: true,
-      },
-    });
+    // Fetch all carts
+    const { data: carts, error: cartsError } = await supabase.from('cart').select('*');
+    if (cartsError) throw new Error(cartsError.message);
+
+    // Fetch all cart items
+    const { data: items, error: itemsError } = await supabase.from('cart_item').select('*');
+    if (itemsError) throw new Error(itemsError.message);
+
+    // Fetch all products
+    const { data: products, error: productsError } = await supabase.from('product').select('*');
+    if (productsError) throw new Error(productsError.message);
+
+    // Attach items and products to carts
+    return carts.map((cart) => ({
+      ...cart,
+      items: items
+        .filter((item) => item.cartId === cart.id)
+        .map((item) => ({
+          ...item,
+          product: products.find((p) => p.id === item.productId) || null,
+        })),
+    }));
   }
 
   async findOne(id: string) {
-    return this.prisma.cart.findUnique({
-      where: { id },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-        user: true,
-      },
-    });
+    // Fetch cart
+    const { data: cart, error: cartError } = await supabase
+      .from('cart')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (cartError || !cart) throw new Error('Cart not found');
+
+    // Fetch items
+    const { data: itemsRaw, error: itemsError } = await supabase
+      .from('cart_item')
+      .select('*')
+      .eq('cartId', id);
+    if (itemsError) throw new Error(itemsError.message);
+    const items: any[] = itemsRaw || [];
+
+    // Fetch products for items
+    const productIds: string[] = items.map((item) => item.productId);
+    let products: any[] = [];
+    if (productIds.length > 0) {
+      const { data: productsData, error: productsError } = await supabase
+        .from('product')
+        .select('*')
+        .in('id', productIds);
+      if (productsError) throw new Error(productsError.message);
+      products = productsData || [];
+    }
+
+    // Attach products to items
+    const itemsWithProducts: any[] = items.map((item) => ({
+      ...item,
+      product: products.find((p) => p.id === item.productId) || null,
+    }));
+
+    return {
+      ...cart,
+      items: itemsWithProducts,
+    };
   }
 
   async update(id: string, updateCartDto: UpdateCartDto) {
     const { items, userId } = updateCartDto;
-    return this.prisma.cart.update({
-      where: { id },
-      data: {
-        userId,
-        items: {
-          deleteMany: {}, // Clear existing items
-          create: items?.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-          })),
-        },
-      },
-    });
+    // Update cart
+    const { data: cart, error: cartError } = await supabase
+      .from('cart')
+      .update({ userId })
+      .eq('id', id)
+      .select()
+      .single();
+    if (cartError) throw new Error(cartError.message);
+
+    // Delete all existing items
+    const { error: deleteError } = await supabase
+      .from('cart_item')
+      .delete()
+      .eq('cartId', id);
+    if (deleteError) throw new Error(deleteError.message);
+
+    // Insert new items
+    if (items && items.length > 0) {
+      const itemsToInsert = items.map((item) => ({
+        cartId: id,
+        productId: item.productId,
+        quantity: item.quantity,
+      }));
+      const { error: itemsError } = await supabase
+        .from('cart_item')
+        .insert(itemsToInsert);
+      if (itemsError) throw new Error(itemsError.message);
+    }
+
+    return this.findOne(id);
   }
 
   async remove(id: string) {
-    await this.prisma.cartItem.deleteMany({ where: { cartId: id } });
-    return this.prisma.cart.delete({ where: { id } });
+    // Delete all items
+    const { error: itemsError } = await supabase
+      .from('cart_item')
+      .delete()
+      .eq('cartId', id);
+    if (itemsError) throw new Error(itemsError.message);
+
+    // Delete cart
+    const { data, error } = await supabase
+      .from('cart')
+      .delete()
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return data;
   }
 
   async addItem(cartId: string, productId: string, quantity: number) {
-    const cart = await this.prisma.cart.findUnique({
-      where: { id: cartId },
-      include: { items: true },
-    });
+    // Check if item exists
+    const { data: existingItem, error: findError } = await supabase
+      .from('cart_item')
+      .select('*')
+      .eq('cartId', cartId)
+      .eq('productId', productId)
+      .single();
 
-    if (!cart) {
-      throw new Error('Cart not found');
-    }
-
-    const existingItem = cart.items.find((item) => item.productId === productId);
+    if (findError && findError.details !== 'The result contains 0 rows') throw new Error(findError.message);
 
     if (existingItem) {
-      return this.prisma.cartItem.update({
-        where: { id: existingItem.id },
-        data: { quantity: existingItem.quantity + quantity },
-      });
+      // Update quantity
+      const { data, error } = await supabase
+        .from('cart_item')
+        .update({ quantity: existingItem.quantity + quantity })
+        .eq('id', existingItem.id)
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return data;
     } else {
-      return this.prisma.cartItem.create({
-        data: {
-          cartId,
-          productId,
-          quantity,
-        },
-      });
+      // Insert new item
+      const { data, error } = await supabase
+        .from('cart_item')
+        .insert([{ cartId, productId, quantity }])
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return data;
     }
   }
 
   async removeItem(cartId: string, productId: string) {
-    const cart = await this.prisma.cart.findUnique({
-      where: { id: cartId },
-      include: { items: true },
-    });
+    // Find item
+    const { data: itemToRemove, error: findError } = await supabase
+      .from('cart_item')
+      .select('*')
+      .eq('cartId', cartId)
+      .eq('productId', productId)
+      .single();
 
-    if (!cart) {
-      throw new Error('Cart not found');
-    }
+    if (findError || !itemToRemove) throw new Error('Item not found in cart');
 
-    const itemToRemove = cart.items.find((item) => item.productId === productId);
-
-    if (itemToRemove) {
-      return this.prisma.cartItem.delete({
-        where: { id: itemToRemove.id },
-      });
-    } else {
-      throw new Error('Item not found in cart');
-    }
+    // Delete item
+    const { data, error } = await supabase
+      .from('cart_item')
+      .delete()
+      .eq('id', itemToRemove.id)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return data;
   }
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {Routes, Route} from 'react-router-dom'
 
 import './App.css'
-import LandingPage from './components/shared/LandingPage'
+import AboutPage from './components/shared/AboutPage'
 import ProductPage from './components/shared/ProductPage'
 import ProductDetail from './components/shared/ProductDetail'
 import CartPage from './components/shared/CartPage'
@@ -25,8 +25,9 @@ function App() {
   return (
     <CartProvider>
       <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<ProductPage />} />
       <Route path="/products" element={<ProductPage />} />
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/cart" element={<CartPage />} />
       <Route path="/admin/login" element={<AdminLogin />} />

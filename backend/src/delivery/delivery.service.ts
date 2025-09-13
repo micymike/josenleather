@@ -1,33 +1,28 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { UpdateDeliveryDto } from './dto/update-delivery.dto';
+import { supabase } from '../supabase/supabase.client';
 
 @Injectable()
 export class DeliveryService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor() {}
 
   // Shipping calculation logic
   private calculateShippingCost(goodsValueUSD: number, destinationCity: string, destinationCountry: string): number | null {
-    // Free shipping globally for goods above $700
     if (goodsValueUSD > 700) {
       return 0;
     }
-    // International shipping (outside Kenya): carrier charges apply, not calculated here
     if (destinationCountry.trim().toLowerCase() !== 'kenya') {
       return null;
     }
-    // Nairobi/metropolis
     const nairobiCities = ['nairobi', 'nairobi metropolis', 'nairobi metropolitan'];
     if (nairobiCities.includes(destinationCity.trim().toLowerCase())) {
       return 300;
     }
-    // Within Kenya, outside Nairobi
     return 500;
   }
 
   async create(createDeliveryDto: CreateDeliveryDto) {
-    // Initialize deliveryHistory with the initial status
     const history = [
       {
         status: createDeliveryDto.status || 'pending',
@@ -36,7 +31,6 @@ export class DeliveryService {
       },
     ];
 
-    // Calculate shipping cost if not provided
     let estimatedCost = createDeliveryDto.estimatedCost;
     if (estimatedCost === undefined || estimatedCost === null) {
       const calculated = this.calculateShippingCost(
@@ -44,26 +38,33 @@ export class DeliveryService {
         createDeliveryDto.destinationCity,
         createDeliveryDto.destinationCountry
       );
-      // If calculated is null (international), set to 0 (carrier charges apply)
       estimatedCost = calculated !== null && calculated !== undefined ? calculated : 0;
     }
 
-    return this.prisma.delivery.create({
-      data: {
+    const { data, error } = await supabase
+      .from('delivery')
+      .insert([{
         ...createDeliveryDto,
         status: createDeliveryDto.status || 'pending',
         estimatedCost: estimatedCost,
-        deliveryHistory: history as unknown as object, // ensure JSON
-      },
-    });
+        deliveryHistory: history,
+      }])
+      .select()
+      .single();
+
+    if (error) throw new NotFoundException(error.message);
+    return data;
   }
 
   async update(id: string, updateDeliveryDto: UpdateDeliveryDto) {
     // Fetch current delivery
-    const delivery = await this.prisma.delivery.findUnique({ where: { id } });
-    if (!delivery) throw new NotFoundException('Delivery not found');
+    const { data: delivery, error: findError } = await supabase
+      .from('delivery')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (findError || !delivery) throw new NotFoundException('Delivery not found');
 
-    // Update deliveryHistory if status or location changes
     let newHistory: any[] = Array.isArray(delivery.deliveryHistory) ? delivery.deliveryHistory : [];
     if (
       (updateDeliveryDto.status && updateDeliveryDto.status !== delivery.status) ||
@@ -79,21 +80,29 @@ export class DeliveryService {
       ];
     }
 
-    const updatedDelivery = await this.prisma.delivery.update({
-      where: { id },
-      data: {
+    const { data: updatedDelivery, error: updateError } = await supabase
+      .from('delivery')
+      .update({
         ...updateDeliveryDto,
         status: updateDeliveryDto.status || delivery.status,
-        deliveryHistory: newHistory as unknown as object,
-      },
-    });
+        deliveryHistory: newHistory,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateError) throw new NotFoundException(updateError.message);
 
     // Fetch order and get recipient email from contact details
     let receiver_email = null;
     try {
-      const order = await this.prisma.order.findUnique({ where: { id: delivery.orderId } });
-      if (order && order.guestEmail) {
-        receiver_email = order.guestEmail as any;
+      const { data: order, error: orderError } = await supabase
+        .from('order')
+        .select('*')
+        .eq('id', delivery.orderId)
+        .single();
+      if (!orderError && order && order.guestEmail) {
+        receiver_email = order.guestEmail;
       }
     } catch (err) {
       console.error('Error fetching recipient email:', err);
@@ -142,14 +151,22 @@ export class DeliveryService {
   }
 
   async findByTrackingCode(trackingCode: string) {
-    const delivery = await this.prisma.delivery.findFirst({ where: { trackingCode } });
-    if (!delivery) throw new NotFoundException('Delivery not found');
+    const { data: delivery, error } = await supabase
+      .from('delivery')
+      .select('*')
+      .eq('trackingCode', trackingCode)
+      .single();
+    if (error || !delivery) throw new NotFoundException('Delivery not found');
     return delivery;
   }
 
   async findByOrderId(orderId: string) {
-    const delivery = await this.prisma.delivery.findUnique({ where: { orderId } });
-    if (!delivery) throw new NotFoundException('Delivery not found');
+    const { data: delivery, error } = await supabase
+      .from('delivery')
+      .select('*')
+      .eq('orderId', orderId)
+      .single();
+    if (error || !delivery) throw new NotFoundException('Delivery not found');
     return delivery;
   }
 }
