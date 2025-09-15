@@ -18,16 +18,7 @@ const PRODUCTS = [
     rating: 4.8,
     features: ["Premium Brown Leather", "Professional Design", "Laptop Compartment", "Document Organizer"]
   },
-  {
-    id: 2,
-    name: "Vintage Messenger Bag",
-    price: 12500,
-    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=600&fit=crop&crop=center",
-    description: "Handcrafted canvas and leather blend. A perfect fusion of durability and style, this vintage messenger bag combines high-quality canvas with genuine leather accents. Ideal for daily commutes, travel, or casual outings.",
-    category: "bags",
-    rating: 4.7,
-    features: ["Canvas & Leather Blend", "Adjustable Strap", "Multiple Pockets", "Vintage Design"]
-  },
+
   {
     id: 3,
     name: "Premium Leather Bag",
@@ -38,16 +29,7 @@ const PRODUCTS = [
     rating: 4.9,
     features: ["Premium Blue Leather", "Elegant Design", "Versatile Style", "Superior Craftsmanship"]
   },
-  {
-    id: 4,
-    name: "Leather Wallet",
-    price: 3500,
-    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&h=600&fit=crop&crop=center",
-    description: "Slim profile genuine leather wallet with multiple card slots and bill compartments. Crafted from premium leather for durability and style.",
-    category: "wallets",
-    rating: 4.6,
-    features: ["Genuine Leather", "Multiple Card Slots", "Slim Profile", "RFID Protection"]
-  },
+
   {
     id: 5,
     name: "Classic Belt",
@@ -58,35 +40,18 @@ const PRODUCTS = [
     rating: 4.5,
     features: ["Full-Grain Leather", "Silver Buckle", "Classic Design", "Adjustable Fit"]
   },
+
+
+
   {
-    id: 6,
-    name: "Laptop Bag",
-    price: 8900,
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=600&fit=crop&crop=center",
-    description: "Padded compartment for 15-inch laptops with additional storage for accessories and documents.",
-    category: "bags",
-    rating: 4.7,
-    features: ["Laptop Protection", "Multiple Compartments", "Comfortable Straps", "Water Resistant"]
-  },
-  {
-    id: 7,
-    name: "Card Holder",
-    price: 2800,
-    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&h=600&fit=crop&crop=center",
-    description: "Minimalist design for essential cards with premium leather construction and compact form factor.",
-    category: "accessories",
-    rating: 4.4,
-    features: ["Minimalist Design", "Premium Leather", "Compact Size", "Essential Storage"]
-  },
-  {
-    id: 8,
-    name: "Crossbody Bag",
-    price: 7600,
-    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=600&fit=crop&crop=center",
-    description: "Compact and stylish crossbody bag perfect for daily use with adjustable strap and secure closure.",
-    category: "bags",
-    rating: 4.8,
-    features: ["Adjustable Strap", "Secure Closure", "Compact Design", "Daily Use"]
+    id: 9,
+    name: "Premium Leather Belt",
+    price: 5200,
+    image: "/hero4.jpg",
+    description: "Handcrafted premium leather belt with polished brass buckle. Made from full-grain Italian leather, this belt combines durability with sophisticated style. Perfect for both formal and casual occasions, featuring precise stitching and a timeless design that complements any wardrobe.",
+    category: "belts",
+    rating: 4.9,
+    features: ["Full-Grain Italian Leather", "Polished Brass Buckle", "Precise Stitching", "Versatile Design"]
   }
 ];
 
