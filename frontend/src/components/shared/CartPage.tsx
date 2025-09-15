@@ -7,10 +7,8 @@ import CheckoutForm from './CheckoutForm';
 import { fetchKshToUsdRate, convertKshToUsd } from '../../lib/utils';
 
 const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "Products", href: "/products" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const CartPage: React.FC = () => {
@@ -453,12 +451,43 @@ const CheckoutFlow: React.FC<{
         {/* Guest Checkout Form */}
         {showCheckout && (
           <div ref={checkoutRef} className="mt-8">
-            <div className="mb-4 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-              <span className="font-semibold text-yellow-900">
-                All payments are required before delivery for all customers within Nairobi.
-              </span>
+            <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-3xl p-8 border border-amber-200/50 shadow-2xl">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-amber-600 to-orange-600 rounded-full mb-4">
+                  <span className="text-2xl text-amber-50">🛒</span>
+                </div>
+                <h2 className="text-3xl font-bold text-amber-900 mb-2">Complete Your Order</h2>
+                <p className="text-amber-700">Fill in your details to proceed with checkout</p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-gradient-to-r from-amber-100 to-orange-100 p-6 rounded-2xl border border-amber-300/30">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl">📱</span>
+                    <h4 className="font-bold text-amber-900">M-Pesa Payment</h4>
+                  </div>
+                  <p className="text-amber-800 text-sm">Secure mobile money payment</p>
+                  <div className="mt-3 text-xs text-amber-700 bg-amber-200/50 px-3 py-2 rounded-lg">
+                    ✓ Instant confirmation
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-orange-100 to-amber-100 p-6 rounded-2xl border border-orange-300/30">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl">💳</span>
+                    <h4 className="font-bold text-amber-900">Card Payment</h4>
+                  </div>
+                  <p className="text-amber-800 text-sm">VISA/MasterCard accepted</p>
+                  <div className="mt-3 text-xs text-amber-700 bg-orange-200/50 px-3 py-2 rounded-lg">
+                    ✓ Bank-level security
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-amber-50/50 rounded-2xl p-6 border border-amber-200/30">
+                <CheckoutSection />
+              </div>
             </div>
-            <CheckoutSection />
           </div>
         )}
       </div>
