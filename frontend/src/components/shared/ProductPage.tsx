@@ -29,15 +29,7 @@ const MOCK_PRODUCTS: Product[] = [
     category: "bags",
     rating: 4.8
   },
-  {
-    id: "2",
-    name: "Vintage Messenger Bag",
-    price: 12500,
-    imageUrls: ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop"],
-    description: "Handcrafted canvas and leather blend",
-    category: "bags",
-    rating: 4.7
-  },
+
   {
     id: "3",
     name: "Premium Leather Bag",
@@ -47,15 +39,7 @@ const MOCK_PRODUCTS: Product[] = [
     category: "bags",
     rating: 4.9
   },
-  {
-    id: "4",
-    name: "Leather Wallet",
-    price: 3500,
-    imageUrls: ["https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop"],
-    description: "Slim profile genuine leather wallet",
-    category: "wallets",
-    rating: 4.6
-  },
+
   {
     id: "5",
     name: "Classic Belt",
@@ -65,32 +49,17 @@ const MOCK_PRODUCTS: Product[] = [
     category: "belts",
     rating: 4.5
   },
+
+
+
   {
-    id: "6",
-    name: "Laptop Bag",
-    price: 8900,
-    imageUrls: ["https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop"],
-    description: "Padded compartment for 15-inch laptops",
-    category: "bags",
-    rating: 4.7
-  },
-  {
-    id: "7",
-    name: "Card Holder",
-    price: 2800,
-    imageUrls: ["https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop"],
-    description: "Minimalist design for essential cards",
-    category: "accessories",
-    rating: 4.4
-  },
-  {
-    id: "8",
-    name: "Crossbody Bag",
-    price: 7600,
-    imageUrls: ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop"],
-    description: "Compact and stylish for daily use",
-    category: "bags",
-    rating: 4.8
+    id: "9",
+    name: "Premium Leather Belt",
+    price: 5200,
+    imageUrls: ["/hero4.jpg"],
+    description: "Handcrafted premium leather belt with polished brass buckle. Made from full-grain Italian leather, this belt combines durability with sophisticated style. Perfect for both formal and casual occasions, featuring precise stitching and a timeless design that complements any wardrobe.",
+    category: "belts",
+    rating: 4.9
   }
 ];
 
