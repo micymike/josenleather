@@ -3,10 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
 const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "Products", href: "/products" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const PRODUCTS = [
@@ -14,31 +12,81 @@ const PRODUCTS = [
     id: 1,
     name: "Executive Briefcase",
     price: 15900,
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=600&fit=crop&crop=center",
-    description: "Premium Italian leather with brass hardware. This executive briefcase is crafted from the finest Italian leather, featuring durable brass hardware and a sophisticated design perfect for the modern professional. The spacious interior includes multiple compartments for laptops, documents, and business essentials.",
+    image: "/brown_bag.jpg",
+    description: "Sophisticated brown leather briefcase for professionals. This executive briefcase is crafted from premium brown leather, featuring elegant design and superior craftsmanship perfect for the modern professional. The spacious interior includes multiple compartments for laptops, documents, and business essentials.",
     category: "bags",
     rating: 4.8,
-    features: ["Premium Italian Leather", "Brass Hardware", "Laptop Compartment", "Document Organizer"]
+    features: ["Premium Brown Leather", "Professional Design", "Laptop Compartment", "Document Organizer"]
   },
   {
     id: 2,
-    name: "Vintage Messenger",
+    name: "Vintage Messenger Bag",
     price: 12500,
     image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=600&fit=crop&crop=center",
     description: "Handcrafted canvas and leather blend. A perfect fusion of durability and style, this vintage messenger bag combines high-quality canvas with genuine leather accents. Ideal for daily commutes, travel, or casual outings.",
     category: "bags",
-    rating: 4.6,
+    rating: 4.7,
     features: ["Canvas & Leather Blend", "Adjustable Strap", "Multiple Pockets", "Vintage Design"]
   },
   {
     id: 3,
-    name: "Travel Duffle",
+    name: "Premium Leather Bag",
     price: 18700,
-    image: "https://images.unsplash.com/photo-1553735491-c5c7a065da9b?w=600&h=600&fit=crop&crop=center",
-    description: "Spacious weekend companion. This premium travel duffle bag offers ample space for all your weekend getaway essentials. Crafted from durable materials with reinforced handles and a detachable shoulder strap.",
+    image: "/blue_bag.jpg",
+    description: "Elegant blue leather bag with premium craftsmanship. This stunning blue leather bag showcases exceptional artistry and attention to detail. Perfect for both professional and casual settings, offering style and functionality in one beautiful package.",
     category: "bags",
     rating: 4.9,
-    features: ["Large Capacity", "Reinforced Handles", "Detachable Strap", "Weekend Travel"]
+    features: ["Premium Blue Leather", "Elegant Design", "Versatile Style", "Superior Craftsmanship"]
+  },
+  {
+    id: 4,
+    name: "Leather Wallet",
+    price: 3500,
+    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&h=600&fit=crop&crop=center",
+    description: "Slim profile genuine leather wallet with multiple card slots and bill compartments. Crafted from premium leather for durability and style.",
+    category: "wallets",
+    rating: 4.6,
+    features: ["Genuine Leather", "Multiple Card Slots", "Slim Profile", "RFID Protection"]
+  },
+  {
+    id: 5,
+    name: "Classic Belt",
+    price: 4200,
+    image: "/belt.jpg",
+    description: "Full-grain leather belt with premium silver buckle. This classic leather belt combines traditional craftsmanship with modern style, perfect for both formal and casual wear.",
+    category: "belts",
+    rating: 4.5,
+    features: ["Full-Grain Leather", "Silver Buckle", "Classic Design", "Adjustable Fit"]
+  },
+  {
+    id: 6,
+    name: "Laptop Bag",
+    price: 8900,
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=600&fit=crop&crop=center",
+    description: "Padded compartment for 15-inch laptops with additional storage for accessories and documents.",
+    category: "bags",
+    rating: 4.7,
+    features: ["Laptop Protection", "Multiple Compartments", "Comfortable Straps", "Water Resistant"]
+  },
+  {
+    id: 7,
+    name: "Card Holder",
+    price: 2800,
+    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&h=600&fit=crop&crop=center",
+    description: "Minimalist design for essential cards with premium leather construction and compact form factor.",
+    category: "accessories",
+    rating: 4.4,
+    features: ["Minimalist Design", "Premium Leather", "Compact Size", "Essential Storage"]
+  },
+  {
+    id: 8,
+    name: "Crossbody Bag",
+    price: 7600,
+    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=600&fit=crop&crop=center",
+    description: "Compact and stylish crossbody bag perfect for daily use with adjustable strap and secure closure.",
+    category: "bags",
+    rating: 4.8,
+    features: ["Adjustable Strap", "Secure Closure", "Compact Design", "Daily Use"]
   }
 ];
 
@@ -49,7 +97,7 @@ const ProductDetail: React.FC = () => {
   const [showPopup, setShowPopup] = useState(false);
   const { addToCart, getTotalItems } = useCart();
   
-  const product = PRODUCTS.find(p => p.id === parseInt(id || '0'));
+  const product = PRODUCTS.find(p => p.id === parseInt(id || '0')) || PRODUCTS.find(p => String(p.id) === id);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
