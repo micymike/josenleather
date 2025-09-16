@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Link } from 'react-router-dom';
+import SidebarNav from "./SidebarNav";
 
 const NAV_LINKS = [
   { label: "Home", href: "#" },
@@ -209,38 +209,8 @@ const LandingPage: React.FC = () => {
         </FloatingElement>
       </div>
 
-      {/* Glassmorphism Navigation */}
-      <nav className="glass-nav fixed top-0 w-full z-50 px-8 py-4">
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <div className="text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
-            <img src="/logo.jpg" alt="Josen Logo" className="h-8 w-auto" />
-            JOSEN LEATHER AND CANVAS
-          </div>
-          <div className="flex gap-8">
-            {NAV_LINKS.map((link, index) => (
-              link.href.startsWith('/') ? (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
-                </Link>
-              ) : (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
-                </a>
-              )
-            ))}
-          </div>
-        </div>
-      </nav>
+      {/* Sidebar Navigation */}
+      <SidebarNav />
 
       {/* Hero Section with 3D Effects */}
       <section ref={heroRef} className="min-h-screen flex items-center justify-center pt-20 px-8">

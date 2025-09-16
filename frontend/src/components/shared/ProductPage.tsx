@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SidebarNav from './SidebarNav';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { getProducts } from '../../lib/api';
@@ -224,43 +225,8 @@ const ProductPage: React.FC = () => {
           </div>
         )}
 
-        {/* Navigation */}
-        <nav className="glass-nav fixed top-0 w-full z-50 px-3 sm:px-4 md:px-8 py-3 md:py-4" style={{
-          backdropFilter: 'blur(20px)',
-          background: 'rgba(255, 255, 255, 0.1)',
-          border: '1px solid rgba(255, 255, 255, 0.2)'
-        }}>
-          <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto gap-2 sm:gap-0">
-            <Link to="/" className="text-xl sm:text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
-              <img src="/logo.jpg" alt="Josen Logo" className="h-6 sm:h-8 w-auto" />
-              <span className="hidden sm:inline text-base sm:text-xl md:text-2xl">JOSEN LEATHER AND CANVAS</span>
-              <span className="inline sm:hidden text-lg">JOSEN</span>
-            </Link>
-            <div className="flex gap-3 sm:gap-4 md:gap-8 items-center mt-2 sm:mt-0">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-sm sm:text-base md:text-lg"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
-                </Link>
-              ))}
-              <Link
-                to="/cart"
-                className="relative p-2 text-amber-900 hover:text-amber-700 transition-all duration-300 hover:scale-110"
-              >
-                🛒
-                {getTotalItems() > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-[10px] sm:text-xs">
-                    {getTotalItems()}
-                  </span>
-                )}
-              </Link>
-            </div>
-          </div>
-        </nav>
+        {/* Sidebar Navigation */}
+        <SidebarNav />
 
         {/* Hero Image Section */}
         <section className="pt-0 relative">

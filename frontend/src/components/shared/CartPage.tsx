@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SidebarNav from './SidebarNav';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import ProductPage from './ProductPage';
@@ -141,42 +142,8 @@ const CartPage: React.FC = () => {
         </FloatingElement>
       </div>
 
-      {/* Navigation */}
-      <nav className="glass-nav fixed top-0 w-full z-50 px-4 py-3 md:px-8 md:py-4" style={{
-        backdropFilter: 'blur(20px)',
-        background: 'rgba(255, 255, 255, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
-        <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-2 md:gap-0">
-          <Link to="/" className="text-xl md:text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
-            <img src="/logo.jpg" alt="Josen Logo" className="h-7 md:h-8 w-auto" />
-            JOSEN LEATHER AND CANVAS
-          </Link>
-          <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center w-full md:w-auto">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                to={link.href}
-                className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-base md:text-lg py-2 md:py-0"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
-              </Link>
-            ))}
-            <Link
-              to="/cart"
-              className="relative p-2 text-amber-900 hover:text-amber-700 transition-all duration-300 hover:scale-110"
-            >
-              <span className="text-lg md:text-xl">🛒</span>
-              {getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {getTotalItems()}
-                </span>
-              )}
-            </Link>
-          </div>
-        </div>
-      </nav>
+      {/* Sidebar Navigation */}
+      <SidebarNav />
 
       <div className="pt-20 px-2 sm:px-4 md:px-8 max-w-7xl mx-auto">
         <div className="mb-8">
@@ -295,16 +262,27 @@ import OrderTrackingStatus from "./OrderTrackingStatus";
 
 const CheckoutSection: React.FC = () => {
   const [orderRef, setOrderRef] = React.useState<string | null>(null);
-  if (orderRef) {
+if (orderRef) {
     return (
       <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-6 text-center">
         <h3 className="text-2xl font-bold text-green-700 mb-2">Order Received!</h3>
         <p className="mb-2">
-          Your order has been received and is being processed.<br />
-          Please check your email for tracking information.
+          Thank you for your order!<br />
+          Your order reference is <span className="font-bold text-green-900">{orderRef}</span>.<br />
+          Your order has been received and is being processed.
         </p>
-        <div className="text-lg font-mono text-green-900 mb-4">{orderRef}</div>
+        <div className="mb-4">
+          <a
+            href={`/order-tracking/${orderRef}`}
+            className="inline-block bg-amber-600 text-white px-4 py-2 rounded font-semibold hover:bg-amber-700 transition"
+          >
+            Track Your Order
+          </a>
+        </div>
         <OrderTrackingStatus status="Received" />
+        <p className="mt-4 text-amber-900 text-sm">
+          You will receive updates on every status change.
+        </p>
       </div>
     );
   }

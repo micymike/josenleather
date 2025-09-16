@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { Link } from 'react-router-dom';
+import SidebarNav from "./SidebarNav";
 
 // Types
 interface NavLink {
@@ -210,47 +210,7 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
   </div>
 );
 
-const Navigation: React.FC = () => (
-  <nav className="glass-nav fixed top-0 w-full z-50 px-4 sm:px-8 py-3 sm:py-4">
-    <div className="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto gap-2 sm:gap-0">
-      <div
-        className="text-xl sm:text-2xl font-bold shimmer-text flex items-center gap-2"
-        style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}
-      >
-        <img
-          src={COMPANY_INFO.logo}
-          alt="Josen Logo"
-          className="h-7 sm:h-8 w-auto"
-        />
-        <span className="hidden sm:inline">{COMPANY_INFO.name}</span>
-        <span className="inline sm:hidden">JOSEN</span>
-      </div>
-      <div className="flex gap-4 sm:gap-8">
-        {NAV_LINKS.map((link) =>
-          link.href.startsWith('/') ? (
-            <Link
-              key={link.label}
-              to={link.href}
-              className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-base sm:text-lg"
-            >
-              {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
-            </Link>
-          ) : (
-            <a
-              key={link.label}
-              href={link.href}
-              className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-base sm:text-lg"
-            >
-              {link.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
-            </a>
-          )
-        )}
-      </div>
-    </div>
-  </nav>
-);
+/* Navigation component removed, replaced by SidebarNav */
 
 const BackgroundElements: React.FC<{ scrollY: number }> = ({ scrollY }) => (
   <>
@@ -508,7 +468,7 @@ const AboutPage: React.FC = () => {
       <style>{COMPONENT_STYLES}</style>
 
       <BackgroundElements scrollY={scrollY} />
-      <Navigation />
+      <SidebarNav />
       <HeroSection mousePos={mousePos} />
       <FeaturesSection mousePos={mousePos} />
       <CallToActionSection />
