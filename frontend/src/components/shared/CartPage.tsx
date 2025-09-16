@@ -21,12 +21,14 @@ const CartPage: React.FC = () => {
   const hasCorruptedPrices = cartItems.some(item => item.price < 10);
   const [loadingImages, setLoadingImages] = useState(false);
   const [usdRate, setUsdRate] = useState<number | null>(null);
+  const [usdRateFallback, setUsdRateFallback] = useState(false);
 
   // Fetch USD rate on mount
   useEffect(() => {
     const fetchRate = async () => {
       const rate = await fetchKshToUsdRate();
       setUsdRate(rate);
+      setUsdRateFallback(rate === null);
     };
     fetchRate();
   }, []);

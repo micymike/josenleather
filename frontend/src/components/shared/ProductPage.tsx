@@ -165,11 +165,7 @@ const ProductPage: React.FC = () => {
   return (
     <React.Fragment>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productStructuredData) }} />
-      {usdRate === 0.007 && (
-        <div className="bg-yellow-200 text-yellow-900 text-center py-2 px-4 font-semibold">
-          USD exchange rate unavailable. Prices are estimated using a fallback rate and may not be accurate.
-        </div>
-      )}
+   
       <div className="relative overflow-x-hidden min-h-screen">
         <style>{`
           .glass-card {
