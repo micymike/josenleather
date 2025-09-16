@@ -8,10 +8,11 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 
+# Copy .env file
+COPY .env .env
+
 # Copy source files
 COPY . .
-
-
 
 # Build the NestJS app
 RUN npm run build
