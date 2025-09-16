@@ -23,6 +23,6 @@ RUN npm prune --production
 EXPOSE 3000
 
 # Start the app
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main.js"]
 
 # Note: For environment variables, mount or copy .env file as needed

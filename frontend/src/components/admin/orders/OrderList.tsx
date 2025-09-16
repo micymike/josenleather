@@ -1,5 +1,27 @@
+import { useState, useEffect } from 'react';
+import { getOrders } from '../../../lib/api';
+
 const OrderList = () => {
-  const orders = []; // TODO: Fetch from API
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const token = localStorage.getItem('adminToken');
+        const data = await getOrders(token);
+        setOrders(data);
+      } catch (err) {
+        setError('Failed to fetch orders');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
 
   return (
     <div className="p-6">
@@ -17,7 +39,19 @@ const OrderList = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.length === 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  Loading orders...
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-red-500">
+                  {error}
+                </td>
+              </tr>
+            ) : orders.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
                   No orders found
@@ -27,7 +61,7 @@ const OrderList = () => {
               orders.map((order: any) => (
                 <tr key={order.id} className="border-t">
                   <td className="px-6 py-4">{order.id}</td>
-                  <td className="px-6 py-4">{order.customer}</td>
+                  <td className="px-6 py-4">{order.guestEmail || order.userId || 'Guest'}</td>
                   <td className="px-6 py-4">${order.total}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-xs ${
@@ -38,7 +72,7 @@ const OrderList = () => {
                       {order.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4">{order.date}</td>
+                  <td className="px-6 py-4">{order.createdAt ? new Date(order.createdAt).toLocaleString() : ''}</td>
                   <td className="px-6 py-4">
                     <button className="text-blue-600 hover:text-blue-800 mr-2">View</button>
                     <button className="text-green-600 hover:text-green-800">Update</button>
