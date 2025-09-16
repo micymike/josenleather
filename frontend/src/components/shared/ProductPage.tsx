@@ -19,9 +19,10 @@ const NAV_LINKS = [
   { label: "Contact", href: "/contact" },
 ];
 
+/*
 const MOCK_PRODUCTS: Product[] = [
   {
-    id: "1",
+    id: "a1b2c3d4-e5f6-7890-abcd-1234567890ab",
     name: "Leather Bag",
     price: 15900,
     imageUrls: ["/brown_bag.jpg"],
@@ -31,7 +32,7 @@ const MOCK_PRODUCTS: Product[] = [
   },
 
   {
-    id: "3",
+    id: "b2c3d4e5-f6a1-8907-bcda-2345678901bc",
     name: "Premium Leather Bag",
     price: 18700,
     imageUrls: ["/blue_bag.jpg"],
@@ -41,8 +42,8 @@ const MOCK_PRODUCTS: Product[] = [
   },
 
   {
-    id: "5",
-    name: "Classic Belt",
+    id: "c3d4e5f6-a1b2-9078-cdab-3456789012cd",
+    name: "Classic Leather Belt",
     price: 4200,
     imageUrls: ["/belt.jpg"],
     description: "Full-grain leather with silver buckle",
@@ -50,18 +51,27 @@ const MOCK_PRODUCTS: Product[] = [
     rating: 4.5
   },
 
-
-
   {
-    id: "9",
+    id: "d4e5f6a1-b2c3-0789-dabc-4567890123de",
     name: "Premium Leather Belt",
     price: 5200,
     imageUrls: ["/hero4.jpg"],
     description: "Handcrafted premium leather belt with polished brass buckle. Made from full-grain Italian leather, this belt combines durability with sophisticated style. Perfect for both formal and casual occasions, featuring precise stitching and a timeless design that complements any wardrobe.",
     category: "belts",
     rating: 4.9
+  },
+  {
+    id: "e5f6a1b2-c3d4-7890-abcd-5678901234ef",
+    name: "Classic Dark Brown Leather Belt",
+    price: 4500,
+    imageUrls: ["/dark_brown_belt.jpg"],
+    description: "Timeless classic dark brown leather belt with a sleek design. Made from high-quality full-grain leather, this belt is perfect for both formal and casual wear. Its durable construction ensures it will last for years, while the elegant buckle adds a touch of sophistication.",
+    category: "belts",
+    rating: 4.7
   }
+
 ];
+*/
 
 const HERO_IMAGES = [
   '/hero1.jpg',
@@ -88,11 +98,11 @@ const ProductPage: React.FC = () => {
         if (Array.isArray(data) && data.length > 0) {
           setProducts(data);
         } else {
-          setProducts(MOCK_PRODUCTS);
+          setProducts([]);
         }
       } catch (error) {
         console.error('Error fetching products:', error);
-        setProducts(MOCK_PRODUCTS);
+        setProducts([]);
       }
     };
     fetchProducts();
@@ -325,6 +335,14 @@ const ProductPage: React.FC = () => {
               Leather Bags
             </button>
             <button 
+              onClick={() => setSelectedCategory('belts')}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
+                selectedCategory === 'belts' ? 'bg-amber-600 text-white' : 'bg-white/50 text-amber-900 hover:bg-amber-100'
+              }`}
+            >
+             Belts
+            </button>
+            <button 
               onClick={() => setSelectedCategory('wallets')}
               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
                 selectedCategory === 'wallets' ? 'bg-amber-600 text-white' : 'bg-white/50 text-amber-900 hover:bg-amber-100'
@@ -332,14 +350,9 @@ const ProductPage: React.FC = () => {
             >
               New Arrivals
             </button>
-            <button 
-              onClick={() => setSortBy('rating')}
-              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
-                sortBy === 'rating' ? 'bg-amber-600 text-white' : 'bg-white/50 text-amber-900 hover:bg-amber-100'
-              }`}
-            >
-              Best Sellers
-            </button>
+          
+              
+            
           </div>
         </section>
 
@@ -404,11 +417,31 @@ const ProductPage: React.FC = () => {
                 <h3 className="text-sm sm:text-base md:text-lg font-bold text-amber-900 mb-1 sm:mb-2 line-clamp-2">{product.name}</h3>
                 <p className="text-amber-700/80 mb-2 sm:mb-3 text-xs sm:text-sm line-clamp-2">{product.description}</p>
                 <div className="flex justify-between items-center mb-2 sm:mb-3">
-                  <span className="text-base sm:text-lg md:text-xl font-bold">
-                    {usdRate !== null
-                      ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                      : `KSh ${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                  </span>
+                  {/* Show both KES and USD for Bag and Belt */}
+                  {(
+                    product.name.toLowerCase().includes("bag") ||
+                    product.name.toLowerCase().includes("belt")
+                  ) ? (
+                    <span className="text-base sm:text-lg md:text-xl font-bold flex flex-col items-start">
+                      {product.name.toLowerCase().includes("bag") ? (
+                        <>
+                          <span>KES 18,500</span>
+                          <span className="text-xs text-amber-700/80">US$ 145</span>
+                        </>
+                      ) : product.name.toLowerCase().includes("belt") ? (
+                        <>
+                          <span>KES 4,500</span>
+                          <span className="text-xs text-amber-700/80">US$ 35</span>
+                        </>
+                      ) : null}
+                    </span>
+                  ) : (
+                    <span className="text-base sm:text-lg md:text-xl font-bold">
+                      {usdRate !== null
+                        ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : `KSh ${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    </span>
+                  )}
                   <div className="flex items-center">
                     <span className="text-yellow-500 text-sm">⭐</span>
                     <span className="text-xs sm:text-sm text-amber-700 ml-1">{product.rating}</span>

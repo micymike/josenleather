@@ -125,13 +125,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium mb-1">County</label>
+        <label className="block text-sm font-medium mb-1">State/Province/Region</label>
         <input
           type="text"
           className="w-full border border-gray-300 rounded px-3 py-2"
           value={county}
           onChange={e => setCounty(e.target.value)}
           required
+          placeholder="Enter your state, province, or region"
         />
       </div>
       <div>

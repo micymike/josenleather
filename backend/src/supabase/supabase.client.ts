@@ -7,15 +7,11 @@ export class SupabaseService {
   private supabaseClient: SupabaseClient;
 
   constructor(private configService: ConfigService) {
-    const supabaseUrl = this.configService.get<string>('SUPABASE_URL') || this.configService.get<string>('SUPABASE_PROJECT_URL');
-    const supabaseKey = this.configService.get<string>('SUPABASE_ANON_KEY');
+    const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
+    const supabaseKey = this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!supabaseUrl) {
-      throw new Error('SUPABASE_URL or SUPABASE_PROJECT_URL is required in environment variables');
-    }
-
-    if (!supabaseKey) {
-      throw new Error('SUPABASE_ANON_KEY is required in environment variables');
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required');
     }
 
     this.supabaseClient = createClient(supabaseUrl, supabaseKey);
@@ -26,36 +22,17 @@ export class SupabaseService {
   }
 }
 
-// Legacy export for backward compatibility - will be lazy loaded
-let legacyClient: SupabaseClient | null = null;
-export const supabase = new Proxy({} as SupabaseClient, {
-  get(target, prop) {
-    if (!legacyClient) {
-      const supabaseUrl = process.env.SUPABASE_URL || process.env.SUPABASE_PROJECT_URL;
-      const supabaseKey = process.env.SUPABASE_ANON_KEY;
-      if (supabaseUrl && supabaseKey) {
-        legacyClient = createClient(supabaseUrl, supabaseKey);
-      } else {
-        throw new Error('Supabase environment variables not loaded yet');
-      }
-    }
-    return legacyClient[prop as keyof SupabaseClient];
-  }
-});
+// Single client using service role key
+const supabaseUrl = process.env.SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// Service role client for admin operations
-let serviceRoleClient: SupabaseClient | null = null;
-export const supabaseAdmin = new Proxy({} as SupabaseClient, {
-  get(target, prop) {
-    if (!serviceRoleClient) {
-      const supabaseUrl = process.env.SUPABASE_URL || process.env.SUPABASE_PROJECT_URL;
-      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-      if (supabaseUrl && serviceRoleKey) {
-        serviceRoleClient = createClient(supabaseUrl, serviceRoleKey);
-      } else {
-        throw new Error('Supabase service role key not configured');
-      }
-    }
-    return serviceRoleClient[prop as keyof SupabaseClient];
-  }
-});
+if (!supabaseUrl || !serviceRoleKey) {
+  console.error('SUPABASE_URL:', supabaseUrl);
+  console.error('SUPABASE_SERVICE_ROLE_KEY:', serviceRoleKey);
+  throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set');
+}
+
+const client = createClient(supabaseUrl, serviceRoleKey);
+
+export const supabase = client;
+export const supabaseAdmin = client;
