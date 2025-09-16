@@ -8,8 +8,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy .env file
-COPY .env .env
+# Copy .env file (optional)
+COPY .env* ./
 
 # Copy source files
 COPY . .
