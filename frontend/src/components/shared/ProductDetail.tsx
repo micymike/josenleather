@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SidebarNav from './SidebarNav';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
@@ -149,42 +150,8 @@ const ProductDetail: React.FC = () => {
         </FloatingElement>
       </div>
 
-      {/* Navigation */}
-      <nav className="glass-nav fixed top-0 w-full z-50 px-8 py-4" style={{
-        backdropFilter: 'blur(20px)',
-        background: 'rgba(255, 255, 255, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <Link to="/" className="text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
-            <img src="/logo.jpg" alt="Josen Logo" className="h-8 w-auto" />
-            JOSEN LEATHER AND CANVAS
-          </Link>
-          <div className="flex gap-8 items-center">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                to={link.href}
-                className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
-              </Link>
-            ))}
-            <Link
-              to="/cart"
-              className="relative p-2 text-amber-900 hover:text-amber-700 transition-all duration-300 hover:scale-110"
-            >
-              🛒
-              {getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {getTotalItems()}
-                </span>
-              )}
-            </Link>
-          </div>
-        </div>
-      </nav>
+      {/* Sidebar Navigation */}
+      <SidebarNav />
 
       <div className="pt-24 px-8 max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
