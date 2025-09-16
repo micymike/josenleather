@@ -22,6 +22,7 @@ RUN npm run build
 
 # Verify build output exists
 RUN ls -la dist/
+RUN ls -la dist/src/
 
 # Optionally prune devDependencies to reduce image size
 RUN npm prune --production
@@ -30,4 +31,4 @@ RUN npm prune --production
 EXPOSE 3000
 
 # Start the app
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
