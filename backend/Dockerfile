@@ -1,29 +1,30 @@
-# Use official Node.js LTS Alpine image
-FROM node:lts-alpine
+# Use official Node.js LTS image
+FROM node:20-alpine3.19
+
+# Update Alpine packages to fix vulnerabilities
+RUN apk update && apk upgrade --no-cache
 
 # Set working directory
 WORKDIR /app
 
 # Install dependencies
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm install
-
-# Copy .env file (optional)
-COPY .env* ./
 
 # Copy source files
 COPY . .
 
-# Build the NestJS app
-RUN npm run build
+    # Install NestJS CLI globally
+    RUN npm install -g @nestjs/cli
 
-# Remove devDependencies for smaller image
-RUN npm prune --production
+    # Build the NestJS app
+    RUN npm run build
 
-# Expose the port (default 3000, can be overridden by .env)
+    # Optionally prune devDependencies to reduce image size
+    RUN npm prune --production
+
+# Expose the app port
 EXPOSE 3000
 
 # Start the app
-CMD ["node", "dist/src/main.js"]
-
-# Note: For environment variables, mount or copy .env file as needed
+CMD ["node", "dist/main.js"]
