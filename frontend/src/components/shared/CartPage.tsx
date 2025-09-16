@@ -5,7 +5,6 @@ import { useCart } from '../../context/CartContext';
 import ProductPage from './ProductPage';
 // We'll extract the ProductImageCarousel from ProductPage
 import CheckoutForm from './CheckoutForm';
-import { fetchKshToUsdRate, convertKshToUsd } from '../../lib/utils';
 
 const NAV_LINKS = [
   { label: "About", href: "/about" },
@@ -20,18 +19,6 @@ const CartPage: React.FC = () => {
   // Check if cart has items with suspiciously low prices (likely USD)
   const hasCorruptedPrices = cartItems.some(item => item.price < 10);
   const [loadingImages, setLoadingImages] = useState(false);
-  const [usdRate, setUsdRate] = useState<number | null>(null);
-  const [usdRateFallback, setUsdRateFallback] = useState(false);
-
-  // Fetch USD rate on mount
-  useEffect(() => {
-    const fetchRate = async () => {
-      const rate = await fetchKshToUsdRate();
-      setUsdRate(rate);
-      setUsdRateFallback(rate === null);
-    };
-    fetchRate();
-  }, []);
 
   // Fetch product images for cart items missing them
   useEffect(() => {
@@ -188,8 +175,6 @@ const CartPage: React.FC = () => {
             cartItems={cartItems}
             getTotalItems={getTotalItems}
             getTotalPrice={getTotalPrice}
-            usdRate={usdRate}
-            convertKshToUsd={convertKshToUsd}
             updateQuantity={updateQuantity}
             removeFromCart={removeFromCart}
           />
@@ -296,16 +281,12 @@ const CheckoutFlow: React.FC<{
   cartItems: any[];
   getTotalItems: () => number;
   getTotalPrice: () => number;
-  usdRate: number | null;
-  convertKshToUsd: (ksh: number, rate: number) => number;
   updateQuantity: (id: any, qty: number) => void;
   removeFromCart: (id: any) => void;
 }> = ({
   cartItems,
   getTotalItems,
   getTotalPrice,
-  usdRate,
-  convertKshToUsd,
   updateQuantity,
   removeFromCart,
 }) => {
@@ -329,10 +310,19 @@ const CheckoutFlow: React.FC<{
             <div className="flex justify-between">
               <span className="text-amber-800">Items ({getTotalItems()})</span>
               <span className="font-medium text-amber-900">
-                {usdRate !== null
-                  ? <>${convertKshToUsd(getTotalPrice(), usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs text-amber-700/70">(KSh {getTotalPrice().toLocaleString()})</span></>
-                  : <>KSh {getTotalPrice().toLocaleString()}</>
-                }
+                {(() => {
+                  let total = 0;
+                  cartItems.forEach(item => {
+                    if (item.name && item.name.toLowerCase().includes("bag")) {
+                      total += 18500 * item.quantity;
+                    } else if (item.name && item.name.toLowerCase().includes("belt")) {
+                      total += 4500 * item.quantity;
+                    } else {
+                      total += item.price * item.quantity;
+                    }
+                  });
+                  return `KSh ${total.toLocaleString()}`;
+                })()}
               </span>
             </div>
             <div className="flex justify-between">
@@ -343,10 +333,34 @@ const CheckoutFlow: React.FC<{
             <div className="flex justify-between text-xl font-bold">
               <span className="text-amber-900">Total</span>
               <span className="shimmer-text">
-                {usdRate !== null
-                  ? <>${convertKshToUsd(getTotalPrice(), usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs text-amber-700/70">(KSh {getTotalPrice().toLocaleString()})</span></>
-                  : <>KSh {getTotalPrice().toLocaleString()}</>
-                }
+                {(() => {
+                  let totalKES = 0;
+                  let totalUSD = 0;
+                  let allBags = true;
+                  let allBelts = true;
+                  cartItems.forEach(item => {
+                    if (item.name && item.name.toLowerCase().includes("bag")) {
+                      totalKES += 18500 * item.quantity;
+                      totalUSD += 145 * item.quantity;
+                      allBelts = false;
+                    } else if (item.name && item.name.toLowerCase().includes("belt")) {
+                      totalKES += 4500 * item.quantity;
+                      totalUSD += 35 * item.quantity;
+                      allBags = false;
+                    } else {
+                      totalKES += item.price * item.quantity;
+                      allBags = false;
+                      allBelts = false;
+                    }
+                  });
+                  if (allBags) {
+                    return `KES ${totalKES.toLocaleString()}  (US$ ${totalUSD.toLocaleString()})`;
+                  } else if (allBelts) {
+                    return `KES ${totalKES.toLocaleString()}  (US$ ${totalUSD.toLocaleString()})`;
+                  } else {
+                    return `KSh ${totalKES.toLocaleString()}`;
+                  }
+                })()}
               </span>
             </div>
           </div>
@@ -387,10 +401,19 @@ const CheckoutFlow: React.FC<{
                 <div className="flex-1">
                   <h4 className="text-lg md:text-xl font-bold text-amber-900 mb-1 md:mb-2">{item.name}</h4>
                   <p className="text-base md:text-lg font-semibold shimmer-text mb-2 md:mb-4">
-                    {usdRate !== null
-                      ? <>${convertKshToUsd(item.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs text-amber-700/70">(KSh {item.price.toLocaleString()})</span></>
-                      : <>KSh {item.price.toLocaleString()}</>
-                    }
+                    {item.name && item.name.toLowerCase().includes("bag") ? (
+                      <>
+                        <span>KES 18,500</span>
+                        <span className="text-xs text-amber-700/80"> US$ 145</span>
+                      </>
+                    ) : item.name && item.name.toLowerCase().includes("belt") ? (
+                      <>
+                        <span>KES 4,500</span>
+                        <span className="text-xs text-amber-700/80"> US$ 35</span>
+                      </>
+                    ) : (
+                      <>KSh {item.price.toLocaleString()}</>
+                    )}
                   </p>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                     <div className="flex items-center border border-amber-300/30 rounded-md md:rounded-lg">
@@ -410,10 +433,19 @@ const CheckoutFlow: React.FC<{
                     </div>
                     <div className="flex items-center gap-2 md:gap-4 mt-2 sm:mt-0">
                       <span className="text-lg md:text-xl font-bold text-amber-900">
-                        {usdRate !== null
-                          ? <>${convertKshToUsd(item.price * item.quantity, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs text-amber-700/70">(KSh {(item.price * item.quantity).toLocaleString()})</span></>
-                          : <>KSh {(item.price * item.quantity).toLocaleString()}</>
-                        }
+                        {item.name && item.name.toLowerCase().includes("bag") ? (
+                          <>
+                            <span>KES {18500 * item.quantity}</span>
+                            <span className="text-xs text-amber-700/80"> US$ {145 * item.quantity}</span>
+                          </>
+                        ) : item.name && item.name.toLowerCase().includes("belt") ? (
+                          <>
+                            <span>KES {4500 * item.quantity}</span>
+                            <span className="text-xs text-amber-700/80"> US$ {35 * item.quantity}</span>
+                          </>
+                        ) : (
+                          <>KSh {(item.price * item.quantity).toLocaleString()}</>
+                        )}
                       </span>
                       <button
                         onClick={() => removeFromCart(item.id)}
