@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { supabase } from '../supabase/supabase.client';
+import { SupabaseService } from '../supabase/supabase.client';
 
 @Injectable()
 export class ProductService {
-  constructor() {}
+  constructor(private readonly supabaseService: SupabaseService) {}
 
   async create(createProductDto: CreateProductDto, images: Array<Express.Multer.File>) {
+    const supabase = this.supabaseService.client;
     let imageUrls: string[] = [];
 
     if (images && images.length > 0) {
@@ -67,6 +68,7 @@ export class ProductService {
   }
 
   async findAll() {
+    const supabase = this.supabaseService.client;
     const { data, error } = await supabase.from('product').select('*');
     if (error) throw new Error(error.message);
     console.log('findAll products:', data ? data.length : 0);
@@ -74,6 +76,7 @@ export class ProductService {
   }
 
   async findOne(id: string) {
+    const supabase = this.supabaseService.client;
     const { data, error } = await supabase
       .from('product')
       .select('*')
@@ -84,6 +87,7 @@ export class ProductService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
+    const supabase = this.supabaseService.client;
     const { data, error } = await supabase
       .from('product')
       .update(updateProductDto)
@@ -95,6 +99,7 @@ export class ProductService {
   }
 
   async remove(id: string) {
+    const supabase = this.supabaseService.client;
     const { data, error } = await supabase
       .from('product')
       .delete()
@@ -106,6 +111,7 @@ export class ProductService {
   }
 
   async count() {
+    const supabase = this.supabaseService.client;
     const { count, error } = await supabase
       .from('product')
       .select('id', { count: 'exact', head: true });

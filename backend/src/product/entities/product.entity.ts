@@ -12,6 +12,7 @@ export class Product {
   seoTitle?: string;
   seoDesc?: string;
   metaTags?: string[];
+  rating?: number;
   createdAt: Date;
   updatedAt: Date;
 }
