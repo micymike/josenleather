@@ -49,7 +49,7 @@ export class OrderService {
 
     // Notify buyer and admin
     const orderRef = order.id;
-    const adminContact = { email: process.env.ADMIN_EMAIL || '', phone: process.env.ADMIN_PHONE || '' };
+    const adminContact = { email: 'uniconnect693@gmail.com', phone: '' };
     const buyerContact = { email: order.guestEmail || '', phone: order.guestPhone || '' };
     await this.notificationService.sendOrderConfirmation(buyerContact, { orderRef }, false);
     await this.notificationService.sendOrderConfirmation(adminContact, { orderRef }, true);
@@ -113,7 +113,7 @@ export class OrderService {
 
     // Notify buyer and admin
     const orderRef = order.id;
-    const adminContact = { email: process.env.ADMIN_EMAIL || '', phone: process.env.ADMIN_PHONE || '' };
+    const adminContact = { email: 'uniconnect693@gmail.com', phone: '' };
     const buyerContact = { email: order.guestEmail || '', phone: order.guestPhone || '' };
     await this.notificationService.sendOrderConfirmation(buyerContact, { orderRef }, false);
     await this.notificationService.sendOrderConfirmation(adminContact, { orderRef }, true);

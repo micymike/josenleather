@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 const NAV_LINKS = [
   { label: "Products", href: "/products" },
   { label: "Contact", href: "/contact" },
+    { label: "About", href: "/about" },
 ];
 
 const COMPANY_INFO = {
