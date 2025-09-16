@@ -14,17 +14,20 @@ RUN npm install
 # Copy source files
 COPY . .
 
-    # Install NestJS CLI globally
-    RUN npm install -g @nestjs/cli
+# Install NestJS CLI globally
+RUN npm install -g @nestjs/cli
 
-    # Build the NestJS app
-    RUN npm run build
+# Build the NestJS app
+RUN npm run build
 
-    # Optionally prune devDependencies to reduce image size
-    RUN npm prune --production
+# Verify build output exists
+RUN ls -la dist/
+
+# Optionally prune devDependencies to reduce image size
+RUN npm prune --production
 
 # Expose the app port
 EXPOSE 3000
 
 # Start the app
-CMD ["node", "dist/main"]
+CMD ["node", "dist/main.js"]
