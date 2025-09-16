@@ -17,15 +17,17 @@ export class OrderService {
   async create(createOrderDto: CreateOrderDto) {
     // Insert order
     const { data: order, error: orderError } = await supabase
-      .from('order')
-      .insert([{
+      .from('Order')
+      .insert({
         userId: createOrderDto.userId ?? null,
         status: createOrderDto.status || 'pending',
         total: createOrderDto.total,
         guestEmail: createOrderDto.guestEmail ?? null,
         guestAddress: createOrderDto.guestAddress ?? null,
         guestPhone: createOrderDto.guestPhone ?? null,
-      }])
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
       .select()
       .single();
 
@@ -40,7 +42,7 @@ export class OrderService {
         price: item.price,
       }));
       const { error: itemsError } = await supabase
-        .from('order_item')
+        .from('OrderItem')
         .insert(itemsToInsert);
       if (itemsError) throw new BadRequestException(itemsError.message);
     }
@@ -69,15 +71,17 @@ export class OrderService {
 
     // Insert order
     const { data: order, error: orderError } = await supabase
-      .from('order')
-      .insert([{
+      .from('Order')
+      .insert({
         userId: userId,
         status: 'pending',
         total,
         guestEmail: guestInfo?.email,
         guestAddress: guestInfo?.address,
         guestPhone: guestInfo?.phone,
-      }])
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
       .select()
       .single();
 
@@ -92,7 +96,7 @@ export class OrderService {
     }));
     if (orderItems.length > 0) {
       const { error: itemsError } = await supabase
-        .from('order_item')
+        .from('OrderItem')
         .insert(orderItems);
       if (itemsError) throw new BadRequestException(itemsError.message);
     }
@@ -118,14 +122,14 @@ export class OrderService {
   }
 
   async findAll() {
-    const { data, error } = await supabase.from('order').select('*');
+    const { data, error } = await supabase.from('Order').select('*');
     if (error) throw new BadRequestException(error.message);
     return data;
   }
 
   async findOne(id: string) {
     const { data, error } = await supabase
-      .from('order')
+      .from('Order')
       .select('*')
       .eq('id', id)
       .single();
@@ -138,10 +142,11 @@ export class OrderService {
 
     // Update order
     const { data: order, error: orderError } = await supabase
-      .from('order')
+      .from('Order')
       .update({
         ...rest,
         userId: userId === undefined ? null : userId,
+        updatedAt: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -152,7 +157,7 @@ export class OrderService {
     // Update order items: delete all and re-insert
     if (items) {
       const { error: deleteError } = await supabase
-        .from('order_item')
+        .from('OrderItem')
         .delete()
         .eq('orderId', id);
       if (deleteError) throw new BadRequestException(deleteError.message);
@@ -165,7 +170,7 @@ export class OrderService {
           price: item.price,
         }));
         const { error: insertError } = await supabase
-          .from('order_item')
+          .from('OrderItem')
           .insert(itemsToInsert);
         if (insertError) throw new BadRequestException(insertError.message);
       }
@@ -183,14 +188,14 @@ export class OrderService {
   async remove(id: string) {
     // Delete order items first
     const { error: itemsError } = await supabase
-      .from('order_item')
+      .from('OrderItem')
       .delete()
       .eq('orderId', id);
     if (itemsError) throw new BadRequestException(itemsError.message);
 
     // Delete order
     const { data, error } = await supabase
-      .from('order')
+      .from('Order')
       .delete()
       .eq('id', id)
       .select()

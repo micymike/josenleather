@@ -142,22 +142,22 @@ const CartPage: React.FC = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="glass-nav fixed top-0 w-full z-50 px-8 py-4" style={{
+      <nav className="glass-nav fixed top-0 w-full z-50 px-4 py-3 md:px-8 md:py-4" style={{
         backdropFilter: 'blur(20px)',
         background: 'rgba(255, 255, 255, 0.1)',
         border: '1px solid rgba(255, 255, 255, 0.2)'
       }}>
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <Link to="/" className="text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
-            <img src="/logo.jpg" alt="Josen Logo" className="h-8 w-auto" />
+        <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-2 md:gap-0">
+          <Link to="/" className="text-xl md:text-2xl font-bold shimmer-text flex items-center gap-2" style={{ fontFamily: "'Edu NSW ACT Foundation', cursive", fontStyle: "italic" }}>
+            <img src="/logo.jpg" alt="Josen Logo" className="h-7 md:h-8 w-auto" />
             JOSEN LEATHER AND CANVAS
           </Link>
-          <div className="flex gap-8 items-center">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center w-full md:w-auto">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
-                className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group"
+                className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-base md:text-lg py-2 md:py-0"
               >
                 {link.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
@@ -167,7 +167,7 @@ const CartPage: React.FC = () => {
               to="/cart"
               className="relative p-2 text-amber-900 hover:text-amber-700 transition-all duration-300 hover:scale-110"
             >
-              🛒
+              <span className="text-lg md:text-xl">🛒</span>
               {getTotalItems() > 0 && (
                 <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {getTotalItems()}
@@ -178,7 +178,7 @@ const CartPage: React.FC = () => {
         </div>
       </nav>
 
-      <div className="pt-24 px-8 max-w-7xl mx-auto">
+      <div className="pt-20 px-2 sm:px-4 md:px-8 max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-5xl font-black shimmer-text mb-4">SHOPPING CART</h1>
           <p className="text-xl text-amber-800/80">Review your selected items</p>
@@ -340,12 +340,12 @@ const CheckoutFlow: React.FC<{
   }, [showCheckout]);
 
   return (
-    <div className="grid lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
       {/* Cart Summary - Left Side */}
-      <div className="lg:col-span-1">
-        <div className="glass-card rounded-3xl p-6 sticky top-24">
-          <h3 className="text-2xl font-bold text-amber-900 mb-6">Order Summary</h3>
-          <div className="space-y-4 mb-6">
+      <div className="lg:col-span-1 md:col-span-2 col-span-1">
+        <div className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-6 sticky top-24">
+          <h3 className="text-xl md:text-2xl font-bold text-amber-900 mb-4 md:mb-6">Order Summary</h3>
+          <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
             <div className="flex justify-between">
               <span className="text-amber-800">Items ({getTotalItems()})</span>
               <span className="font-medium text-amber-900">
@@ -386,50 +386,50 @@ const CheckoutFlow: React.FC<{
         </div>
       </div>
       {/* Cart Items - Right Side */}
-      <div className="lg:col-span-2">
-        <div className="space-y-4">
+      <div className="lg:col-span-2 md:col-span-2 col-span-1">
+        <div className="space-y-3 md:space-y-4">
           {cartItems.map((item, index) => (
             <div
               key={item.id}
-              className="glass-card rounded-2xl p-6 animate-in slide-in-from-right duration-500"
+              className="glass-card rounded-xl md:rounded-2xl p-3 md:p-6 animate-in slide-in-from-right duration-500"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                 {item.imageUrls && item.imageUrls.length > 1 ? (
                   <ProductImageCarousel imageUrls={item.imageUrls} productName={item.name} />
                 ) : (
                   <img
                     src={item.image || "/logo.jpg"}
                     alt={item.name}
-                    className="w-24 h-24 object-cover rounded-xl"
+                    className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg md:rounded-xl"
                   />
                 )}
                 <div className="flex-1">
-                  <h4 className="text-xl font-bold text-amber-900 mb-2">{item.name}</h4>
-                  <p className="text-lg font-semibold shimmer-text mb-4">
+                  <h4 className="text-lg md:text-xl font-bold text-amber-900 mb-1 md:mb-2">{item.name}</h4>
+                  <p className="text-base md:text-lg font-semibold shimmer-text mb-2 md:mb-4">
                     {usdRate !== null
                       ? <>${convertKshToUsd(item.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs text-amber-700/70">(KSh {item.price.toLocaleString()})</span></>
                       : <>KSh {item.price.toLocaleString()}</>
                     }
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center border border-amber-300/30 rounded-lg">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <div className="flex items-center border border-amber-300/30 rounded-md md:rounded-lg">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="px-3 py-2 text-amber-900 hover:bg-amber-100/20 transition-colors"
+                        className="px-2 py-1 md:px-3 md:py-2 text-amber-900 hover:bg-amber-100/20 transition-colors text-lg md:text-xl"
                       >
                         -
                       </button>
-                      <span className="px-4 py-2 font-medium text-amber-900">{item.quantity}</span>
+                      <span className="px-3 py-1 md:px-4 md:py-2 font-medium text-amber-900 text-base md:text-lg">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="px-3 py-2 text-amber-900 hover:bg-amber-100/20 transition-colors"
+                        className="px-2 py-1 md:px-3 md:py-2 text-amber-900 hover:bg-amber-100/20 transition-colors text-lg md:text-xl"
                       >
                         +
                       </button>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-xl font-bold text-amber-900">
+                    <div className="flex items-center gap-2 md:gap-4 mt-2 sm:mt-0">
+                      <span className="text-lg md:text-xl font-bold text-amber-900">
                         {usdRate !== null
                           ? <>${convertKshToUsd(item.price * item.quantity, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-xs text-amber-700/70">(KSh {(item.price * item.quantity).toLocaleString()})</span></>
                           : <>KSh {(item.price * item.quantity).toLocaleString()}</>
@@ -437,7 +437,7 @@ const CheckoutFlow: React.FC<{
                       </span>
                       <button
                         onClick={() => removeFromCart(item.id)}
-                        className="text-red-600 hover:text-red-800 transition-colors p-2"
+                        className="text-red-600 hover:text-red-800 transition-colors p-2 text-lg md:text-xl"
                       >
                         🗑️
                       </button>
@@ -450,41 +450,41 @@ const CheckoutFlow: React.FC<{
         </div>
         {/* Guest Checkout Form */}
         {showCheckout && (
-          <div ref={checkoutRef} className="mt-8">
-            <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-3xl p-8 border border-amber-200/50 shadow-2xl">
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-amber-600 to-orange-600 rounded-full mb-4">
-                  <span className="text-2xl text-amber-50">🛒</span>
+          <div ref={checkoutRef} className="mt-6 md:mt-8">
+            <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-xl md:rounded-3xl p-4 md:p-8 border border-amber-200/50 shadow-2xl">
+              <div className="text-center mb-6 md:mb-8">
+                <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-amber-600 to-orange-600 rounded-full mb-3 md:mb-4">
+                  <span className="text-xl md:text-2xl text-amber-50">🛒</span>
                 </div>
-                <h2 className="text-3xl font-bold text-amber-900 mb-2">Complete Your Order</h2>
-                <p className="text-amber-700">Fill in your details to proceed with checkout</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-amber-900 mb-1 md:mb-2">Complete Your Order</h2>
+                <p className="text-amber-700 text-sm md:text-base">Fill in your details to proceed with checkout</p>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-gradient-to-r from-amber-100 to-orange-100 p-6 rounded-2xl border border-amber-300/30">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl">📱</span>
-                    <h4 className="font-bold text-amber-900">M-Pesa Payment</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+                <div className="bg-gradient-to-r from-amber-100 to-orange-100 p-4 md:p-6 rounded-xl md:rounded-2xl border border-amber-300/30">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <span className="text-xl md:text-2xl">📱</span>
+                    <h4 className="font-bold text-amber-900 text-base md:text-lg">M-Pesa Payment</h4>
                   </div>
-                  <p className="text-amber-800 text-sm">Secure mobile money payment</p>
-                  <div className="mt-3 text-xs text-amber-700 bg-amber-200/50 px-3 py-2 rounded-lg">
+                  <p className="text-amber-800 text-xs md:text-sm">Secure mobile money payment</p>
+                  <div className="mt-2 md:mt-3 text-xs text-amber-700 bg-amber-200/50 px-2 md:px-3 py-1 md:py-2 rounded-lg">
                     ✓ Instant confirmation
                   </div>
                 </div>
                 
-                <div className="bg-gradient-to-r from-orange-100 to-amber-100 p-6 rounded-2xl border border-orange-300/30">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl">💳</span>
-                    <h4 className="font-bold text-amber-900">Card Payment</h4>
+                <div className="bg-gradient-to-r from-orange-100 to-amber-100 p-4 md:p-6 rounded-xl md:rounded-2xl border border-orange-300/30">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <span className="text-xl md:text-2xl">💳</span>
+                    <h4 className="font-bold text-amber-900 text-base md:text-lg">Card Payment</h4>
                   </div>
-                  <p className="text-amber-800 text-sm">VISA/MasterCard accepted</p>
-                  <div className="mt-3 text-xs text-amber-700 bg-orange-200/50 px-3 py-2 rounded-lg">
+                  <p className="text-amber-800 text-xs md:text-sm">VISA/MasterCard accepted</p>
+                  <div className="mt-2 md:mt-3 text-xs text-amber-700 bg-orange-200/50 px-2 md:px-3 py-1 md:py-2 rounded-lg">
                     ✓ Bank-level security
                   </div>
                 </div>
               </div>
               
-              <div className="bg-amber-50/50 rounded-2xl p-6 border border-amber-200/30">
+              <div className="bg-amber-50/50 rounded-xl md:rounded-2xl p-4 md:p-6 border border-amber-200/30">
                 <CheckoutSection />
               </div>
             </div>
