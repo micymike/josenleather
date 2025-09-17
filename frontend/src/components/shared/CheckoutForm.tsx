@@ -28,7 +28,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
     // Show success modal after 3 seconds regardless of API response
     const successTimeout = setTimeout(() => {
       console.log('Timeout reached, showing success modal');
-      clearCart();
       setOrderReference(`ORDER-${Date.now()}`);
       setShowSuccessModal(true);
       setLoading(false);
@@ -98,14 +97,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       setOrderReference(orderRef);
       console.log('Showing success modal...');
       setShowSuccessModal(true);
-      onOrderPlaced(orderRef);
       setLoading(false);
     } catch (err: any) {
       clearTimeout(successTimeout);
       console.error('Order submission failed:', err);
       
       // Show success modal anyway for better UX
-      clearCart();
       setOrderReference(`ORDER-${Date.now()}`);
       setShowSuccessModal(true);
       setLoading(false);
