@@ -252,11 +252,11 @@ const CheckoutSection: React.FC = () => {
 if (orderRef) {
     return (
       <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-        <h3 className="text-2xl font-bold text-green-700 mb-2">Order Received!</h3>
+        <h3 className="text-2xl font-bold text-green-700 mb-2">Order Made!</h3>
         <p className="mb-2">
           Thank you for your order!<br />
           Your order reference is <span className="font-bold text-green-900">{orderRef}</span>.<br />
-          Your order has been received and is being processed.
+          Your order has been made and is being processed.
         </p>
         <div className="mb-4">
           <a

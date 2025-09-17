@@ -88,6 +88,7 @@ const ProductPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [usdRate, setUsdRate] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
   const { getTotalItems, addToCart } = useCart();
   const [addedProductId, setAddedProductId] = useState<string | number | null>(null);
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
@@ -104,6 +105,8 @@ const ProductPage: React.FC = () => {
       } catch (error) {
         console.error('Error fetching products:', error);
         setProducts([]);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProducts();
@@ -224,6 +227,8 @@ const ProductPage: React.FC = () => {
         {/* Sidebar Navigation */}
         <SidebarNav />
 
+
+
         {/* Hero Image Section */}
         <section className="pt-0 relative">
           <div className="relative h-screen overflow-hidden">
@@ -258,7 +263,6 @@ const ProductPage: React.FC = () => {
             {/* Content */}
             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
               <div className="mb-6">
-                <img src="/logo.jpg" alt="Josen Logo" className="h-16 sm:h-20 lg:h-24 w-auto mb-4 mx-auto" />
                 <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-white mb-2 drop-shadow-lg">
                   Premium Leather & Canvas Goods
                 </h1>
@@ -356,6 +360,16 @@ const ProductPage: React.FC = () => {
               {filteredProducts.length} products
             </div>
           </div>
+
+          {/* Loading Spinner */}
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="glass-card rounded-2xl p-8 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-amber-600 border-t-transparent mx-auto mb-4"></div>
+                <p className="text-amber-900 font-medium">Loading products...</p>
+              </div>
+            </div>
+          )}
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
