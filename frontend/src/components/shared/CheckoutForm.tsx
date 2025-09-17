@@ -91,7 +91,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
         });
       }
 
-      clearCart();
       const orderRef = data.id || data.orderRef || 'ORDER';
       console.log('Setting order reference:', orderRef);
       setOrderReference(orderRef);
