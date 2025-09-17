@@ -2,68 +2,39 @@ import React, { useState, useEffect } from 'react';
 import SidebarNav from './SidebarNav';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { getProducts } from '../../lib/api';
 
 const NAV_LINKS = [
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
-const PRODUCTS = [
-  {
-    id: 1,
-    name: "Executive Briefcase",
-    price: 15900,
-    image: "/brown_bag.jpg",
-    description: "Sophisticated brown leather briefcase for professionals. This executive briefcase is crafted from premium brown leather, featuring elegant design and superior craftsmanship perfect for the modern professional. The spacious interior includes multiple compartments for laptops, documents, and business essentials.",
-    category: "bags",
-    rating: 4.8,
-    features: ["Premium Brown Leather", "Professional Design", "Laptop Compartment", "Document Organizer"]
-  },
 
-  {
-    id: 3,
-    name: "Premium Leather Bag",
-    price: 18700,
-    image: "/blue_bag.jpg",
-    description: "Elegant blue leather bag with premium craftsmanship. This stunning blue leather bag showcases exceptional artistry and attention to detail. Perfect for both professional and casual settings, offering style and functionality in one beautiful package.",
-    category: "bags",
-    rating: 4.9,
-    features: ["Premium Blue Leather", "Elegant Design", "Versatile Style", "Superior Craftsmanship"]
-  },
-
-  {
-    id: 5,
-    name: "Classic Belt",
-    price: 4200,
-    image: "/belt.jpg",
-    description: "Full-grain leather belt with premium silver buckle. This classic leather belt combines traditional craftsmanship with modern style, perfect for both formal and casual wear.",
-    category: "belts",
-    rating: 4.5,
-    features: ["Full-Grain Leather", "Silver Buckle", "Classic Design", "Adjustable Fit"]
-  },
-
-
-
-  {
-    id: 9,
-    name: "Premium Leather Belt",
-    price: 5200,
-    image: "/hero4.jpg",
-    description: "Handcrafted premium leather belt with polished brass buckle. Made from full-grain Italian leather, this belt combines durability with sophisticated style. Perfect for both formal and casual occasions, featuring precise stitching and a timeless design that complements any wardrobe.",
-    category: "belts",
-    rating: 4.9,
-    features: ["Full-Grain Italian Leather", "Polished Brass Buckle", "Precise Stitching", "Versatile Design"]
-  }
-];
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams();
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [quantity, setQuantity] = useState(1);
   const [showPopup, setShowPopup] = useState(false);
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const { addToCart, getTotalItems } = useCart();
   
-  const product = PRODUCTS.find(p => p.id === parseInt(id || '0')) || PRODUCTS.find(p => String(p.id) === id);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const products = await getProducts();
+        const foundProduct = products.find((p: any) => String(p.id) === id);
+        setProduct(foundProduct || null);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -77,8 +48,19 @@ const ProductDetail: React.FC = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+  
   if (!product) {
-    return <div>Product not found</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-amber-900 mb-4">Product not found</h2>
+          <Link to="/products" className="text-amber-700 hover:text-amber-900">← Back to Products</Link>
+        </div>
+      </div>
+    );
   }
 
   const FloatingElement = ({ children, delay = 0, amplitude = 20 }: { children: React.ReactNode, delay?: number, amplitude?: number }) => (
@@ -165,7 +147,7 @@ const ProductDetail: React.FC = () => {
                 }}
               >
                 <img
-                  src={product.image}
+                  src={product.imageUrls?.[0] || product.image || '/logo.jpg'}
                   alt={product.name}
                   className="w-full h-auto rounded-2xl shadow-xl"
                 />
@@ -202,17 +184,19 @@ const ProductDetail: React.FC = () => {
               <p className="text-amber-800/80 leading-relaxed mb-4">{product.description}</p>
               
               {/* Features */}
-              <div>
-                <h4 className="font-semibold text-amber-900 mb-2">Features:</h4>
-                <ul className="space-y-1">
-                  {product.features.map((feature, index) => (
-                    <li key={index} className="text-amber-700/80 flex items-center">
-                      <span className="text-amber-600 mr-2">•</span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {product.features && (
+                <div>
+                  <h4 className="font-semibold text-amber-900 mb-2">Features:</h4>
+                  <ul className="space-y-1">
+                    {product.features.map((feature: string, index: number) => (
+                      <li key={index} className="text-amber-700/80 flex items-center">
+                        <span className="text-amber-600 mr-2">•</span>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* Quantity & Add to Cart */}
@@ -239,10 +223,11 @@ const ProductDetail: React.FC = () => {
               <button 
                 onClick={() => {
                   addToCart({
-                    id: String(product.id), // Ensure ID is stored as string
+                    id: String(product.id),
                     name: product.name,
-                    price: product.price, // Always store original KSh price
-                    image: product.image
+                    price: product.price,
+                    image: product.imageUrls?.[0] || product.image || '/logo.jpg',
+                    imageUrls: product.imageUrls
                   }, quantity);
                   setShowPopup(true);
                   setTimeout(() => setShowPopup(false), 3000);
