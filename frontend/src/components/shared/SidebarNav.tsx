@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 
 const NAV_LINKS = [
   { label: "Products", href: "/products" },
@@ -15,6 +16,8 @@ const COMPANY_INFO = {
 
 const SidebarNav: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { getTotalItems } = useCart();
+  const cartItemCount = getTotalItems();
 
   return (
     <>
@@ -53,10 +56,15 @@ const SidebarNav: React.FC = () => {
               <Link
                 key={link.label}
                 to={link.href}
-                className="text-amber-900 hover:text-amber-700 font-medium py-2 px-2 rounded transition-all duration-200"
+                className="text-amber-900 hover:text-amber-700 font-medium py-2 px-2 rounded transition-all duration-200 relative flex items-center"
                 onClick={() => setSidebarOpen(false)}
               >
                 {link.label}
+                {link.label === "Cart" && cartItemCount > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    {cartItemCount}
+                  </span>
+                )}
               </Link>
             ) : (
               <a
@@ -92,9 +100,14 @@ const SidebarNav: React.FC = () => {
                 <Link
                   key={link.label}
                   to={link.href}
-                  className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-lg"
+                  className="text-amber-900 hover:text-amber-700 font-medium transition-all duration-300 hover:scale-110 relative group text-lg flex items-center"
                 >
                   {link.label}
+                  {link.label === "Cart" && cartItemCount > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                      {cartItemCount}
+                    </span>
+                  )}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-600 to-orange-600 group-hover:w-full transition-all duration-300" />
                 </Link>
               ) : (
