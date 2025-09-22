@@ -10,7 +10,7 @@ const NAV_LINKS = [
 ];
 
 const COMPANY_INFO = {
-  name: "JOSEN LEATHER AND CANVAS",
+  name: "Josen Leather and Canvas",
   logo: "/logo.jpg",
 };
 
@@ -29,9 +29,9 @@ const SidebarNav: React.FC = () => {
         style={{ backdropFilter: "blur(8px)" }}
       >
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-          <rect y="5" width="24" height="2.5" rx="1.25" fill="#8B4513"/>
-          <rect y="11" width="24" height="2.5" rx="1.25" fill="#8B4513"/>
-          <rect y="17" width="24" height="2.5" rx="1.25" fill="#8B4513"/>
+          <rect y="5" width="24" height="2.5" rx="1.25" fill="#e36913ff"/>
+          <rect y="11" width="24" height="2.5" rx="1.25" fill="#e36913ff"/>
+          <rect y="17" width="24" height="2.5" rx="1.25" fill="#e36913ff"/>
         </svg>
       </button>
 
@@ -81,7 +81,7 @@ const SidebarNav: React.FC = () => {
       </aside>
 
       {/* Top nav bar (desktop only) */}
-      <nav className="glass-nav fixed top-0 w-full z-50 px-4 sm:px-8 py-3 sm:py-4 hidden sm:block">
+      <nav className="glass-nav bg-white border-b fixed top-0 w-full z-50 px-4 sm:px-8 py-3 sm:py-4 hidden sm:block">
         <div className="flex flex-row justify-between items-center max-w-7xl mx-auto gap-2">
           <div
             className="text-2xl font-bold shimmer-text flex items-center gap-2"
