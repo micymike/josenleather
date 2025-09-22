@@ -10,21 +10,20 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
-  const [county, setCounty] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [locating, setLocating] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [orderReference, setOrderReference] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [paymentInstruction, setPaymentInstruction] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     console.log('Submitting order form...');
-    
+
     // Show success modal after 3 seconds regardless of API response
     const successTimeout = setTimeout(() => {
       console.log('Timeout reached, showing success modal');
@@ -32,49 +31,77 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       setShowSuccessModal(true);
       setLoading(false);
     }, 3000);
-    
+
     try {
       // Filter out items with invalid UUIDs (hardcoded IDs like "1", "2", etc.)
       const isValidUUID = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
       const validItems = cartItems.filter(item => isValidUUID(String(item.id)));
-      
+
       if (validItems.length === 0) {
         clearTimeout(successTimeout);
         setError('No valid items in cart. Please add products from the products page.');
         setLoading(false);
         return;
       }
-      
+
       if (validItems.length < cartItems.length) {
         setError(`${cartItems.length - validItems.length} invalid items removed from cart. Proceeding with ${validItems.length} valid items.`);
       }
-      
+
+      const total = validItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+      // Delivery fee and payment instruction logic
+      let isNairobi = address.toLowerCase().includes('nairobi');
+      let fee = 0;
+      let instruction = '';
+      if (isNairobi) {
+        if (total > 10000) {
+          fee = 0;
+          instruction = 'Delivery is free for orders above 10,000 Ksh within Nairobi. Payment after delivery.';
+        } else {
+          fee = 300;
+          instruction = 'Delivery fee is 300 Ksh within Nairobi for orders below or equal to 10,000 Ksh. Payment after delivery.';
+        }
+      } else {
+        if (total > 10000) {
+          fee = 0;
+          instruction = 'Delivery is free for orders above 10,000 Ksh outside Nairobi. Payment required before delivery.';
+        } else {
+          fee = 500;
+          instruction = 'Delivery fee is 500 Ksh outside Nairobi for orders below or equal to 10,000 Ksh. Payment required before delivery.';
+        }
+      }
+      setDeliveryFee(fee);
+      setPaymentInstruction(instruction);
+
       const orderPayload = {
         guestEmail: email,
         guestPhone: phone,
-        guestAddress: [address, city, county, country].filter(Boolean).join(', '),
+        guestAddress: address,
         items: validItems.map(item => ({
           productId: String(item.id),
           quantity: item.quantity,
           price: item.price,
         })),
-        total: validItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        total,
+        deliveryFee: fee,
+        paymentInstruction: instruction,
       };
       console.log('Order payload:', orderPayload);
-      
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
-      
+
       const res = await fetch(`${import.meta.env.VITE_API_URL}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderPayload),
         signal: controller.signal
       });
-      
+
       clearTimeout(timeoutId);
       clearTimeout(successTimeout);
-      
+
       if (!res.ok) {
         const errorData = await res.text();
         console.error('Backend error response:', errorData);
@@ -82,6 +109,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       }
       const data = await res.json();
       console.log('Order placed successfully:', data);
+
+      // If payment is required before delivery, redirect to payment URL
+      if (data.paymentRequired && data.paymentUrl) {
+        setLoading(false);
+        window.location.href = data.paymentUrl;
+        return;
+      }
 
       // Tag user's device with their email for push notifications
       if (email) {
@@ -100,7 +134,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
     } catch (err: any) {
       clearTimeout(successTimeout);
       console.error('Order submission failed:', err);
-      
+
       // Show success modal anyway for better UX
       setOrderReference(`ORDER-${Date.now()}`);
       setShowSuccessModal(true);
@@ -168,37 +202,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
           required
         />
       </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">Country</label>
-        <input
-          type="text"
-          className="w-full border border-gray-300 rounded px-3 py-2"
-          value={country}
-          onChange={e => setCountry(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">State/Province/Region</label>
-        <input
-          type="text"
-          className="w-full border border-gray-300 rounded px-3 py-2"
-          value={county}
-          onChange={e => setCounty(e.target.value)}
-          required
-          placeholder="Enter your state, province, or region"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-1">City</label>
-        <input
-          type="text"
-          className="w-full border border-gray-300 rounded px-3 py-2"
-          value={city}
-          onChange={e => setCity(e.target.value)}
-          required
-        />
-      </div>
       <button
         type="button"
         className="mb-2 bg-blue-100 text-blue-800 px-3 py-1 rounded font-medium hover:bg-blue-200 transition"
@@ -219,18 +222,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
                 const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
                 const data = await res.json();
-                if (data && data.address) {
-                  setAddress(
-                    [data.address.road, data.address.neighbourhood, data.address.suburb, data.address.village, data.address.town, data.address.city, data.address.state_district]
-                      .filter(Boolean)
-                      .join(', ')
-                  );
-                  setCity(data.address.city || data.address.town || data.address.village || '');
-                  setCounty(data.address.county || data.address.state_district || '');
-                  setCountry(data.address.country || '');
-                } else {
-                  setError('Could not determine address from location.');
-                }
+if (data && data.address) {
+  setAddress(
+    [data.address.road, data.address.neighbourhood, data.address.suburb, data.address.village, data.address.town, data.address.city, data.address.state_district]
+      .filter(Boolean)
+      .join(', ')
+  );
+} else {
+  setError('Could not determine address from location.');
+}
               } catch (e) {
                 setError('Failed to fetch address from location.');
               }
@@ -245,20 +245,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       >
         {locating ? 'Detecting location...' : 'Use my current location'}
       </button>
-      {city.trim() && (
-        <div className="mb-2">
-          {city.trim().toLowerCase() === 'nairobi' ? (
-            <span className="text-green-700 font-semibold">
-              Payment will be made after delivery for customers within Nairobi.
-            </span>
-          ) : (
-            <span className="text-amber-700 font-semibold">
-              Payment is required before delivery for this location.
-            </span>
-          )}
+      {error && <div className="text-red-600">{error}</div>}
+      {deliveryFee !== null && (
+        <div className="mb-2 p-3 bg-gray-100 rounded">
+          <div>
+            <span className="font-semibold">Delivery Fee:</span> {deliveryFee === 0 ? 'Free' : `${deliveryFee} Ksh`}
+          </div>
+          <div className="text-sm text-gray-700 mt-1">{paymentInstruction}</div>
         </div>
       )}
-      {error && <div className="text-red-600">{error}</div>}
       <button
         type="submit"
         className="w-full bg-amber-600 text-white py-2 rounded font-bold hover:bg-amber-700 transition"

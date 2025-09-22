@@ -15,7 +15,64 @@ export class OrderService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
-    // Insert order
+    // Calculate delivery fee and payment instruction
+    const address = createOrderDto.guestAddress?.toLowerCase() || '';
+    const total = createOrderDto.total;
+    let isNairobi = address.includes('nairobi');
+    let deliveryFee = 0;
+    let paymentInstruction = '';
+    let paymentBeforeDelivery = false;
+
+    if (isNairobi) {
+      if (total > 10000) {
+        deliveryFee = 0;
+        paymentInstruction = 'Delivery is free for orders above 10,000 Ksh within Nairobi. Payment after delivery.';
+        paymentBeforeDelivery = false;
+      } else {
+        deliveryFee = 300;
+        paymentInstruction = 'Delivery fee is 300 Ksh within Nairobi for orders below or equal to 10,000 Ksh. Payment after delivery.';
+        paymentBeforeDelivery = false;
+      }
+    } else {
+      if (total > 10000) {
+        deliveryFee = 0;
+        paymentInstruction = 'Delivery is free for orders above 10,000 Ksh outside Nairobi. Payment required before delivery.';
+        paymentBeforeDelivery = true;
+      } else {
+        deliveryFee = 500;
+        paymentInstruction = 'Delivery fee is 500 Ksh outside Nairobi for orders below or equal to 10,000 Ksh. Payment required before delivery.';
+        paymentBeforeDelivery = true;
+      }
+    }
+
+    // If payment before delivery is required, initiate Pesapal payment and return payment URL
+    if (paymentBeforeDelivery) {
+      const reference = `ORDER-${Date.now()}`;
+      const pesapalResult = await this.paymentService.initiatePesapalPayment({
+        amount: total + deliveryFee,
+        currency: 'KES',
+        description: 'Order Payment',
+        email: createOrderDto.guestEmail ?? '',
+        phone: createOrderDto.guestPhone ?? '',
+        reference,
+        callback_url: process.env.PESAPAL_CALLBACK_URL || '',
+        provider: 'mpesa',
+        metadata: {
+          firstName: createOrderDto.guestEmail?.split('@')[0] || '',
+          lastName: '',
+        },
+      });
+      // Return payment URL to frontend, do not create order yet
+      return {
+        paymentRequired: true,
+        paymentUrl: pesapalResult.paymentUrl,
+        message: 'Payment required before delivery. Please complete payment to confirm your order.',
+        deliveryFee,
+        paymentInstruction,
+      };
+    }
+
+    // Insert order (for payment after delivery)
     const { data: order, error: orderError } = await supabase
       .from('Order')
       .insert({
@@ -25,6 +82,8 @@ export class OrderService {
         guestEmail: createOrderDto.guestEmail ?? null,
         guestAddress: createOrderDto.guestAddress ?? null,
         guestPhone: createOrderDto.guestPhone ?? null,
+        deliveryFee,
+        paymentInstruction,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       })
@@ -103,6 +162,10 @@ export class OrderService {
 
     await this.paymentService.create({
       orderId: order.id,
+      firstName: '',
+      lastName: '',
+      email: order.guestEmail || '',
+      phone: order.guestPhone || '',
       provider: paymentProvider,
       amount: total,
       status: 'pending',
