@@ -87,26 +87,54 @@ export class PaymentService {
       throw new InternalServerErrorException('Failed to get Pesapal token');
     }
 
-    // 2. Create payment order
+    // 2. Register IPN URL
+    let ipnId: string;
+    try {
+      const ipnRes = await axios.post(
+        `${pesapalBaseUrl}/api/URLSetup/RegisterIPN`,
+        {
+          url: data.callback_url,
+          ipn_notification_type: 'GET'
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      ipnId = ipnRes.data.ipn_id;
+      console.log('IPN registered with ID:', ipnId);
+    } catch (err) {
+      console.error('IPN registration failed:', err.response?.data || err.message);
+      throw new InternalServerErrorException('Failed to register IPN URL');
+    }
+
+    // 3. Create payment order
     let paymentUrl: string;
     let pesapalResponse: any;
+    const pesapalPayload = {
+      id: data.reference,
+      currency: data.currency,
+      amount: data.amount,
+      description: data.description,
+      callback_url: data.callback_url,
+      notification_id: ipnId,
+      billing_address: {
+        email_address: data.email,
+        phone_number: data.phone,
+        first_name: data.metadata?.firstName || '',
+        last_name: data.metadata?.lastName || '',
+      },
+    };
+    
+    console.log('Pesapal payment payload:', JSON.stringify(pesapalPayload, null, 2));
+    console.log('Amount being sent to Pesapal:', data.amount, typeof data.amount);
+    
     try {
       const orderRes = await axios.post(
         `${pesapalBaseUrl}/api/Transactions/SubmitOrderRequest`,
-        {
-          id: data.reference,
-          currency: data.currency,
-          amount: data.amount,
-          description: data.description,
-          callback_url: data.callback_url,
-          notification_id: data.reference,
-          billing_address: {
-            email_address: data.email,
-            phone_number: data.phone,
-            first_name: data.metadata?.firstName || '',
-            last_name: data.metadata?.lastName || '',
-          },
-        },
+        pesapalPayload,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -116,11 +144,14 @@ export class PaymentService {
       );
       pesapalResponse = orderRes.data;
       paymentUrl = pesapalResponse.redirect_url;
+      console.log('Pesapal response:', JSON.stringify(pesapalResponse, null, 2));
     } catch (err) {
-      throw new InternalServerErrorException('Failed to create Pesapal order');
+      console.error('Pesapal API error:', err.response?.data || err.message);
+      console.error('Full error:', err);
+      throw new InternalServerErrorException(`Failed to create Pesapal order: ${err.response?.data?.message || err.message}`);
     }
 
-    // 3. Save payment initiation details to DB
+    // 4. Save payment initiation details to DB
     const paymentDto = {
       order_id: data.reference,
       first_name: data.metadata?.firstName || '',
@@ -140,7 +171,7 @@ export class PaymentService {
       .single();
     if (error) throw new NotFoundException(error.message);
 
-    // 4. Return payment URL for frontend redirection
+    // 5. Return payment URL for frontend redirection
     return { paymentUrl, pesapalResponse, payment: saved };
   }
 

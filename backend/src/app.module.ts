@@ -8,6 +8,7 @@ import { AdminModule } from './admin/admin.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { SupabaseModule } from './supabase/supabase.module';
+import { GeocodeModule } from './geocode/geocode.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
@@ -23,6 +24,7 @@ import { APP_GUARD } from '@nestjs/core';
     AdminModule,
     ProductModule,
     OrderModule,
+    GeocodeModule,
     ThrottlerModule.forRoot({
       throttlers: [
         {
