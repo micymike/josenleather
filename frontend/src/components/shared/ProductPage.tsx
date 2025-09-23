@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import SidebarNav from './SidebarNav';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
@@ -167,8 +168,21 @@ const ProductPage: React.FC = () => {
 
   return (
     <React.Fragment>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productStructuredData) }} />
-   
+      <Helmet>
+        <title>Shop Leather Bags, Belts, Wallets & Accessories | Josen Leather</title>
+        <meta name="description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop Josen Leather today." />
+        <link rel="canonical" href="https://www.josenleather.com/products" />
+        <meta property="og:title" content="Shop Leather Bags, Belts, Wallets & Accessories | Josen Leather" />
+        <meta property="og:description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop Josen Leather today." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.josenleather.com/products" />
+        <meta property="og:image" content="https://www.josenleather.com/leather_bag.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Shop Leather Bags, Belts, Wallets & Accessories | Josen Leather" />
+        <meta name="twitter:description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop Josen Leather today." />
+        <meta name="twitter:image" content="https://www.josenleather.com/leather_bag.jpg" />
+        <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
+      </Helmet>
       <div className="relative overflow-x-hidden min-h-screen">
         <style>{`
           .glass-card {

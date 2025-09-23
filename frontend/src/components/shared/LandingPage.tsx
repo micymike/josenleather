@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { Helmet } from "react-helmet";
 import SidebarNav from "./SidebarNav";
 
 const NAV_LINKS = [
@@ -54,6 +55,25 @@ const WHY_CHOOSE = [
 ];
 
 const LandingPage: React.FC = () => {
+  // SEO structured data for products
+  const productStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": PRODUCTS.map((product, idx) => ({
+      "@type": "Product",
+      "position": idx + 1,
+      "name": product.name,
+      "image": product.image,
+      "description": product.description,
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "KES",
+        "price": product.price.replace(/[^\d.]/g, ""),
+        "availability": "https://schema.org/InStock"
+      }
+    }))
+  };
+
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [scrollY, setScrollY] = useState(0);
   const [activeSection, setActiveSection] = useState(0);
@@ -114,6 +134,21 @@ const LandingPage: React.FC = () => {
 
   return (
     <div ref={containerRef} className="relative overflow-x-hidden">
+      <Helmet>
+        <title>Josen Leather and Canvas | Handcrafted Leather Bags & Waxed Canvas Goods</title>
+        <meta name="description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
+        <link rel="canonical" href="https://www.josenleather.com/" />
+        <meta property="og:title" content="Josen Leather and Canvas | Handcrafted Leather Bags & Waxed Canvas Goods" />
+        <meta property="og:description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.josenleather.com/" />
+        <meta property="og:image" content="https://www.josenleather.com/leather_bag.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Josen Leather and Canvas | Handcrafted Leather Bags & Waxed Canvas Goods" />
+        <meta name="twitter:description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
+        <meta name="twitter:image" content="https://www.josenleather.com/leather_bag.jpg" />
+        <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
+      </Helmet>
       {/* Custom CSS */}
       <style>{`
         @keyframes float {

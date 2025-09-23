@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import SidebarNav from './SidebarNav';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
@@ -75,8 +76,53 @@ const ProductDetail: React.FC = () => {
     </div>
   );
 
+  // SEO: Helmet meta tags and JSON-LD structured data
+  const productStructuredData = product
+    ? {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": product.name,
+        "image": product.imageUrls?.[0] || product.image || "/logo.jpg",
+        "description": product.description,
+        "category": product.category,
+        "brand": {
+          "@type": "Brand",
+          "name": "Josen Leather"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": product.rating,
+          "reviewCount": 1
+        },
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "KES",
+          "price": product.price,
+          "availability": "https://schema.org/InStock",
+          "url": `https://www.josenleather.com/product/${product.id}`
+        }
+      }
+    : null;
+
   return (
     <div className="relative overflow-x-hidden min-h-screen">
+      <Helmet>
+        <title>{product ? `${product.name} | Josen Leather` : "Product | Josen Leather"}</title>
+        <meta name="description" content={product ? product.description : "Product details for Josen Leather."} />
+        <link rel="canonical" href={product ? `https://www.josenleather.com/product/${product.id}` : "https://www.josenleather.com/products"} />
+        <meta property="og:title" content={product ? `${product.name} | Josen Leather` : "Product | Josen Leather"} />
+        <meta property="og:description" content={product ? product.description : "Product details for Josen Leather."} />
+        <meta property="og:type" content="product" />
+        <meta property="og:url" content={product ? `https://www.josenleather.com/product/${product.id}` : "https://www.josenleather.com/products"} />
+        <meta property="og:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={product ? `${product.name} | Josen Leather` : "Product | Josen Leather"} />
+        <meta name="twitter:description" content={product ? product.description : "Product details for Josen Leather."} />
+        <meta name="twitter:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
+        {productStructuredData && (
+          <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
+        )}
+      </Helmet>
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
