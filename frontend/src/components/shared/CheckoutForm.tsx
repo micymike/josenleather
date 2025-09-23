@@ -17,6 +17,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
   const [orderReference, setOrderReference] = useState('');
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [paymentInstruction, setPaymentInstruction] = useState('');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [pendingPaymentUrl, setPendingPaymentUrl] = useState('');
+  const [structuredAddress, setStructuredAddress] = useState<any>(null);
+  const [paymentRequired, setPaymentRequired] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,13 +28,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
     setError('');
     console.log('Submitting order form...');
 
-    // Show success modal after 3 seconds regardless of API response
-    const successTimeout = setTimeout(() => {
-      console.log('Timeout reached, showing success modal');
-      setOrderReference(`ORDER-${Date.now()}`);
-      setShowSuccessModal(true);
-      setLoading(false);
-    }, 3000);
+    // Remove success modal timeout logic for payment-required orders
+    // (No success modal should be shown before payment)
 
     try {
       // Filter out items with invalid UUIDs (hardcoded IDs like "1", "2", etc.)
@@ -38,7 +37,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       const validItems = cartItems.filter(item => isValidUUID(String(item.id)));
 
       if (validItems.length === 0) {
-        clearTimeout(successTimeout);
         setError('No valid items in cart. Please add products from the products page.');
         setLoading(false);
         return;
@@ -48,14 +46,53 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
         setError(`${cartItems.length - validItems.length} invalid items removed from cart. Proceeding with ${validItems.length} valid items.`);
       }
 
-      const total = validItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      console.log('Valid cart items:', validItems);
+      validItems.forEach((item, index) => {
+        console.log(`Item ${index}:`, {
+          id: item.id,
+          price: item.price,
+          quantity: item.quantity,
+          subtotal: item.price * item.quantity
+        });
+      });
+      
+      const cartTotal = validItems.reduce((sum, item) => {
+        const itemTotal = (item.price || 0) * (item.quantity || 0);
+        console.log(`Adding item total: ${itemTotal} (price: ${item.price}, qty: ${item.quantity})`);
+        return sum + itemTotal;
+      }, 0);
+      
+      console.log('Final cart total:', cartTotal);
+
+      if (cartTotal <= 0) {
+        setError('Cart total must be greater than zero. Please check that your cart items have valid prices.');
+        setLoading(false);
+        return;
+      }
 
       // Delivery fee and payment instruction logic
-      let isNairobi = address.toLowerCase().includes('nairobi');
+      // Improved Nairobi detection using structured address
+      let isNairobi = false;
+      if (structuredAddress) {
+        const fields = [
+          structuredAddress.city,
+          structuredAddress.town,
+          structuredAddress.state_district,
+          structuredAddress.county,
+          structuredAddress.state,
+          structuredAddress.region
+        ];
+        isNairobi = fields.some(
+          (field) => field && typeof field === "string" && field.toLowerCase().includes("nairobi")
+        );
+      } else {
+        // fallback to string check if structured address is not available
+        isNairobi = address.toLowerCase().includes('nairobi');
+      }
       let fee = 0;
       let instruction = '';
       if (isNairobi) {
-        if (total > 10000) {
+        if (cartTotal > 10000) {
           fee = 0;
           instruction = 'Delivery is free for orders above 10,000 Ksh within Nairobi. Payment after delivery.';
         } else {
@@ -63,7 +100,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
           instruction = 'Delivery fee is 300 Ksh within Nairobi for orders below or equal to 10,000 Ksh. Payment after delivery.';
         }
       } else {
-        if (total > 10000) {
+        if (cartTotal > 10000) {
           fee = 0;
           instruction = 'Delivery is free for orders above 10,000 Ksh outside Nairobi. Payment required before delivery.';
         } else {
@@ -74,6 +111,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       setDeliveryFee(fee);
       setPaymentInstruction(instruction);
 
+      const total = cartTotal + fee;
+
       const orderPayload = {
         guestEmail: email,
         guestPhone: phone,
@@ -83,9 +122,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
           quantity: item.quantity,
           price: item.price,
         })),
-        total,
-        deliveryFee: fee,
-        paymentInstruction: instruction,
+        total
       };
       console.log('Order payload:', orderPayload);
 
@@ -100,7 +137,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       });
 
       clearTimeout(timeoutId);
-      clearTimeout(successTimeout);
 
       if (!res.ok) {
         const errorData = await res.text();
@@ -110,11 +146,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       const data = await res.json();
       console.log('Order placed successfully:', data);
 
-      // If payment is required before delivery, redirect to payment URL
-      if (data.paymentRequired && data.paymentUrl) {
+      // If payment is required before delivery, show payment modal
+      if (data.paymentRequired) {
+        setPaymentRequired(true);
         setLoading(false);
-        window.location.href = data.paymentUrl;
+        setPendingPaymentUrl(data.paymentUrl || '');
+        setShowPaymentModal(true);
         return;
+      } else {
+        setPaymentRequired(false);
       }
 
       // Tag user's device with their email for push notifications
@@ -132,18 +172,59 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
       setShowSuccessModal(true);
       setLoading(false);
     } catch (err: any) {
-      clearTimeout(successTimeout);
       console.error('Order submission failed:', err);
-
-      // Show success modal anyway for better UX
-      setOrderReference(`ORDER-${Date.now()}`);
-      setShowSuccessModal(true);
+      setError('Failed to place order. Please try again.');
       setLoading(false);
     }
   };
 
   return (
     <>
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+          <div className="bg-white rounded-2xl p-6 max-w-xs w-full mx-4 text-center animate-in zoom-in duration-300">
+            <div className="text-6xl mb-4">💳</div>
+            <h3 className="text-2xl font-bold text-amber-700 mb-2">Payment Required</h3>
+            <p className="text-gray-600 mb-4">
+              To complete your order, please proceed to payment.<br />
+              <span className="font-semibold">Instructions:</span> {paymentInstruction}
+            </p>
+            {pendingPaymentUrl ? (
+              <div>
+                <iframe
+                  src={pendingPaymentUrl}
+                  title="Payment"
+                  width="260"
+                  height="220"
+                  style={{ display: 'block', margin: '0 auto 1rem auto', border: 'none', borderRadius: '12px' }}
+                  allow="payment"
+                />
+                <button
+                  onClick={() => window.open(pendingPaymentUrl, '_blank')}
+                  className="bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
+                >
+                  Open in new tab
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => alert('Payment URL not available. Please contact support.')}
+                className="bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
+              >
+                Contact Support
+              </button>
+            )}
+            <button
+              onClick={() => setShowPaymentModal(false)}
+              className="mt-2 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
@@ -218,11 +299,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
             async (pos) => {
               try {
                 const { latitude, longitude } = pos.coords;
-                // Use Nominatim OpenStreetMap reverse geocoding
-                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+                // Use backend proxy for reverse geocoding to avoid CORS issues
+                const url = `${import.meta.env.VITE_API_URL}/geocode/reverse?lat=${latitude}&lon=${longitude}`;
                 const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
                 const data = await res.json();
 if (data && data.address) {
+  setStructuredAddress(data.address);
   setAddress(
     [data.address.road, data.address.neighbourhood, data.address.suburb, data.address.village, data.address.town, data.address.city, data.address.state_district]
       .filter(Boolean)

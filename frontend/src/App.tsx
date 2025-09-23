@@ -3,6 +3,7 @@ import {Routes, Route} from 'react-router-dom'
 
 import './App.css'
 import AboutPage from './components/shared/AboutPage'
+import PaymentSuccess from './components/shared/PaymentSuccess'
 import ProductPage from './components/shared/ProductPage'
 import ProductDetail from './components/shared/ProductDetail'
 import CartPage from './components/shared/CartPage'
@@ -30,6 +31,7 @@ function App() {
       <Route path="/about" element={<AboutPage />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/cart" element={<CartPage />} />
+      <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
         <Route index element={<AdminDashboard />} />

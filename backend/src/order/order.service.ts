@@ -15,16 +15,31 @@ export class OrderService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
+    // Calculate total from items (don't trust frontend total)
+    let cartTotal = 0;
+    if (createOrderDto.items && createOrderDto.items.length > 0) {
+      console.log('Processing items:', createOrderDto.items);
+      cartTotal = createOrderDto.items.reduce((sum, item) => {
+        const itemTotal = (item.price || 0) * (item.quantity || 0);
+        console.log(`Item: ${item.productId}, Price: ${item.price}, Qty: ${item.quantity}, Subtotal: ${itemTotal}`);
+        return sum + itemTotal;
+      }, 0);
+    } else {
+      throw new BadRequestException('No items provided in order');
+    }
+    
+    console.log('Backend calculated cart total:', cartTotal);
+    console.log('Frontend provided total:', createOrderDto.total);
+    
     // Calculate delivery fee and payment instruction
     const address = createOrderDto.guestAddress?.toLowerCase() || '';
-    const total = createOrderDto.total;
     let isNairobi = address.includes('nairobi');
     let deliveryFee = 0;
     let paymentInstruction = '';
     let paymentBeforeDelivery = false;
 
     if (isNairobi) {
-      if (total > 10000) {
+      if (cartTotal > 10000) {
         deliveryFee = 0;
         paymentInstruction = 'Delivery is free for orders above 10,000 Ksh within Nairobi. Payment after delivery.';
         paymentBeforeDelivery = false;
@@ -34,7 +49,7 @@ export class OrderService {
         paymentBeforeDelivery = false;
       }
     } else {
-      if (total > 10000) {
+      if (cartTotal > 10000) {
         deliveryFee = 0;
         paymentInstruction = 'Delivery is free for orders above 10,000 Ksh outside Nairobi. Payment required before delivery.';
         paymentBeforeDelivery = true;
@@ -44,32 +59,54 @@ export class OrderService {
         paymentBeforeDelivery = true;
       }
     }
+    
+    const totalAmount = cartTotal + deliveryFee;
+    console.log('Final total amount for payment:', totalAmount);
+    
+    if (totalAmount <= 0) {
+      throw new BadRequestException(`Invalid total amount: ${totalAmount}. Cart total: ${cartTotal}, Delivery fee: ${deliveryFee}`);
+    }
 
     // If payment before delivery is required, initiate Pesapal payment and return payment URL
     if (paymentBeforeDelivery) {
       const reference = `ORDER-${Date.now()}`;
-      const pesapalResult = await this.paymentService.initiatePesapalPayment({
-        amount: total + deliveryFee,
-        currency: 'KES',
-        description: 'Order Payment',
-        email: createOrderDto.guestEmail ?? '',
-        phone: createOrderDto.guestPhone ?? '',
-        reference,
-        callback_url: process.env.PESAPAL_CALLBACK_URL || '',
-        provider: 'mpesa',
-        metadata: {
-          firstName: createOrderDto.guestEmail?.split('@')[0] || '',
-          lastName: '',
-        },
-      });
-      // Return payment URL to frontend, do not create order yet
-      return {
-        paymentRequired: true,
-        paymentUrl: pesapalResult.paymentUrl,
-        message: 'Payment required before delivery. Please complete payment to confirm your order.',
-        deliveryFee,
-        paymentInstruction,
-      };
+      try {
+        const pesapalResult = await this.paymentService.initiatePesapalPayment({
+          amount: totalAmount,
+          currency: 'KES',
+          description: 'Order Payment',
+          email: createOrderDto.guestEmail ?? '',
+          phone: createOrderDto.guestPhone ?? '',
+          reference,
+          callback_url: process.env.PESAPAL_CALLBACK_URL || '',
+          provider: 'mpesa',
+          metadata: {
+            firstName: createOrderDto.guestEmail?.split('@')[0] || '',
+            lastName: '',
+          },
+        });
+        // Return payment URL to frontend, do not create order yet
+        const paymentUrl =
+          pesapalResult.paymentUrl ||
+          `https://pay.pesapal.com/iframe/PesapalIframe3/Index/?OrderTrackingId=${reference}`;
+        return {
+          paymentRequired: true,
+          paymentUrl,
+          message: 'Payment required before delivery. Please complete payment to confirm your order.',
+          deliveryFee,
+          paymentInstruction,
+        };
+      } catch (error) {
+        console.error('Pesapal payment initiation failed:', error);
+        // Return payment required but with fallback instructions
+        return {
+          paymentRequired: true,
+          paymentUrl: `https://pay.pesapal.com/iframe/PesapalIframe3/Index/?OrderTrackingId=${reference}`,
+          message: 'Payment required before delivery. Please complete payment to confirm your order.',
+          deliveryFee,
+          paymentInstruction,
+        };
+      }
     }
 
     // Insert order (for payment after delivery)
@@ -78,7 +115,7 @@ export class OrderService {
       .insert({
         userId: createOrderDto.userId ?? null,
         status: createOrderDto.status || 'pending',
-        total: createOrderDto.total,
+        total: totalAmount,
         guestEmail: createOrderDto.guestEmail ?? null,
         guestAddress: createOrderDto.guestAddress ?? null,
         guestPhone: createOrderDto.guestPhone ?? null,
