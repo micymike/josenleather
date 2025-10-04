@@ -408,30 +408,16 @@ const ProductPage: React.FC = () => {
                 <p className="text-amber-700/80 mb-2 sm:mb-3 text-xs sm:text-sm line-clamp-2">{product.description}</p>
                 <div className="flex justify-between items-center mb-2 sm:mb-3">
                   {/* Show both KES and USD for Bag and Belt */}
-                  {(
-                    product.name.toLowerCase().includes("bag") ||
-                    product.name.toLowerCase().includes("belt")
-                  ) ? (
-                    <span className="text-base sm:text-lg md:text-xl font-bold flex flex-col items-start">
-                      {product.name.toLowerCase().includes("bag") ? (
-                        <>
-                          <span>KES 18,500</span>
-                          <span className="text-xs text-amber-700/80">US$ 145</span>
-                        </>
-                      ) : product.name.toLowerCase().includes("belt") ? (
-                        <>
-                          <span>KES 4,500</span>
-                          <span className="text-xs text-amber-700/80">US$ 35</span>
-                        </>
-                      ) : null}
-                    </span>
-                  ) : (
-                    <span className="text-base sm:text-lg md:text-xl font-bold">
-                      {usdRate !== null
-                        ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                        : `KSh ${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                    </span>
-                  )}
+<span className="text-base sm:text-lg md:text-xl font-bold flex flex-col items-start">
+  <span>
+    KES {product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+  </span>
+  <span className="text-xs text-amber-700/80">
+    {usdRate !== null
+      ? `US$ ${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      : ""}
+  </span>
+</span>
                   <div className="flex items-center">
                     <span className="text-yellow-500 text-sm">⭐</span>
                     <span className="text-xs sm:text-sm text-amber-700 ml-1">{product.rating}</span>
