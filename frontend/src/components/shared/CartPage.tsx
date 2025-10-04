@@ -314,9 +314,9 @@ const CheckoutFlow: React.FC<{
                   let total = 0;
                   cartItems.forEach(item => {
                     if (item.name && item.name.toLowerCase().includes("bag")) {
-                      total += 16900 * item.quantity;
+                      total += 17150 * item.quantity;
                     } else if (item.name && item.name.toLowerCase().includes("belt")) {
-                      total += 3900 * item.quantity;
+                      total += 4150 * item.quantity;
                     } else {
                       total += item.price * item.quantity;
                     }
@@ -344,7 +344,7 @@ const CheckoutFlow: React.FC<{
                       totalUSD += 145 * item.quantity;
                       allBelts = false;
                     } else if (item.name && item.name.toLowerCase().includes("belt")) {
-                      totalKES += 3900 * item.quantity;
+                      totalKES += 4150 * item.quantity;
                       totalUSD += 35 * item.quantity;
                       allBags = false;
                     } else {
@@ -403,12 +403,12 @@ const CheckoutFlow: React.FC<{
                   <p className="text-base md:text-lg font-semibold shimmer-text mb-2 md:mb-4">
                     {item.name && item.name.toLowerCase().includes("bag") ? (
                       <>
-                        <span>KES 16,900</span>
+                        <span>KES 17150</span>
                         <span className="text-xs text-amber-700/80"> US$ 145</span>
                       </>
                     ) : item.name && item.name.toLowerCase().includes("belt") ? (
                       <>
-                        <span>KES 3,900</span>
+                        <span>KES 4150</span>
                         <span className="text-xs text-amber-700/80"> US$ 35</span>
                       </>
                     ) : (
@@ -440,7 +440,7 @@ const CheckoutFlow: React.FC<{
                           </>
                         ) : item.name && item.name.toLowerCase().includes("belt") ? (
                           <>
-                            <span>KES {3900 * item.quantity}</span>
+                            <span>KES {4150 * item.quantity}</span>
                             <span className="text-xs text-amber-700/80"> US$ {35 * item.quantity}</span>
                           </>
                         ) : (
