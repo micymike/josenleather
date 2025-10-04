@@ -314,9 +314,9 @@ const CheckoutFlow: React.FC<{
                   let total = 0;
                   cartItems.forEach(item => {
                     if (item.name && item.name.toLowerCase().includes("bag")) {
-                      total += 18500 * item.quantity;
+                      total += 16900 * item.quantity;
                     } else if (item.name && item.name.toLowerCase().includes("belt")) {
-                      total += 4500 * item.quantity;
+                      total += 3900 * item.quantity;
                     } else {
                       total += item.price * item.quantity;
                     }
@@ -340,11 +340,11 @@ const CheckoutFlow: React.FC<{
                   let allBelts = true;
                   cartItems.forEach(item => {
                     if (item.name && item.name.toLowerCase().includes("bag")) {
-                      totalKES += 18500 * item.quantity;
+                      totalKES += 16900 * item.quantity;
                       totalUSD += 145 * item.quantity;
                       allBelts = false;
                     } else if (item.name && item.name.toLowerCase().includes("belt")) {
-                      totalKES += 4500 * item.quantity;
+                      totalKES += 3900 * item.quantity;
                       totalUSD += 35 * item.quantity;
                       allBags = false;
                     } else {
@@ -403,12 +403,12 @@ const CheckoutFlow: React.FC<{
                   <p className="text-base md:text-lg font-semibold shimmer-text mb-2 md:mb-4">
                     {item.name && item.name.toLowerCase().includes("bag") ? (
                       <>
-                        <span>KES 18,500</span>
+                        <span>KES 16,900</span>
                         <span className="text-xs text-amber-700/80"> US$ 145</span>
                       </>
                     ) : item.name && item.name.toLowerCase().includes("belt") ? (
                       <>
-                        <span>KES 4,500</span>
+                        <span>KES 3,900</span>
                         <span className="text-xs text-amber-700/80"> US$ 35</span>
                       </>
                     ) : (
@@ -435,12 +435,12 @@ const CheckoutFlow: React.FC<{
                       <span className="text-lg md:text-xl font-bold text-amber-900">
                         {item.name && item.name.toLowerCase().includes("bag") ? (
                           <>
-                            <span>KES {18500 * item.quantity}</span>
+                            <span>KES {16900 * item.quantity}</span>
                             <span className="text-xs text-amber-700/80"> US$ {145 * item.quantity}</span>
                           </>
                         ) : item.name && item.name.toLowerCase().includes("belt") ? (
                           <>
-                            <span>KES {4500 * item.quantity}</span>
+                            <span>KES {3900 * item.quantity}</span>
                             <span className="text-xs text-amber-700/80"> US$ {35 * item.quantity}</span>
                           </>
                         ) : (
