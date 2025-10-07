@@ -18,7 +18,7 @@ export default defineConfig({
   server: {
     port: 5174,
     host: true,
-    allowedHosts: ['josenleather.onrender.com', 'www.josenleather.com']
+    allowedHosts: ['josenleather.onrender.com', 'https://josenleather-frontend.onrender.com', 'www.josenleather.com']
   },
   build: {
     rollupOptions: {
