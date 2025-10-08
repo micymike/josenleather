@@ -20,6 +20,7 @@ const ProductDetail: React.FC = () => {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { addToCart, getTotalItems } = useCart();
+  const [selectedSize, setSelectedSize] = useState<number | null>(null);
   
   useEffect(() => {
     const fetchProduct = async () => {
@@ -247,6 +248,36 @@ const ProductDetail: React.FC = () => {
 
             {/* Quantity & Add to Cart */}
             <div className="glass-card rounded-2xl p-6">
+              {/* Belt Size Selector */}
+              {product.category === "belts" && (
+                <div className="mb-4">
+                  <label className="font-semibold text-amber-900 block mb-2">Select Size (inches):</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[34,36,38,40,42,44,46,48,50,52,54,56,58,60].map((size) => {
+                      const available = Array.isArray(product.sizes) && product.sizes.includes(size);
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          disabled={!available}
+                          onClick={() => setSelectedSize(size)}
+                          className={`px-3 py-1 rounded-lg border font-semibold text-sm transition-all duration-200
+                            ${selectedSize === size ? "bg-amber-700 text-white border-amber-800" : ""}
+                            ${!available ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed" : "bg-white text-amber-900 border-amber-300 hover:bg-amber-100"}
+                          `}
+                          style={{ minWidth: 44 }}
+                        >
+                          {size}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {!selectedSize && (
+                    <div className="text-xs text-red-600 mt-1">Please select a size</div>
+                  )}
+                </div>
+              )}
+
               <div className="flex items-center gap-4 mb-4">
                 <label className="font-semibold text-amber-900">Quantity:</label>
                 <div className="flex items-center border border-amber-300/30 rounded-lg">
@@ -273,12 +304,14 @@ const ProductDetail: React.FC = () => {
                     name: product.name,
                     price: product.price,
                     image: product.imageUrls?.[0] || product.image || '/logo.jpg',
-                    imageUrls: product.imageUrls
+                    imageUrls: product.imageUrls,
+                    ...(product.category === "belts" && { size: selectedSize })
                   }, quantity);
                   setShowPopup(true);
                   setTimeout(() => setShowPopup(false), 3000);
                 }}
                 className="w-full bg-gradient-to-r from-amber-600 to-orange-700 text-white py-4 px-8 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-orange-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                disabled={product.category === "belts" && !selectedSize}
               >
                 Add {quantity} to Cart - KSh {(product.price * quantity).toLocaleString()}
               </button>

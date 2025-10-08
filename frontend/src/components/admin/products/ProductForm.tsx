@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchKshToUsdRate, convertKshToUsd } from '../../../lib/utils';
 
 const PRODUCT_TYPES = [
   'Bag',
@@ -63,7 +62,6 @@ const ProductForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [usdRate, setUsdRate] = useState<number | null>(null);
 
   // Fetch product data if editing
   useEffect(() => {
@@ -96,12 +94,6 @@ const ProductForm = () => {
         }
       })();
     }
-    // Fetch exchange rate on mount
-    const fetchRate = async () => {
-      const rate = await fetchKshToUsdRate();
-      setUsdRate(rate);
-    };
-    fetchRate();
   }, [isEditMode, id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -215,11 +207,7 @@ const ProductForm = () => {
                 className="w-full border border-gray-300 rounded-md px-3 py-2"
                 required
               />
-              <div className="text-xs text-gray-500 mt-1">
-                {usdRate !== null && formData.price
-                  ? `USD: $${convertKshToUsd(Number(formData.price), usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                  : 'USD: ...'}
-              </div>
+              {/* USD price display removed */}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Stock</label>

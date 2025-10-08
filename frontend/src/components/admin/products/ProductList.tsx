@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import ProductForm from './ProductForm';
-import { fetchKshToUsdRate, convertKshToUsd } from '../../../lib/utils';
 
 const api_url = import.meta.env.VITE_API_URL;
 
@@ -10,16 +9,9 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [usdRate, setUsdRate] = useState<number | null>(null);
 
   useEffect(() => {
     fetchProducts();
-    // Fetch exchange rate on mount
-    const fetchRate = async () => {
-      const rate = await fetchKshToUsdRate();
-      setUsdRate(rate);
-    };
-    fetchRate();
   }, []);
 
   const fetchProducts = async () => {
@@ -122,9 +114,7 @@ const ProductList = () => {
                   </td>
                   <td className="px-6 py-4">{product.name}</td>
                   <td className="px-6 py-4">
-                    {usdRate !== null
-                      ? `$${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                      : '...'}
+                    KES {product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                   <td className="px-6 py-4">{product.stock}</td>
                   <td className="px-6 py-4">

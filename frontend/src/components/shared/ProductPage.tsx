@@ -4,7 +4,7 @@ import SidebarNav from './SidebarNav';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { getProducts } from '../../lib/api';
-import { fetchKshToUsdRate, convertKshToUsd } from '../../lib/utils';
+import ImpressiveLeatherLoader from './ImpressiveLeatherLoader';
 
 interface Product {
   id: string | number;
@@ -88,7 +88,6 @@ const ProductPage: React.FC = () => {
   const [sortBy, setSortBy] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [usdRate, setUsdRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const { getTotalItems, addToCart } = useCart();
   const [addedProductId, setAddedProductId] = useState<string | number | null>(null);
@@ -111,12 +110,6 @@ const ProductPage: React.FC = () => {
       }
     };
     fetchProducts();
-
-    const fetchRate = async () => {
-      const rate = await fetchKshToUsdRate();
-      setUsdRate(rate);
-    };
-    fetchRate();
 
     // Hero image carousel
     const heroTimer = setInterval(() => {
@@ -375,13 +368,10 @@ const ProductPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Loading Spinner */}
+          {/* Impressive Math-Themed Loader */}
           {loading && (
             <div className="flex items-center justify-center py-12">
-              <div className="glass-card rounded-2xl p-8 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-amber-600 border-t-transparent mx-auto mb-4"></div>
-                <p className="text-amber-900 font-medium">Loading products...</p>
-              </div>
+              <ImpressiveLeatherLoader />
             </div>
           )}
 
@@ -411,11 +401,6 @@ const ProductPage: React.FC = () => {
 <span className="text-base sm:text-lg md:text-xl font-bold flex flex-col items-start">
   <span>
     KES {product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-  </span>
-  <span className="text-xs text-amber-700/80">
-    {usdRate !== null
-      ? `US$ ${convertKshToUsd(product.price, usdRate).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : ""}
   </span>
 </span>
                   <div className="flex items-center">
