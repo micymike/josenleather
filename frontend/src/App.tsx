@@ -7,6 +7,7 @@ import PaymentSuccess from './components/shared/PaymentSuccess'
 import ProductPage from './components/shared/ProductPage'
 import ProductDetail from './components/shared/ProductDetail'
 import CartPage from './components/shared/CartPage'
+import ContactPage from './components/shared/ContactPage'
 import { CartProvider } from './context/CartContext'
 import {
   AdminLayout,
@@ -29,6 +30,7 @@ function App() {
       <Route path="/" element={<ProductPage />} />
       <Route path="/products" element={<ProductPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/cart" element={<CartPage />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
