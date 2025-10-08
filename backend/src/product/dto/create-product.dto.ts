@@ -53,6 +53,12 @@ export class CreateProductDto {
   @IsNotEmpty()
   material: string;
 
+  @ApiProperty({ description: 'Available sizes for belts (in inches)', type: [Number], required: false })
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  sizes?: number[];
+
   @ApiProperty({ description: 'Optional video URL', required: false })
   @IsOptional()
   @IsString()

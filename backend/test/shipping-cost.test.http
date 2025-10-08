@@ -1,4 +1,4 @@
-### 1. Free global shipping (goodsValueUSD > 700)
+### 1. Free global shipping (goodsValueKES > 120000)
 POST http://localhost:3000/delivery
 Content-Type: application/json
 Authorization: Bearer <YOUR_JWT_TOKEN>
@@ -9,12 +9,12 @@ Authorization: Bearer <YOUR_JWT_TOKEN>
   "recipientName": "John Doe",
   "recipientPhone": "+1234567890",
   "courier": "DHL",
-  "goodsValueUSD": 800,
+  "goodsValueKES": 120000,
   "destinationCity": "New York",
   "destinationCountry": "USA"
 }
 
-### 2. Nairobi/metropolis (goodsValueUSD < 700)
+### 2. Nairobi/metropolis (goodsValueKES < 120000)
 POST http://localhost:3000/delivery
 Content-Type: application/json
 Authorization: Bearer <YOUR_JWT_TOKEN>
@@ -25,12 +25,12 @@ Authorization: Bearer <YOUR_JWT_TOKEN>
   "recipientName": "Jane Doe",
   "recipientPhone": "+254700000000",
   "courier": "G4S",
-  "goodsValueUSD": 500,
+  "goodsValueKES": 75000,
   "destinationCity": "Nairobi",
   "destinationCountry": "Kenya"
 }
 
-### 3. Outside Nairobi but in Kenya (goodsValueUSD < 700)
+### 3. Outside Nairobi but in Kenya (goodsValueKES < 120000)
 POST http://localhost:3000/delivery
 Content-Type: application/json
 Authorization: Bearer <YOUR_JWT_TOKEN>
@@ -41,12 +41,12 @@ Authorization: Bearer <YOUR_JWT_TOKEN>
   "recipientName": "Ali Mwangi",
   "recipientPhone": "+254711111111",
   "courier": "Wells Fargo",
-  "goodsValueUSD": 600,
+  "goodsValueKES": 90000,
   "destinationCity": "Mombasa",
   "destinationCountry": "Kenya"
 }
 
-### 4. International carrier charges apply (goodsValueUSD < 700, outside Kenya)
+### 4. International carrier charges apply (goodsValueKES < 120000, outside Kenya)
 POST http://localhost:3000/delivery
 Content-Type: application/json
 Authorization: Bearer <YOUR_JWT_TOKEN>
@@ -57,7 +57,7 @@ Authorization: Bearer <YOUR_JWT_TOKEN>
   "recipientName": "Emily Smith",
   "recipientPhone": "+447700900000",
   "courier": "FedEx",
-  "goodsValueUSD": 650,
+  "goodsValueKES": 100000,
   "destinationCity": "London",
   "destinationCountry": "UK"
 }

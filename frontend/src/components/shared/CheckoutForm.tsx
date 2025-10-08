@@ -15,8 +15,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
   const [locating, setLocating] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [orderReference, setOrderReference] = useState('');
-  const [deliveryFee, setDeliveryFee] = useState(0);
-  const [paymentInstruction, setPaymentInstruction] = useState('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [pendingPaymentUrl, setPendingPaymentUrl] = useState('');
   const [structuredAddress, setStructuredAddress] = useState<any>(null);
@@ -70,48 +68,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
         return;
       }
 
-      // Delivery fee and payment instruction logic
-      // Improved Nairobi detection using structured address
-      let isNairobi = false;
-      if (structuredAddress) {
-        const fields = [
-          structuredAddress.city,
-          structuredAddress.town,
-          structuredAddress.state_district,
-          structuredAddress.county,
-          structuredAddress.state,
-          structuredAddress.region
-        ];
-        isNairobi = fields.some(
-          (field) => field && typeof field === "string" && field.toLowerCase().includes("nairobi")
-        );
-      } else {
-        // fallback to string check if structured address is not available
-        isNairobi = address.toLowerCase().includes('nairobi');
-      }
-      let fee = 0;
-      let instruction = '';
-      if (isNairobi) {
-        if (cartTotal > 10000) {
-          fee = 0;
-          instruction = 'Delivery is free for orders above 10,000 Ksh within Nairobi. Payment after delivery.';
-        } else {
-          fee = 300;
-          instruction = 'Delivery fee is 300 Ksh within Nairobi for orders below or equal to 10,000 Ksh. Payment after delivery.';
-        }
-      } else {
-        if (cartTotal > 10000) {
-          fee = 0;
-          instruction = 'Delivery is free for orders above 10,000 Ksh outside Nairobi. Payment required before delivery.';
-        } else {
-          fee = 500;
-          instruction = 'Delivery fee is 500 Ksh outside Nairobi for orders below or equal to 10,000 Ksh. Payment required before delivery.';
-        }
-      }
-      setDeliveryFee(fee);
-      setPaymentInstruction(instruction);
-
-      const total = cartTotal + fee;
+      // Only use cartTotal for order total
+      const total = cartTotal;
 
       const orderPayload = {
         guestEmail: email,
@@ -187,8 +145,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onOrderPlaced }) => {
             <div className="text-6xl mb-4">💳</div>
             <h3 className="text-2xl font-bold text-amber-700 mb-2">Payment Required</h3>
             <p className="text-gray-600 mb-4">
-              To complete your order, please proceed to payment.<br />
-              <span className="font-semibold">Instructions:</span> {paymentInstruction}
+              To complete your order, please proceed to payment.
             </p>
             {pendingPaymentUrl ? (
               <div>
@@ -328,14 +285,6 @@ if (data && data.address) {
         {locating ? 'Detecting location...' : 'Use my current location'}
       </button>
       {error && <div className="text-red-600">{error}</div>}
-      {deliveryFee !== null && (
-        <div className="mb-2 p-3 bg-gray-100 rounded">
-          <div>
-            <span className="font-semibold">Delivery Fee:</span> {deliveryFee === 0 ? 'Free' : `${deliveryFee} Ksh`}
-          </div>
-          <div className="text-sm text-gray-700 mt-1">{paymentInstruction}</div>
-        </div>
-      )}
       <button
         type="submit"
         className="w-full bg-amber-600 text-white py-2 rounded font-bold hover:bg-amber-700 transition"

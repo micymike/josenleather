@@ -7,21 +7,6 @@ import { supabase } from '../supabase/supabase.client';
 export class DeliveryService {
   constructor() {}
 
-  // Shipping calculation logic
-  private calculateShippingCost(goodsValueUSD: number, destinationCity: string, destinationCountry: string): number | null {
-    if (goodsValueUSD > 700) {
-      return 0;
-    }
-    if (destinationCountry.trim().toLowerCase() !== 'kenya') {
-      return null;
-    }
-    const nairobiCities = ['nairobi', 'nairobi metropolis', 'nairobi metropolitan'];
-    if (nairobiCities.includes(destinationCity.trim().toLowerCase())) {
-      return 300;
-    }
-    return 500;
-  }
-
   async create(createDeliveryDto: CreateDeliveryDto) {
     const history = [
       {
@@ -31,22 +16,11 @@ export class DeliveryService {
       },
     ];
 
-    let estimatedCost = createDeliveryDto.estimatedCost;
-    if (estimatedCost === undefined || estimatedCost === null) {
-      const calculated = this.calculateShippingCost(
-        createDeliveryDto.goodsValueUSD,
-        createDeliveryDto.destinationCity,
-        createDeliveryDto.destinationCountry
-      );
-      estimatedCost = calculated !== null && calculated !== undefined ? calculated : 0;
-    }
-
     const { data, error } = await supabase
       .from('delivery')
       .insert([{
         ...createDeliveryDto,
         status: createDeliveryDto.status || 'pending',
-        estimatedCost: estimatedCost,
         deliveryHistory: history,
       }])
       .select()

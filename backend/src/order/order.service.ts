@@ -31,85 +31,15 @@ export class OrderService {
     console.log('Backend calculated cart total:', cartTotal);
     console.log('Frontend provided total:', createOrderDto.total);
     
-    // Calculate delivery fee and payment instruction
-    const address = createOrderDto.guestAddress?.toLowerCase() || '';
-    let isNairobi = address.includes('nairobi');
-    let deliveryFee = 0;
-    let paymentInstruction = '';
-    let paymentBeforeDelivery = false;
-
-    if (isNairobi) {
-      if (cartTotal > 10000) {
-        deliveryFee = 0;
-        paymentInstruction = 'Delivery is free for orders above 10,000 Ksh within Nairobi. Payment after delivery.';
-        paymentBeforeDelivery = false;
-      } else {
-        deliveryFee = 300;
-        paymentInstruction = 'Delivery fee is 300 Ksh within Nairobi for orders below or equal to 10,000 Ksh. Payment after delivery.';
-        paymentBeforeDelivery = false;
-      }
-    } else {
-      if (cartTotal > 10000) {
-        deliveryFee = 0;
-        paymentInstruction = 'Delivery is free for orders above 10,000 Ksh outside Nairobi. Payment required before delivery.';
-        paymentBeforeDelivery = true;
-      } else {
-        deliveryFee = 500;
-        paymentInstruction = 'Delivery fee is 500 Ksh outside Nairobi for orders below or equal to 10,000 Ksh. Payment required before delivery.';
-        paymentBeforeDelivery = true;
-      }
-    }
-    
-    const totalAmount = cartTotal + deliveryFee;
+    // Only use cartTotal for totalAmount
+    const totalAmount = cartTotal;
     console.log('Final total amount for payment:', totalAmount);
     
     if (totalAmount <= 0) {
-      throw new BadRequestException(`Invalid total amount: ${totalAmount}. Cart total: ${cartTotal}, Delivery fee: ${deliveryFee}`);
+      throw new BadRequestException(`Invalid total amount: ${totalAmount}. Cart total: ${cartTotal}`);
     }
 
-    // If payment before delivery is required, initiate Pesapal payment and return payment URL
-    if (paymentBeforeDelivery) {
-      const reference = `ORDER-${Date.now()}`;
-      try {
-        const pesapalResult = await this.paymentService.initiatePesapalPayment({
-          amount: totalAmount,
-          currency: 'KES',
-          description: 'Order Payment',
-          email: createOrderDto.guestEmail ?? '',
-          phone: createOrderDto.guestPhone ?? '',
-          reference,
-          callback_url: process.env.PESAPAL_CALLBACK_URL || '',
-          provider: 'mpesa',
-          metadata: {
-            firstName: createOrderDto.guestEmail?.split('@')[0] || '',
-            lastName: '',
-          },
-        });
-        // Return payment URL to frontend, do not create order yet
-        const paymentUrl =
-          pesapalResult.paymentUrl ||
-          `https://pay.pesapal.com/iframe/PesapalIframe3/Index/?OrderTrackingId=${reference}`;
-        return {
-          paymentRequired: true,
-          paymentUrl,
-          message: 'Payment required before delivery. Please complete payment to confirm your order.',
-          deliveryFee,
-          paymentInstruction,
-        };
-      } catch (error) {
-        console.error('Pesapal payment initiation failed:', error);
-        // Return payment required but with fallback instructions
-        return {
-          paymentRequired: true,
-          paymentUrl: `https://pay.pesapal.com/iframe/PesapalIframe3/Index/?OrderTrackingId=${reference}`,
-          message: 'Payment required before delivery. Please complete payment to confirm your order.',
-          deliveryFee,
-          paymentInstruction,
-        };
-      }
-    }
-
-    // Insert order (for payment after delivery)
+    // Insert order
     const { data: order, error: orderError } = await supabase
       .from('Order')
       .insert({
@@ -119,8 +49,6 @@ export class OrderService {
         guestEmail: createOrderDto.guestEmail ?? null,
         guestAddress: createOrderDto.guestAddress ?? null,
         guestPhone: createOrderDto.guestPhone ?? null,
-        deliveryFee,
-        paymentInstruction,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       })

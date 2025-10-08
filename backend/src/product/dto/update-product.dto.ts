@@ -70,6 +70,12 @@ export class UpdateProductDto {
   @IsString()
   material?: string;
 
+  @ApiProperty({ description: 'Available sizes for belts (in inches)', type: [Number], required: false })
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  sizes?: number[];
+
   @ApiProperty({ description: 'Array of meta tags', type: [String], required: false })
   @IsOptional()
   @IsArray()

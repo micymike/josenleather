@@ -9,6 +9,7 @@ export class Product {
   class: string;
   subClass: string;
   material: string;
+  sizes?: number[]; // Available sizes for belts (in inches)
   seoTitle?: string;
   seoDesc?: string;
   metaTags?: string[];
