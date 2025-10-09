@@ -138,7 +138,7 @@ const ProductPage: React.FC = () => {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": product.name,
-    "image": product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : "/logo.jpg",
+    "image": product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : "/logo1.jpg",
     "description": product.description,
     "category": product.category,
     "brand": {
@@ -388,7 +388,7 @@ const ProductPage: React.FC = () => {
                     <ProductImageCarousel imageUrls={product.imageUrls} productName={product.name} />
                   ) : (
                     <img
-                      src={product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/logo.jpg'}
+                      src={product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/logo1.jpg'}
                       alt={product.name}
                       className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-300"
                     />
@@ -443,9 +443,9 @@ const ProductPage: React.FC = () => {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-3">
-                <img src="/logo.jpg" alt="Josen Logo" className="h-12 w-auto" />
+                <img src="/logo1.jpg" alt="Josen Logo" className="h-12 w-auto" />
                 <div>
-                  <h3 className="text-xl font-bold text-white">JOSEN LEATHER & CANVAS</h3>
+                  <h3 className="text-xl font-bold text-white">JOSEN NAIROBI</h3>
                   <p className="text-white/80 text-sm">Crafted with care since 2025</p>
                 </div>
               </div>
@@ -457,7 +457,7 @@ const ProductPage: React.FC = () => {
               </div>
             </div>
             <div className="mt-6 pt-6 border-t border-white/20 text-center text-white/60 text-sm">
-              © 2025 Josen Leather & Canvas. All rights reserved.
+              © 2025 Josen Nairobi. All rights reserved.
             </div>
           </div>
         </footer>
