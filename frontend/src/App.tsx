@@ -21,6 +21,7 @@ import {
   AdminLogin,
   ProtectedRoute
 } from './components/admin'
+import FeedbackPage from './components/admin/FeedbackPage';
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
         <Route index element={<AdminDashboard />} />
+        <Route path="feedback" element={<FeedbackPage />} />
         <Route path="products" element={<ProductList />} />
         <Route path="products/add" element={<ProductForm />} />
         <Route path="products/edit/:id" element={<ProductForm />} />
