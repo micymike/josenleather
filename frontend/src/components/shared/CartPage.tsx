@@ -393,7 +393,7 @@ const CheckoutFlow: React.FC<{
                   <ProductImageCarousel imageUrls={item.imageUrls} productName={item.name} />
                 ) : (
                   <img
-                    src={item.image || "/logo.jpg"}
+                    src={item.image || "/logo1.jpg"}
                     alt={item.name}
                     className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg md:rounded-xl"
                   />

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getAdmins, getProducts, getOrders, getBlogs, getProductCount } from '../../lib/api';
+import FeedbackList from "./FeedbackList";
 
 const AdminDashboard = () => {
   const [showAddProduct, setShowAddProduct] = useState(false);
@@ -137,6 +138,10 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+        <div className="mb-8">
+          <FeedbackList />
+        </div>
       
         {/* Add Product Form */}
         {showAddProduct && (
