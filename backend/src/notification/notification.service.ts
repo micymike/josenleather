@@ -115,7 +115,7 @@ export class NotificationService {
                 </p>
               </div>
               <div style="margin-top: 24px; color: #888; font-size: 0.9rem;">
-                Josen Leather & Canvas &mdash; Premium Leather Goods
+                Josen Nairobi &mdash; Premium Leather Goods
               </div>
             </div>
           `,
@@ -177,7 +177,7 @@ export class NotificationService {
                 </p>
               </div>
               <div style="margin-top: 24px; color: #888; font-size: 0.9rem;">
-                Josen Leather & Canvas &mdash; Premium Leather Goods
+                Josen Nairobi &mdash; Premium Leather Goods
               </div>
             </div>
           `,

@@ -11,6 +11,7 @@ import { SupabaseModule } from './supabase/supabase.module';
 import { GeocodeModule } from './geocode/geocode.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { APP_GUARD } from '@nestjs/core';
     ProductModule,
     OrderModule,
     GeocodeModule,
+    FeedbackModule,
     ThrottlerModule.forRoot({
       throttlers: [
         {

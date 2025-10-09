@@ -135,16 +135,16 @@ const LandingPage: React.FC = () => {
   return (
     <div ref={containerRef} className="relative overflow-x-hidden">
       <Helmet>
-        <title>Josen Leather and Canvas | Handcrafted Leather Bags & Waxed Canvas Goods</title>
+        <title>Josen Nairobi | Handcrafted Leather Bags & Waxed Canvas Goods</title>
         <meta name="description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
         <link rel="canonical" href="https://www.josenleather.com/" />
-        <meta property="og:title" content="Josen Leather and Canvas | Handcrafted Leather Bags & Waxed Canvas Goods" />
+        <meta property="og:title" content="Josen Nairobi | Handcrafted Leather Bags & Waxed Canvas Goods" />
         <meta property="og:description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.josenleather.com/" />
         <meta property="og:image" content="https://www.josenleather.com/leather_bag.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Josen Leather and Canvas | Handcrafted Leather Bags & Waxed Canvas Goods" />
+        <meta name="twitter:title" content="Josen Nairobi | Handcrafted Leather Bags & Waxed Canvas Goods" />
         <meta name="twitter:description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
         <meta name="twitter:image" content="https://www.josenleather.com/leather_bag.jpg" />
         <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
@@ -257,7 +257,7 @@ const LandingPage: React.FC = () => {
                 Handcrafted Leather Bags & Waxed Canvas Goods Made to Last a Lifetime
               </h1>
               <p className="text-xl text-amber-800/80 leading-relaxed max-w-lg">
-                Josen Leather and Canvas creates heirloom-quality bags, belts, wallets, and accessories handcrafted with full-grain leather,
+                Josen Nairobi creates heirloom-quality bags, belts, wallets, and accessories handcrafted with full-grain leather,
                 rugged waxed canvas, and high-grade hardware. Every piece is built with soul, carried with purpose, and designed to stand the test
                 of time.
               </p>
