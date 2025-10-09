@@ -48,6 +48,7 @@ const SidebarNav: React.FC = () => {
       >
         <div className="flex items-center gap-3 px-6 py-5 border-b border-amber-100">
           <img src={COMPANY_INFO.logo} alt="Logo" className="h-8 w-auto" />
+          <span className="font-bold text-lg text-amber-900">{COMPANY_INFO.name}</span>
         </div>
         <nav className="flex flex-col gap-2 px-6 py-4">
           {NAV_LINKS.map((link) =>
@@ -91,6 +92,7 @@ const SidebarNav: React.FC = () => {
               alt="Josen Logo"
               className="h-8 w-auto"
             />
+            <span>{COMPANY_INFO.name}</span>
           </div>
           <div className="flex gap-8">
             {NAV_LINKS.map((link) =>
