@@ -83,7 +83,7 @@ const ProductDetail: React.FC = () => {
         "@context": "https://schema.org/",
         "@type": "Product",
         "name": product.name,
-        "image": product.imageUrls?.[0] || product.image || "/logo.jpg",
+        "image": product.imageUrls?.[0] || product.image || "/logo1.jpg",
         "description": product.description,
         "category": product.category,
         "brand": {
@@ -109,17 +109,17 @@ const ProductDetail: React.FC = () => {
     <div className="relative overflow-x-hidden min-h-screen">
       <Helmet>
         <title>{product ? `${product.name} | Josen Leather` : "Product | Josen Leather"}</title>
-        <meta name="description" content={product ? product.description : "Product details for Josen Leather."} />
+        <meta name="description" content={product ? product.description : "Product details for Josen Nairobi."} />
         <link rel="canonical" href={product ? `https://www.josenleather.com/product/${product.id}` : "https://www.josenleather.com/products"} />
         <meta property="og:title" content={product ? `${product.name} | Josen Leather` : "Product | Josen Leather"} />
         <meta property="og:description" content={product ? product.description : "Product details for Josen Leather."} />
         <meta property="og:type" content="product" />
         <meta property="og:url" content={product ? `https://www.josenleather.com/product/${product.id}` : "https://www.josenleather.com/products"} />
-        <meta property="og:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
+        <meta property="og:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo1.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={product ? `${product.name} | Josen Leather` : "Product | Josen Leather"} />
         <meta name="twitter:description" content={product ? product.description : "Product details for Josen Leather."} />
-        <meta name="twitter:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
+        <meta name="twitter:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo1.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
         {productStructuredData && (
           <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
         )}
@@ -193,8 +193,8 @@ const ProductDetail: React.FC = () => {
                   transform: `perspective(1000px) rotateY(${mousePos.x * 5}deg) rotateX(${-mousePos.y * 3}deg)`
                 }}
               >
-                <img
-                  src={product.imageUrls?.[0] || product.image || '/logo.jpg'}
+                  <img
+                  src={product.imageUrls?.[0] || product.image || '/logo1.jpg'}
                   alt={product.name}
                   className="w-full h-auto rounded-2xl shadow-xl"
                 />
@@ -303,7 +303,7 @@ const ProductDetail: React.FC = () => {
                     id: String(product.id),
                     name: product.name,
                     price: product.price,
-                    image: product.imageUrls?.[0] || product.image || '/logo.jpg',
+                    image: product.imageUrls?.[0] || product.image || '/logo1.jpg',
                     imageUrls: product.imageUrls,
                     ...(product.category === "belts" && { size: selectedSize })
                   }, quantity);

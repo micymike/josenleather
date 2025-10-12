@@ -91,18 +91,18 @@ const WHY_CHOOSE_US: string[] = [
 ];
 
 const COMPANY_INFO = {
-  name: "JOSEN LEATHER AND CANVAS",
-  logo: "/logo.jpg",
+  name: "JOSEN NAIROBI",
+  logo: "/logo1.jpg",
   heroImage: "blue_bag.jpg",
   oneSignalAppId: "9c2b21d1-2a24-4fdc-b253-2af835698b62",
   safariWebId: "web.onesignal.auto.1947bcbb-3df5-45a5-b464-0be0e15f4a2c"
 };
 
 const ABOUT_CONTENT = {
-  title: "About Josen Leather and Canvas",
+  title: "About Josen Nairobi",
   paragraphs: [
-    "At Josen Leather and Canvas, we believe that the things we carry should carry meaning. Each piece in our collection is a testament to craftsmanship, character, and the enduring pursuit of quality. We do not just make bags and belts — we create heirloom-quality goods that evolve with you over time, telling your story through every scratch, stain, and journey.",
-    "Rooted in the tradition of meticulous handcrafting, Josen combines premium full-grain leather, resilient waxed canvas, and solid, high-grade hardware to ensure every product stands the test of time. Every stitch and cut reflects our commitment to integrity, function, and style — modern designs shaped by timeless ideals.",
+    "At Josen Nairobi, we believe that the things we carry should carry meaning. Each piece in our collection is a testament to craftsmanship, character, and the enduring pursuit of quality. We do not just make bags and belts — we create heirloom-quality goods that evolve with you over time, telling your story through every scratch, stain, and journey.",
+    "Rooted in the tradition of meticulous handcrafting, Josen Nairobi combines premium full-grain leather, resilient waxed canvas, and solid, high-grade hardware to ensure every product stands the test of time. Every stitch and cut reflects our commitment to integrity, function, and style — modern designs shaped by timeless ideals.",
     "At Josen, form follows purpose. We design not for trends, but for people — people who value stories over statements, substance over excess. Our products are made to be lived in, worn proud, and passed down.",
   ],
   collections: {
@@ -114,7 +114,7 @@ const ABOUT_CONTENT = {
     "Ventura Leather Belts": "embody luxury, style, and timeless class — meticulously crafted to complement the modern lady and gentleman with understated sophistication and enduring quality.",
     "Ventura wallets": "evoke the golden age of refinement, where ladies and gentlemen carried not just accessories, but symbols of grace, dignity, and timeless class."
   },
-  closingStatement: "Josen Leather and Canvas — Crafted with soul. Carried with purpose. Built for a lifetime of journeys."
+  closingStatement: "Josen Nairobi — Crafted with soul. Carried with purpose. Built for a lifetime of journeys."
 };
 
 const SERVICE_FEATURES = [
@@ -294,7 +294,6 @@ const HeroSection: React.FC<{ mousePos: MousePosition }> = ({ mousePos }) => (
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
     </div>
     <div className="w-full flex flex-col items-center justify-center z-10">
-      <img src={COMPANY_INFO.logo} alt="Josen Logo" className="h-14 sm:h-20 w-auto mb-4 sm:mb-6 mx-auto drop-shadow-lg" />
       <div className="glass-card p-4 sm:p-6 md:p-10 rounded-2xl sm:rounded-3xl shadow-2xl text-white text-base sm:text-lg leading-relaxed w-full max-w-xs sm:max-w-lg md:max-w-2xl mx-auto" style={{ background: "rgba(30, 30, 30, 0.25)" }}>
         <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black mb-4 sm:mb-6 text-center" style={{ fontFamily: "serif", letterSpacing: "1px" }}>
           {ABOUT_CONTENT.title}
