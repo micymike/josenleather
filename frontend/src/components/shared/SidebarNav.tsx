@@ -10,8 +10,8 @@ const NAV_LINKS = [
 ];
 
 const COMPANY_INFO = {
-  name: "Josen Leather and Canvas",
-  logo: "/logo.jpg",
+  name: "Josen Nairobi",
+  logo: "/logo1.jpg",
 };
 
 const SidebarNav: React.FC = () => {
