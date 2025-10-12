@@ -22,7 +22,32 @@ import {
   ProtectedRoute
 } from './components/admin'
 
+import { useEffect, useRef } from 'react';
+
 function App() {
+  const deferredPrompt = useRef(null);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      deferredPrompt.current = e;
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleDownloadClick = async () => {
+    if (deferredPrompt.current) {
+      deferredPrompt.current.prompt();
+      const { outcome } = await deferredPrompt.current.userChoice;
+      if (outcome === 'accepted') {
+        console.log('PWA installed successfully');
+      }
+      deferredPrompt.current = null;
+    } else {
+      alert('App install not available. Use your browser\'s install option or add to home screen.');
+    }
+  };
 
   return (
     <CartProvider>
@@ -47,6 +72,14 @@ function App() {
         <Route path="blog/edit/:id" element={<BlogForm />} />
       </Route>
       </Routes>
+      <button
+        className="pwa-download-btn"
+        onClick={handleDownloadClick}
+        title="Download App"
+        aria-label="Download App"
+      >
+        ⬇
+      </button>
     </CartProvider>
   )
 }
