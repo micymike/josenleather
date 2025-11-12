@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, Sparkles } from 'lucide-react';
 import { login } from '../../../lib/api';
 
+/* Add BankGothic Lt BT font */
+const fontStyle = `
+  @font-face {
+    font-family: 'BankGothic Lt BT';
+    src: local('BankGothic Lt BT'), url('/fonts/BankGothicLtBT.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+  }
+`;
+
 const AdminLogin = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -34,6 +44,8 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Inject font style */}
+      <style>{fontStyle}</style>
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-orange-900 to-yellow-900">
         {/* Floating orbs */}
@@ -49,31 +61,31 @@ const AdminLogin = () => {
         {/* Left: Enhanced Logo Section */}
         <div className="md:w-1/2 w-full flex items-center justify-center relative">
           <div className="absolute inset-0 bg-white/5 backdrop-blur-md"></div>
-          <div className="relative z-10 flex flex-col items-center p-8 text-center">
-            {/* Decorative elements around logo */}
-            <div className="relative">
-              <div className="absolute -top-8 -left-8 w-4 h-4 bg-amber-400 rounded-full animate-bounce delay-100"></div>
-              <div className="absolute -top-4 -right-8 w-2 h-2 bg-orange-400 rounded-full animate-bounce delay-300"></div>
-              <div className="absolute -bottom-6 -left-6 w-3 h-3 bg-yellow-400 rounded-full animate-bounce delay-500"></div>
-              
-              <div className="relative group">
-                <div className="absolute -inset-4 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-3xl blur-lg group-hover:blur-xl transition-all duration-500"></div>
-                <img
-                  src="/login_admin.png"
-                  alt="Admin Logo"
-                  className="relative max-w-xs w-full h-auto object-contain drop-shadow-2xl transform group-hover:scale-105 transition-all duration-500"
-                />
+            <div className="relative z-10 flex flex-col items-center p-8 text-center">
+              {/* Decorative elements around logo */}
+              <div className="relative">
+                <div className="absolute -top-8 -left-8 w-4 h-4 bg-amber-400 rounded-full animate-bounce delay-100"></div>
+                <div className="absolute -top-4 -right-8 w-2 h-2 bg-orange-400 rounded-full animate-bounce delay-300"></div>
+                <div className="absolute -bottom-6 -left-6 w-3 h-3 bg-yellow-400 rounded-full animate-bounce delay-500"></div>
+                
+                <div className="relative group">
+                  <div className="absolute -inset-4 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-3xl blur-lg group-hover:blur-xl transition-all duration-500"></div>
+                  <img
+                    src="/login_admin.png"
+                    alt="Admin Logo"
+                    className="relative max-w-xs w-full h-auto object-contain drop-shadow-2xl transform group-hover:scale-105 transition-all duration-500"
+                  />
+                </div>
+              </div>
+              {/* Removed duplicate branding text next to logo */}
+              <div className="mt-8 space-y-2">
+                <div className="flex items-center justify-center gap-2 text-amber-200">
+                  <Sparkles size={16} className="animate-pulse" />
+                  <span className="text-sm font-medium">Premium Admin Experience</span>
+                  <Sparkles size={16} className="animate-pulse delay-500" />
+                </div>
               </div>
             </div>
-            
-            <div className="mt-8 space-y-2">
-              <div className="flex items-center justify-center gap-2 text-amber-200">
-                <Sparkles size={16} className="animate-pulse" />
-                <span className="text-sm font-medium">Premium Admin Experience</span>
-                <Sparkles size={16} className="animate-pulse delay-500" />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Right: Enhanced Login Form */}
@@ -90,8 +102,8 @@ const AdminLogin = () => {
                 <div className="absolute -inset-1 bg-gradient-to-r from-amber-400/20 to-orange-400/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
               <div className="relative">
-                <p className="text-lg text-amber-200 font-medium animate-in slide-in-from-top duration-700 delay-400">
-                  Josen Leather Management
+                <p className="text-lg text-amber-200 font-medium animate-in slide-in-from-top duration-700 delay-400" style={{ fontFamily: "'BankGothic Lt BT', Arial, sans-serif", letterSpacing: '2px', textTransform: 'uppercase' }}>
+                  JOSEN NAIROBI Management
                 </p>
                 <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-in slide-in-from-bottom duration-700 delay-600"></div>
               </div>

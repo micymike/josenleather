@@ -91,7 +91,7 @@ const WHY_CHOOSE_US: string[] = [
 ];
 
 const COMPANY_INFO = {
-  name: "JOSEN NAIROBI",
+ 
   logo: "/logo1.jpg",
   heroImage: "blue_bag.jpg",
   oneSignalAppId: "9c2b21d1-2a24-4fdc-b253-2af835698b62",
@@ -99,7 +99,7 @@ const COMPANY_INFO = {
 };
 
 const ABOUT_CONTENT = {
-  title: "About Josen Nairobi",
+  title: "About JOSEN NAIROBI",
   paragraphs: [
     "At Josen Nairobi, we believe that the things we carry should carry meaning. Each piece in our collection is a testament to craftsmanship, character, and the enduring pursuit of quality. We do not just make bags and belts — we create heirloom-quality goods that evolve with you over time, telling your story through every scratch, stain, and journey.",
     "Rooted in the tradition of meticulous handcrafting, Josen Nairobi combines premium full-grain leather, resilient waxed canvas, and solid, high-grade hardware to ensure every product stands the test of time. Every stitch and cut reflects our commitment to integrity, function, and style — modern designs shaped by timeless ideals.",
@@ -137,6 +137,12 @@ const SERVICE_FEATURES = [
 
 // Styles
 const COMPONENT_STYLES = `
+  @font-face {
+    font-family: 'BankGothic Lt BT';
+    src: local('BankGothic Lt BT'), url('/fonts/BankGothicLtBT.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+  }
   @keyframes float {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
     50% { transform: translateY(-20px) rotate(2deg); }
@@ -246,9 +252,9 @@ const BackgroundElements: React.FC<{ scrollY: number }> = ({ scrollY }) => (
 
 const AboutContent: React.FC = () => (
   <div className="glass-card p-8 rounded-3xl shadow-2xl text-amber-900 text-lg leading-relaxed max-w-2xl mx-auto">
-    <h1 className="text-4xl lg:text-5xl font-black text-3d mb-6 text-center">
-      {ABOUT_CONTENT.title}
-    </h1>
+          <h1 className="text-4xl lg:text-5xl font-black text-3d mb-6 text-center" style={{ fontFamily: "'BankGothic Lt BT', Arial, sans-serif", letterSpacing: '2px', textTransform: 'uppercase' }}>
+            {ABOUT_CONTENT.title}
+          </h1>
     
     {/* Main paragraphs */}
     {ABOUT_CONTENT.paragraphs.slice(0, 2).map((paragraph, index) => (
@@ -346,8 +352,8 @@ const FeaturesSection: React.FC<{ mousePos: MousePosition }> = ({ mousePos }) =>
     <div className="max-w-7xl mx-auto">
       <div className="grid lg:grid-cols-2 gap-16 items-center">
         <div>
-          <h2 className="text-5xl font-black text-3d mb-8">
-            Why Choose Josen?
+          <h2 className="text-5xl font-black text-3d mb-8" style={{ fontFamily: "'BankGothic Lt BT', Arial, sans-serif", letterSpacing: '2px', textTransform: 'uppercase' }}>
+            Why Choose JOSEN NAIROBI?
           </h2>
           <ul className="list-none space-y-4 text-lg text-amber-900">
             {WHY_CHOOSE_US.map((item, idx) => (
