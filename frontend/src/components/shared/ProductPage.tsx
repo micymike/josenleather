@@ -76,9 +76,9 @@ const MOCK_PRODUCTS: Product[] = [
 */
 
 const HERO_IMAGES = [
+  '/hero5.jpg',
   '/hero1.jpg',
-  '/hero2.jpg',
-  '/hero3.jpg'
+  '/hero2.jpg'
 ];
 
 const ProductPage: React.FC = () => {
@@ -463,7 +463,7 @@ const ProductPage: React.FC = () => {
               </div>
             </div>
             <div className="mt-6 pt-6 border-t border-white/20 text-center text-white/60 text-sm">
-              © 2025 JOSEN NAIROBI. All rights reserved.
+              © JOSEN NAIROBI. All rights reserved.
             </div>
           </div>
         </footer>
