@@ -135,22 +135,28 @@ const LandingPage: React.FC = () => {
   return (
     <div ref={containerRef} className="relative overflow-x-hidden">
       <Helmet>
-        <title>Josen Nairobi | Handcrafted Leather Bags & Waxed Canvas Goods</title>
+        <title>JOSEN NAIROBI | Handcrafted Leather Bags & Waxed Canvas Goods</title>
         <meta name="description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
         <link rel="canonical" href="https://www.josenleather.com/" />
-        <meta property="og:title" content="Josen Nairobi | Handcrafted Leather Bags & Waxed Canvas Goods" />
+        <meta property="og:title" content="JOSEN NAIROBI | Handcrafted Leather Bags & Waxed Canvas Goods" />
         <meta property="og:description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.josenleather.com/" />
         <meta property="og:image" content="https://www.josenleather.com/leather_bag.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Josen Nairobi | Handcrafted Leather Bags & Waxed Canvas Goods" />
+        <meta name="twitter:title" content="JOSEN NAIROBI | Handcrafted Leather Bags & Waxed Canvas Goods" />
         <meta name="twitter:description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
         <meta name="twitter:image" content="https://www.josenleather.com/leather_bag.jpg" />
         <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
       </Helmet>
       {/* Custom CSS */}
       <style>{`
+        @font-face {
+          font-family: 'BankGothic Lt BT';
+          src: local('BankGothic Lt BT'), url('/fonts/BankGothicLtBT.woff2') format('woff2');
+          font-weight: normal;
+          font-style: normal;
+        }
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(2deg); }
@@ -257,7 +263,7 @@ const LandingPage: React.FC = () => {
                 Handcrafted Leather Bags & Waxed Canvas Goods Made to Last a Lifetime
               </h1>
               <p className="text-xl text-amber-800/80 leading-relaxed max-w-lg">
-                Josen Nairobi creates heirloom-quality bags, belts, wallets, and accessories handcrafted with full-grain leather,
+                JOSEN NAIROBI creates heirloom-quality bags, belts, wallets, and accessories handcrafted with full-grain leather,
                 rugged waxed canvas, and high-grade hardware. Every piece is built with soul, carried with purpose, and designed to stand the test
                 of time.
               </p>
@@ -389,8 +395,8 @@ const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-5xl font-black text-3d mb-8">
-                Why Choose Josen?
+              <h2 className="text-5xl font-black text-3d mb-8" style={{ fontFamily: "'BankGothic Lt BT', Arial, sans-serif", letterSpacing: '2px', textTransform: 'uppercase' }}>
+                Why Choose JOSEN NAIROBI?
               </h2>
               <ul className="list-none space-y-4 text-lg text-amber-900">
                 {WHY_CHOOSE.map((why, idx) => (

@@ -10,7 +10,7 @@ const NAV_LINKS = [
 ];
 
 const COMPANY_INFO = {
-  name: "Josen Nairobi",
+ 
   logo: "/logo1.jpg",
 };
 
@@ -47,8 +47,7 @@ const SidebarNav: React.FC = () => {
         style={{ backdropFilter: "blur(20px)" }}
       >
         <div className="flex items-center gap-3 px-6 py-5 border-b border-amber-100">
-          <img src={COMPANY_INFO.logo} alt="Logo" className="h-8 w-auto" />
-          <span className="font-bold text-lg text-amber-900">{COMPANY_INFO.name}</span>
+          <img src={COMPANY_INFO.logo} alt="JOSEN NAIROBI Logo" className="h-8 w-auto" />
         </div>
         <nav className="flex flex-col gap-2 px-6 py-4">
           {NAV_LINKS.map((link) =>
@@ -81,6 +80,14 @@ const SidebarNav: React.FC = () => {
       </aside>
 
       {/* Top nav bar (desktop only) */}
+      <style>{`
+        @font-face {
+          font-family: 'BankGothic Lt BT';
+          src: local('BankGothic Lt BT'), url('/fonts/BankGothicLtBT.woff2') format('woff2');
+          font-weight: normal;
+          font-style: normal;
+        }
+      `}</style>
       <nav className="glass-nav bg-white border-b fixed top-0 w-full z-50 px-4 sm:px-8 py-3 sm:py-4 hidden sm:block">
         <div className="flex flex-row justify-between items-center max-w-7xl mx-auto gap-2">
           <div
@@ -89,10 +96,9 @@ const SidebarNav: React.FC = () => {
           >
             <img
               src={COMPANY_INFO.logo}
-              alt="Josen Logo"
+              alt="JOSEN NAIROBI Logo"
               className="h-8 w-auto"
             />
-            <span>{COMPANY_INFO.name}</span>
           </div>
           <div className="flex gap-8">
             {NAV_LINKS.map((link) =>

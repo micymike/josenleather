@@ -108,23 +108,29 @@ const ProductDetail: React.FC = () => {
   return (
     <div className="relative overflow-x-hidden min-h-screen">
       <Helmet>
-        <title>{product ? `${product.name} | Josen Leather` : "Product | Josen Leather"}</title>
-        <meta name="description" content={product ? product.description : "Product details for Josen Nairobi."} />
+        <title>{product ? `${product.name} | JOSEN NAIROBI` : "Product | JOSEN NAIROBI"}</title>
+        <meta name="description" content={product ? product.description : "Product details for JOSEN NAIROBI."} />
         <link rel="canonical" href={product ? `https://www.josenleather.com/product/${product.id}` : "https://www.josenleather.com/products"} />
-        <meta property="og:title" content={product ? `${product.name} | Josen Leather` : "Product | Josen Leather"} />
-        <meta property="og:description" content={product ? product.description : "Product details for Josen Leather."} />
+        <meta property="og:title" content={product ? `${product.name} | JOSEN NAIROBI` : "Product | JOSEN NAIROBI"} />
+        <meta property="og:description" content={product ? product.description : "Product details for JOSEN NAIROBI."} />
         <meta property="og:type" content="product" />
         <meta property="og:url" content={product ? `https://www.josenleather.com/product/${product.id}` : "https://www.josenleather.com/products"} />
         <meta property="og:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo1.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={product ? `${product.name} | Josen Leather` : "Product | Josen Leather"} />
-        <meta name="twitter:description" content={product ? product.description : "Product details for Josen Leather."} />
+        <meta name="twitter:title" content={product ? `${product.name} | JOSEN NAIROBI` : "Product | JOSEN NAIROBI"} />
+        <meta name="twitter:description" content={product ? product.description : "Product details for JOSEN NAIROBI."} />
         <meta name="twitter:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo1.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
         {productStructuredData && (
           <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
         )}
       </Helmet>
       <style>{`
+        @font-face {
+          font-family: 'BankGothic Lt BT';
+          src: local('BankGothic Lt BT'), url('/fonts/BankGothicLtBT.woff2') format('woff2');
+          font-weight: normal;
+          font-style: normal;
+        }
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-20px); }
@@ -205,7 +211,9 @@ const ProductDetail: React.FC = () => {
           {/* Product Details - Right Side */}
           <div className="space-y-6 animate-in slide-in-from-right duration-500">
             <div>
-              <h1 className="text-4xl font-black text-amber-900 mb-4">{product.name}</h1>
+              <h1 className="text-4xl font-black text-amber-900 mb-4" style={{ fontFamily: "'BankGothic Lt BT', Arial, sans-serif", letterSpacing: '2px', textTransform: 'uppercase' }}>
+                {product.name} | JOSEN NAIROBI
+              </h1>
               
               {/* Rating */}
               <div className="flex items-center mb-4">
@@ -299,6 +307,11 @@ const ProductDetail: React.FC = () => {
 
               <button 
                 onClick={() => {
+                  if (product.category === "belts" && !selectedSize) {
+                    setShowPopup(false);
+                    alert("Please select a size before adding to cart.");
+                    return;
+                  }
                   addToCart({
                     id: String(product.id),
                     name: product.name,
@@ -312,6 +325,7 @@ const ProductDetail: React.FC = () => {
                 }}
                 className="w-full bg-gradient-to-r from-amber-600 to-orange-700 text-white py-4 px-8 rounded-xl font-bold text-lg hover:from-amber-700 hover:to-orange-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 disabled={product.category === "belts" && !selectedSize}
+                style={{ fontFamily: "'BankGothic Lt BT', Arial, sans-serif", letterSpacing: '1px', textTransform: 'uppercase' }}
               >
                 Add {quantity} to Cart - KSh {(product.price * quantity).toLocaleString()}
               </button>

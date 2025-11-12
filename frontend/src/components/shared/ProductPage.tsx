@@ -162,22 +162,28 @@ const ProductPage: React.FC = () => {
   return (
     <React.Fragment>
       <Helmet>
-        <title>Shop Leather Bags, Belts, Wallets & Accessories | Josen Leather</title>
-        <meta name="description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop Josen Leather today." />
+        <title>Shop Leather Bags, Belts, Wallets & Accessories | JOSEN NAIROBI</title>
+        <meta name="description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop JOSEN NAIROBI today." />
         <link rel="canonical" href="https://www.josenleather.com/products" />
-        <meta property="og:title" content="Shop Leather Bags, Belts, Wallets & Accessories | Josen Leather" />
-        <meta property="og:description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop Josen Leather today." />
+        <meta property="og:title" content="Shop Leather Bags, Belts, Wallets & Accessories | JOSEN NAIROBI" />
+        <meta property="og:description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop JOSEN NAIROBI today." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.josenleather.com/products" />
         <meta property="og:image" content="https://www.josenleather.com/leather_bag.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Shop Leather Bags, Belts, Wallets & Accessories | Josen Leather" />
-        <meta name="twitter:description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop Josen Leather today." />
+        <meta name="twitter:title" content="Shop Leather Bags, Belts, Wallets & Accessories | JOSEN NAIROBI" />
+        <meta name="twitter:description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop JOSEN NAIROBI today." />
         <meta name="twitter:image" content="https://www.josenleather.com/leather_bag.jpg" />
         <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
       </Helmet>
       <div className="relative overflow-x-hidden min-h-screen">
         <style>{`
+          @font-face {
+            font-family: 'BankGothic Lt BT';
+            src: local('BankGothic Lt BT'), url('/fonts/BankGothicLtBT.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+          }
           .glass-card {
             backdrop-filter: blur(25px);
             background: linear-gradient(135deg, 
@@ -443,9 +449,9 @@ const ProductPage: React.FC = () => {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-3">
-                <img src="/logo1.jpg" alt="Josen Logo" className="h-12 w-auto" />
+                <img src="/logo1.jpg" alt="JOSEN NAIROBI Logo" className="h-12 w-auto" />
                 <div>
-                  <h3 className="text-xl font-bold text-white">JOSEN NAIROBI</h3>
+                  <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'BankGothic Lt BT', Arial, sans-serif", letterSpacing: '2px', textTransform: 'uppercase' }}>JOSEN NAIROBI</h3>
                   <p className="text-white/80 text-sm">Crafted with care since 2025</p>
                 </div>
               </div>
@@ -457,7 +463,7 @@ const ProductPage: React.FC = () => {
               </div>
             </div>
             <div className="mt-6 pt-6 border-t border-white/20 text-center text-white/60 text-sm">
-              © 2025 Josen Nairobi. All rights reserved.
+              © 2025 JOSEN NAIROBI. All rights reserved.
             </div>
           </div>
         </footer>
