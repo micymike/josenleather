@@ -451,7 +451,6 @@ const ProductPage: React.FC = () => {
               <div className="flex items-center gap-3">
                 <img src="/logo1.jpg" alt="JOSEN NAIROBI Logo" className="h-12 w-auto" />
                 <div>
-                  <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'BankGothic Lt BT', Arial, sans-serif", letterSpacing: '2px', textTransform: 'uppercase' }}>JOSEN NAIROBI</h3>
                   <p className="text-white/80 text-sm">Crafted with care </p>
                 </div>
               </div>
