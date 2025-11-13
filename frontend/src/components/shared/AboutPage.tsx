@@ -330,13 +330,13 @@ const HeroSection: React.FC<{ mousePos: MousePosition }> = ({ mousePos }) => (
         <div className="mt-6 flex flex-col sm:flex-row justify-center items-center gap-4">
           <div className="glass-card px-4 py-2 rounded-full text-white text-base font-semibold flex flex-col items-center min-w-[120px]">
             <span className="font-bold">Bag</span>
-            <span>KES 18,500</span>
-            <span>US$ 145</span>
+            <span>KES 17,150</span>
+          
           </div>
           <div className="glass-card px-4 py-2 rounded-full text-white text-base font-semibold flex flex-col items-center min-w-[120px]">
             <span className="font-bold">Belt</span>
-            <span>KES 4,500</span>
-            <span>US$ 35</span>
+            <span>KES 4,150</span>
+          
           </div>
         </div>
         <p className="mt-4 font-bold text-center">

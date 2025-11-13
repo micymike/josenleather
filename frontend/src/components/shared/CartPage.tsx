@@ -354,9 +354,9 @@ const CheckoutFlow: React.FC<{
                     }
                   });
                   if (allBags) {
-                    return `KES ${totalKES.toLocaleString()}  (US$ ${totalUSD.toLocaleString()})`;
+                    return `KES ${totalKES.toLocaleString()}`;
                   } else if (allBelts) {
-                    return `KES ${totalKES.toLocaleString()}  (US$ ${totalUSD.toLocaleString()})`;
+                    return `KES ${totalKES.toLocaleString()}`;
                   } else {
                     return `KSh ${totalKES.toLocaleString()}`;
                   }
@@ -404,12 +404,12 @@ const CheckoutFlow: React.FC<{
                     {item.name && item.name.toLowerCase().includes("bag") ? (
                       <>
                         <span>KES 17150</span>
-                        <span className="text-xs text-amber-700/80"> US$ 145</span>
+                        
                       </>
                     ) : item.name && item.name.toLowerCase().includes("belt") ? (
                       <>
                         <span>KES 4150</span>
-                        <span className="text-xs text-amber-700/80"> US$ 35</span>
+                       
                       </>
                     ) : (
                       <>KSh {item.price.toLocaleString()}</>
@@ -436,12 +436,12 @@ const CheckoutFlow: React.FC<{
                         {item.name && item.name.toLowerCase().includes("bag") ? (
                           <>
                             <span>KES {16900 * item.quantity}</span>
-                            <span className="text-xs text-amber-700/80"> US$ {145 * item.quantity}</span>
+                           
                           </>
                         ) : item.name && item.name.toLowerCase().includes("belt") ? (
                           <>
                             <span>KES {4150 * item.quantity}</span>
-                            <span className="text-xs text-amber-700/80"> US$ {35 * item.quantity}</span>
+                           
                           </>
                         ) : (
                           <>KSh {(item.price * item.quantity).toLocaleString()}</>
