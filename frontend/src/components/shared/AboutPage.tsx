@@ -218,6 +218,8 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
 
 /* Navigation component removed, replaced by SidebarNav */
 
+
+
 const BackgroundElements: React.FC<{ scrollY: number }> = ({ scrollY }) => (
   <>
     {/* Background with Parallax */}
@@ -234,7 +236,8 @@ const BackgroundElements: React.FC<{ scrollY: number }> = ({ scrollY }) => (
         style={{ transform: `translateY(${scrollY * -0.3}px)` }}
       />
     </div>
-
+    
+       
     {/* Floating geometric shapes */}
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       <FloatingElement delay={0} amplitude={30}>
@@ -495,10 +498,10 @@ const AboutPage: React.FC = () => {
   return (
     <div ref={containerRef} className="relative overflow-x-hidden">
       {/* Custom CSS */}
-      <style>{COMPONENT_STYLES}</style>
+     {/*  <style>{COMPONENT_STYLES}</style> */}
 
       <BackgroundElements scrollY={scrollY} />
-      <SidebarNav />
+      < SidebarNav/>
       <HeroSection mousePos={mousePos} />
       <FeaturesSection mousePos={mousePos} />
       <CallToActionSection />

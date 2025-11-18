@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNumber, IsArray, ArrayMaxSize, IsOptional, IsUrl, IsNotEmpty } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class UpdateProductDto {
   @ApiProperty({ description: 'Product name', required: false })
@@ -21,8 +22,15 @@ export class UpdateProductDto {
 
   @ApiProperty({ description: 'Product price', type: Number, required: false })
   @IsOptional()
+  @Transform(({ value }) => typeof value === 'string' ? parseFloat(value) : value)
   @IsNumber()
   price?: number;
+
+  @ApiProperty({ description: 'Product stock', type: Number, required: false })
+  @IsOptional()
+  @Transform(({ value }) => typeof value === 'string' ? parseInt(value, 10) : value)
+  @IsNumber()
+  stock?: number;
 
   // category removed, use productType only
 

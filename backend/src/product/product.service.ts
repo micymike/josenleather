@@ -86,15 +86,57 @@ export class ProductService {
     return data;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, images?: Array<Express.Multer.File>) {
     const supabase = this.supabaseService.client;
+    let imageUrls: string[] = [];
+
+    if (images && images.length > 0) {
+      for (const file of images) {
+        const fileExt = file.originalname.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+
+        const { data, error } = await supabase.storage
+          .from('product')
+          .upload(fileName, file.buffer, {
+            contentType: file.mimetype,
+            upsert: false,
+          });
+
+        if (error) {
+          throw new Error(`Failed to upload image: ${error.message}`);
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('product')
+          .getPublicUrl(fileName);
+
+        if (publicUrlData && publicUrlData.publicUrl) {
+          imageUrls.push(publicUrlData.publicUrl);
+        }
+      }
+    }
+
+    // Prepare update data with proper type conversion
+    const updateData = {
+      ...updateProductDto,
+      price: updateProductDto.price ? (typeof updateProductDto.price === 'string' ? parseFloat(updateProductDto.price) : updateProductDto.price) : undefined,
+      stock: updateProductDto.stock ? (typeof updateProductDto.stock === 'string' ? parseInt(updateProductDto.stock, 10) : updateProductDto.stock) : undefined,
+    };
+
+    // If new images were uploaded, set imageUrls
+    if (imageUrls.length > 0) {
+      updateData.imageUrls = imageUrls;
+    }
+
     const { data, error } = await supabase
       .from('product')
-      .update(updateProductDto)
+      .update(updateData)
       .eq('id', id)
       .select()
-      .single();
+      .maybeSingle();
     if (error) throw new Error(error.message);
+
+    if (!data) throw new Error('Product not found')
     return data;
   }
 

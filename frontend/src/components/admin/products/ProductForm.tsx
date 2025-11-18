@@ -72,6 +72,7 @@ const ProductForm = () => {
           const token = localStorage.getItem('adminToken');
           const api_url = import.meta.env.VITE_API_URL;
           const res = await fetch(`${api_url}/products/${id}`, {
+
             headers: { Authorization: `Bearer ${token}` }
           });
           if (!res.ok) throw new Error('Failed to fetch product');
@@ -109,16 +110,25 @@ const ProductForm = () => {
         return;
       }
       const { name, description, price, stock, images, productType, class: prodClass, subClass, material } = formData;
+      
+      // Validate required fields
+      if (!name || !description || !price || !stock || !productType || !prodClass || !subClass || !material) {
+        setError('Please fill in all required fields');
+        setLoading(false);
+        return;
+      }
+      
       const form = new FormData();
-      form.append('name', name);
-      form.append('description', description);
-      form.append('price', String(Number(price)));
-      form.append('stock', String(Number(stock)));
+      form.append('name', name.trim());
+      form.append('description', description.trim());
+      form.append('price', price);
+      form.append('stock', stock);
       form.append('category', productType);
-      form.append('productType', productType);
       form.append('class', prodClass);
       form.append('subClass', subClass);
       form.append('material', material);
+      
+      // Only append images if present
       if (images && images.length > 0) {
         images.forEach((file) => {
           form.append('images', file);
@@ -129,10 +139,16 @@ const ProductForm = () => {
         const api_url = import.meta.env.VITE_API_URL;
         const res = await fetch(`${api_url}/products/${id}`, {
           method: 'PATCH',
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { 
+            "Authorization": `Bearer ${token}`
+            // Don't set Content-Type for FormData - browser sets it automatically
+          },
           body: form,
         });
-        if (!res.ok) throw new Error('Failed to update product');
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Failed to update product: ${errorText}`);
+        }
         setSuccess('Product updated successfully!');
         setTimeout(() => navigate('/admin/products'), 1200);
       } else {
@@ -154,7 +170,8 @@ const ProductForm = () => {
         setTimeout(() => window.location.reload(), 1200);
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to save product');
+      console.error('Product save error:', err);
+      setError(err.message || 'Failed to save product');
     } finally {
       setLoading(false);
     }
@@ -170,6 +187,11 @@ const ProductForm = () => {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">{isEditMode ? "Edit Product" : "Add Product"}</h1>
       {/* Spinner removed from above form */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
       {success && (
         <div className="mb-4 flex items-center justify-center">
           <span className="text-green-600 font-medium">{success}</span>
