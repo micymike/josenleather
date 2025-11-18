@@ -59,9 +59,22 @@ export class ProductController {
   @ApiOperation({ summary: 'Update product by ID' })
   @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateProductDto })
+  @ApiConsumes('multipart/form-data')
   @ApiResponse({ status: 200, description: 'Product updated' })
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(id, updateProductDto);
+  @UseInterceptors(FilesInterceptor('images', 5))
+  update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFiles() images: Express.Multer.File[]
+  ) {
+    // Coerce price and stock to numbers if present
+    if (updateProductDto.price !== undefined) {
+      updateProductDto.price = Number(updateProductDto.price);
+    }
+    if (updateProductDto.stock !== undefined) {
+      updateProductDto.stock = Number(updateProductDto.stock);
+    }
+    return this.productService.update(id, updateProductDto, images);
   }
 
   // Admin only: delete product

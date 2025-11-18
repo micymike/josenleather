@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNumber, IsArray, ArrayMaxSize, IsOptional, IsUrl, IsNotEmpty } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 
 export class CreateProductDto {
   @ApiProperty({ description: 'Product name' })
@@ -19,12 +19,12 @@ export class CreateProductDto {
   description: string;
 
   @ApiProperty({ description: 'Product price', type: Number })
-  @Type(() => Number)
+  @Transform(({ value }) => typeof value === 'string' ? parseFloat(value) : value)
   @IsNumber()
   price: number;
 
   @ApiProperty({ description: 'Product stock', type: Number })
-  @Type(() => Number)
+  @Transform(({ value }) => typeof value === 'string' ? parseInt(value, 10) : value)
   @IsNumber()
   stock: number;
 
