@@ -142,11 +142,11 @@ const LandingPage: React.FC = () => {
         <meta property="og:description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.josenleather.com/" />
-        <meta property="og:image" content="https://www.josenleather.com/leather_bag.jpg" />
+        <meta property="og:image" content="https://www.josenleather.com/hero2.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="JOSEN NAIROBI | Handcrafted Leather Bags & Waxed Canvas Goods" />
         <meta name="twitter:description" content="Discover heirloom-quality leather bags, belts, wallets, and accessories handcrafted with full-grain leather and waxed canvas. Timeless design, exceptional craftsmanship, and sustainable practices." />
-        <meta name="twitter:image" content="https://www.josenleather.com/leather_bag.jpg" />
+        <meta name="twitter:image" content="https://www.josenleather.com/hero2.jpg" />
         <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
       </Helmet>
       {/* Custom CSS */}
