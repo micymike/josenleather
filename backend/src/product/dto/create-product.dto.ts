@@ -8,10 +8,10 @@ export class CreateProductDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ description: 'Product category' })
+  @ApiProperty({ description: 'Product category', required: false })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  category: string;
+  category?: string;
 
   @ApiProperty({ description: 'Product description' })
   @IsString()
@@ -33,25 +33,25 @@ export class CreateProductDto {
   @IsOptional()
   imageUrls?: string[];
 
-  @ApiProperty({ description: 'Product type' })
+  @ApiProperty({ description: 'Product type', required: false })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  productType: string;
+  productType?: string;
 
-  @ApiProperty({ description: 'Product class' })
+  @ApiProperty({ description: 'Product class', required: false })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  class: string;
+  class?: string;
 
-  @ApiProperty({ description: 'Product sub class' })
+  @ApiProperty({ description: 'Product sub class', required: false })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  subClass: string;
+  subClass?: string;
 
-  @ApiProperty({ description: 'Product material' })
+  @ApiProperty({ description: 'Product material', required: false })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  material: string;
+  material?: string;
 
   @ApiProperty({ description: 'Available sizes for belts (in inches)', type: [Number], required: false })
   @IsOptional()

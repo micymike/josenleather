@@ -112,7 +112,7 @@ const ProductForm = () => {
       const { name, description, price, stock, images, productType, class: prodClass, subClass, material } = formData;
       
       // Validate required fields
-      if (!name || !description || !price || !stock || !productType || !prodClass || !subClass || !material) {
+      if (!name || !description || !price || !stock) {
         setError('Please fill in all required fields');
         setLoading(false);
         return;
@@ -123,7 +123,7 @@ const ProductForm = () => {
       form.append('description', description.trim());
       form.append('price', price);
       form.append('stock', stock);
-      form.append('category', productType);
+      form.append('productType', productType);
       form.append('class', prodClass);
       form.append('subClass', subClass);
       form.append('material', material);
@@ -248,7 +248,6 @@ const ProductForm = () => {
               value={formData.productType}
               onChange={(e) => setFormData({ ...formData, productType: e.target.value })}
               className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
             >
               <option value="">Select Product Type</option>
               {PRODUCT_TYPES.map((type) => (
@@ -262,7 +261,6 @@ const ProductForm = () => {
               value={formData.class}
               onChange={(e) => setFormData({ ...formData, class: e.target.value })}
               className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
             >
               <option value="">Select Class</option>
               {CLASSES.map((cls) => (
@@ -276,7 +274,6 @@ const ProductForm = () => {
               value={formData.subClass}
               onChange={(e) => setFormData({ ...formData, subClass: e.target.value })}
               className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
             >
               <option value="">Select Sub Class</option>
               {SUB_CLASSES.map((sub) => (
@@ -290,7 +287,6 @@ const ProductForm = () => {
               value={formData.material}
               onChange={(e) => setFormData({ ...formData, material: e.target.value })}
               className="w-full border border-gray-300 rounded-md px-3 py-2"
-              required
             >
               <option value="">Select Material</option>
               {MATERIALS.map((mat) => (
