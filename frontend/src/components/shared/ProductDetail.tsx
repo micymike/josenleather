@@ -115,11 +115,11 @@ const ProductDetail: React.FC = () => {
         <meta property="og:description" content={product ? product.description : "Product details for JOSEN NAIROBI."} />
         <meta property="og:type" content="product" />
         <meta property="og:url" content={product ? `https://www.josenleather.com/product/${product.id}` : "https://www.josenleather.com/products"} />
-        <meta property="og:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo1.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
+        <meta property="og:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo1.jpg") : "https://www.josenleather.com/hero2.jpg"} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={product ? `${product.name} | JOSEN NAIROBI` : "Product | JOSEN NAIROBI"} />
         <meta name="twitter:description" content={product ? product.description : "Product details for JOSEN NAIROBI."} />
-        <meta name="twitter:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo1.jpg") : "https://www.josenleather.com/leather_bag.jpg"} />
+        <meta name="twitter:image" content={product ? (product.imageUrls?.[0] || product.image || "/logo1.jpg") : "https://www.josenleather.com/hero2.jpg"} />
         {productStructuredData && (
           <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
         )}

@@ -136,11 +136,11 @@ const ProductPage: React.FC = () => {
         <meta property="og:description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop JOSEN NAIROBI today." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.josenleather.com/products" />
-        <meta property="og:image" content="https://www.josenleather.com/leather_bag.jpg" />
+        <meta property="og:image" content="https://www.josenleather.com/hero2.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Shop Leather Bags, Belts, Wallets & Accessories | JOSEN NAIROBI" />
         <meta name="twitter:description" content="Browse our collection of premium leather bags, belts, wallets, and accessories. Handcrafted for durability, style, and timeless elegance. Shop JOSEN NAIROBI today." />
-        <meta name="twitter:image" content="https://www.josenleather.com/leather_bag.jpg" />
+        <meta name="twitter:image" content="https://www.josenleather.com/hero2.jpg" />
         <script type="application/ld+json">{JSON.stringify(productStructuredData)}</script>
       </Helmet>
       <div className="relative overflow-x-hidden min-h-screen">
