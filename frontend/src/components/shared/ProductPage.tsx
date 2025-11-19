@@ -37,7 +37,7 @@ const ProductPage: React.FC = () => {
   const [sortBy, setSortBy] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { getTotalItems, addToCart } = useCart();
   const [addedProductId, setAddedProductId] = useState<string | number | null>(null);
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
