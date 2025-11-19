@@ -78,6 +78,7 @@ const ProductPage: React.FC = () => {
     };
     fetchProducts();
 
+    
     // Hero image carousel
     const heroTimer = setInterval(() => {
       setCurrentHeroImage((prev) => (prev + 1) % HERO_IMAGES.length);
