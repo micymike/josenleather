@@ -347,14 +347,14 @@ const ProductPage: React.FC = () => {
                 to={`/product/${product.id}`}
 className="glass-card bg-white/80 rounded-3xl p-5 cursor-pointer group hover:scale-105 hover:shadow-2xl transition-all duration-300"
               >
-                <div className="relative overflow-hidden rounded-2xl mb-5 shadow-lg">
+                <div className="relative overflow-hidden rounded-2xl mb-5 shadow-lg aspect-square bg-gray-50">
                   {product.imageUrls && product.imageUrls.length > 1 ? (
                     <ProductImageCarousel imageUrls={product.imageUrls} productName={product.name} />
                   ) : (
                     <img
                       src={product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/logo1.jpg'}
                       alt={product.name}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                     />
                   )}
                 </div>
@@ -485,11 +485,11 @@ const ProductImageCarousel: React.FC<{ imageUrls: string[]; productName: string 
   };
 
   return (
-    <div className="relative w-full h-64 flex items-center justify-center group">
+    <div className="relative w-full h-full flex items-center justify-center group bg-gray-50">
       <img
         src={imageUrls[current]}
         alt={productName}
-        className="w-full h-64 object-cover transition-transform duration-700"
+        className="w-full h-full object-contain transition-transform duration-700"
       />
       <button
         onClick={prevImage}
