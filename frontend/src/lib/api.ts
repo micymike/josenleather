@@ -5,6 +5,25 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Axios response interceptor to handle expired/invalid token
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      window.location.pathname.startsWith('/admin')
+    ) {
+      // Remove admin token and user info
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      // Redirect to admin login page
+      window.location.replace('/admin/login');
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const login = async (email: string, password: string) => {
     try{
         const response = await api.post('/auth/admin/login', { email, password });
