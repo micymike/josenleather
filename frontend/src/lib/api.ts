@@ -5,21 +5,23 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Axios request interceptor to add admin token to headers
+api.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('adminToken');
+    if (token && window.location.pathname.startsWith('/admin')) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => Promise.reject(error)
+);
+
 // Axios response interceptor to handle expired/invalid token
 api.interceptors.response.use(
   response => response,
   error => {
-    if (
-      error.response &&
-      error.response.status === 401 &&
-      window.location.pathname.startsWith('/admin')
-    ) {
-      // Remove admin token and user info
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      // Redirect to admin login page
-      window.location.replace('/admin/login');
-    }
+    // No redirect logic on 401, just reject the error
     return Promise.reject(error);
   }
 );
@@ -54,15 +56,7 @@ export const getAdmins = async () => {
     }
 };
 
-export const getProducts = async () => {
-    try {
-        const response = await api.get('/products');
-        return response.data;
-    } catch (error) {
-        console.error('Get products error:', error);
-        throw error;
-    }
-};
+// Products now fetched client-side via useProducts hook
 
 export const getProductCount = async () => {
     try {

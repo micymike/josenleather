@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import SidebarNav from './SidebarNav';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import { getProducts } from '../../lib/api';
+import { useProducts } from '../../hooks/useProducts';
 import ImpressiveLeatherLoader from './ImpressiveLeatherLoader';
 
 interface Product {
@@ -27,59 +27,19 @@ const HERO_IMAGES = [
   '/hero2.jpg'
 ];
 
-const PRODUCTS_CACHE_KEY = "products_cache";
-const PRODUCTS_CACHE_TTL = 60 * 60 * 1000; // 1 hour
-
 const ProductPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [priceRange, setPriceRange] = useState([0, 20000]);
   const [sortBy, setSortBy] = useState('');
-  const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { products, loading, error } = useProducts();
   const { getTotalItems, addToCart } = useCart();
   const [addedProductId, setAddedProductId] = useState<string | number | null>(null);
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
 
-  // Load from localStorage cache first
+  // Hero image carousel
   useEffect(() => {
-    const cache = localStorage.getItem(PRODUCTS_CACHE_KEY);
-    if (cache) {
-      try {
-        const { data, timestamp } = JSON.parse(cache);
-        if (Array.isArray(data) && Date.now() - timestamp < PRODUCTS_CACHE_TTL) {
-          setProducts(data);
-          setLoading(false);
-        }
-      } catch (e) {
-        // Ignore cache errors
-      }
-    }
-  }, []);
-
-  // Always fetch fresh data and update cache
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProducts();
-        if (Array.isArray(data) && data.length > 0) {
-          setProducts(data);
-          localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
-        } else {
-          setProducts([]);
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-
-    
-    // Hero image carousel
     const heroTimer = setInterval(() => {
       setCurrentHeroImage((prev) => (prev + 1) % HERO_IMAGES.length);
     }, 5000);
