@@ -133,19 +133,28 @@ const ProductList = () => {
         </table>
       </div>
       
-      {/* Add Product Form */}
+      {/* Add Product Modal */}
       {showAddProduct && (
-        <div className="mt-6 bg-white rounded-2xl shadow-lg p-6 animate-in slide-in-from-top duration-300">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-gray-900">Add New Product</h3>
-            <button 
-              onClick={() => setShowAddProduct(false)}
-              className="text-gray-500 hover:text-gray-700 text-xl"
-            >
-              ✕
-            </button>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setShowAddProduct(false)}
+        >
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto animate-in slide-in-from-top duration-300"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">Add New Product</h3>
+              <button
+                onClick={() => setShowAddProduct(false)}
+                className="text-gray-500 hover:text-gray-700 text-xl"
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+            <ProductForm />
           </div>
-          <ProductForm />
         </div>
       )}
     </div>
