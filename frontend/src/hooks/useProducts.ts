@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
-interface Product {
-  id: string | number;
-  name: string;
-  price: number;
-  imageUrls: string[];
-  description: string;
-  category: string;
-  rating?: number;
-}
+import type { Product } from '../types/Product';
 
 const PRODUCTS_CACHE_KEY = "products_cache";
 const PRODUCTS_CACHE_TTL = 60 * 60 * 1000; // 1 hour

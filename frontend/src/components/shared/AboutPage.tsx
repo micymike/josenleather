@@ -7,15 +7,7 @@ interface NavLink {
   href: string;
 }
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  imageUrls: string[];
-  description: string;
-  category: string;
-  rating: number;
-}
+import type { Product } from '../../types/Product';
 
 interface Collection {
   icon: string;
