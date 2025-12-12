@@ -6,7 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { useProducts } from '../../hooks/useProducts';
 import ImpressiveLeatherLoader from './ImpressiveLeatherLoader';
 
-import { Product } from '../../types/Product';
+import type { Product } from '../../types/Product';
 
 const NAV_LINKS = [
   { label: "About", href: "/about" },
