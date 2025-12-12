@@ -56,6 +56,16 @@ export const getAdmins = async () => {
     }
 };
 
+export const getProducts = async () => {
+    try {
+        const response = await api.get('/products');
+        return response.data;
+    } catch (error) {
+        console.error('Get products error:', error);
+        throw error;
+    }
+};
+
 // Products now fetched client-side via useProducts hook
 
 export const getProductCount = async () => {
@@ -133,6 +143,19 @@ export const getOrders = async (token: string) => {
         return response.data;
     } catch (error) {
         console.error('Get orders error:', error);
+        throw error;
+    }
+};
+export const getOrderById = async (id: string, token: string) => {
+    try {
+        const response = await api.get(`/orders/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Get order by ID error:', error);
         throw error;
     }
 };

@@ -6,15 +6,7 @@ import { useCart } from '../../context/CartContext';
 import { useProducts } from '../../hooks/useProducts';
 import ImpressiveLeatherLoader from './ImpressiveLeatherLoader';
 
-interface Product {
-  id: string | number;
-  name: string;
-  price: number;
-  imageUrls: string[];
-  description: string;
-  category: string;
-  rating: number;
-}
+import { Product } from '../../types/Product';
 
 const NAV_LINKS = [
   { label: "About", href: "/about" },
