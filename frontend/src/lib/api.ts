@@ -118,16 +118,16 @@ export const deleteProduct = async (id: string, token: string) => {
     }
 };
 
-export const getOrders = async (token?: string) => {
-    const authToken = token || localStorage.getItem('adminToken');
-    if (!authToken) {
+export const getOrders = async (token: string) => {
+    
+    if (!token) {
         throw new Error('No admin token found. Please log in as admin.');
     }
-    console.log('Using admin token for orders:', authToken);
+    //console.log('Using admin token for orders:', token);
     try {
         const response = await api.get('/orders', {
             headers: {
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${token}`,
             }
         });
         return response.data;
