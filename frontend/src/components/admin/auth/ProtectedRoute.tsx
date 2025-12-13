@@ -6,8 +6,9 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const token = localStorage.getItem('adminToken');
+  const adminUser = localStorage.getItem('adminUser');
   
-  if (!token) {
+  if (!token || !adminUser) {
     return <Navigate to="/admin/login" replace />;
   }
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -26,8 +26,15 @@ export class AuthController {
     description: 'User login',
     type: CreateAuthDto,
   })
-  async login(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.login(createAuthDto);
+  async login(@Body() createAuthDto: CreateAuthDto, @Res({ passthrough: true }) res) {
+    const result = await this.authService.login(createAuthDto);
+    res.cookie('adminToken', result.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+    return { user: result.user, token: result.access_token };
   }
 
   // Protected admin operations

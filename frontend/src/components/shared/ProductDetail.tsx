@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import SidebarNav from './SidebarNav';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import { getProducts } from '../../lib/api';
+import { useProducts } from '../../hooks/useProducts';
 
 const NAV_LINKS = [
   { label: "About", href: "/about" },
@@ -18,25 +18,16 @@ const ProductDetail: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [showPopup, setShowPopup] = useState(false);
   const [product, setProduct] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { products, loading } = useProducts();
   const { addToCart, getTotalItems } = useCart();
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
   
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const products = await getProducts();
-        const foundProduct = products.find((p: any) => String(p.id) === id);
-        setProduct(foundProduct || null);
-      } catch (error) {
-        console.error('Error fetching product:', error);
-        setProduct(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, [id]);
+    if (products.length > 0) {
+      const foundProduct = products.find((p: any) => String(p.id) === id);
+      setProduct(foundProduct || null);
+    }
+  }, [products, id]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
