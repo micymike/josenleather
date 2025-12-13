@@ -3,15 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, Mail, Sparkles } from 'lucide-react';
 import { login } from '../../../lib/api';
 
-/* Add BankGothic Lt BT font */
-const fontStyle = `
-  @font-face {
-    font-family: 'BankGothic Lt BT';
-    src: local('BankGothic Lt BT'), url('/fonts/BankGothicLtBT.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-  }
-`;
+/* No custom font needed */
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -28,14 +20,17 @@ const AdminLogin = () => {
 
     try {
       const data = await login(formData.email, formData.password);
-      if (data.access_token) {
-        localStorage.setItem('adminToken', data.access_token);
+      if (data && data.user) {
         localStorage.setItem('adminUser', JSON.stringify(data.user));
-        navigate('/admin');
+        localStorage.setItem('adminToken', data.token);
+        setTimeout(() => {
+          navigate('/admin');
+        }, 1000);
       } else {
-        setError(data.message || 'Login failed');
+        setError('Login failed. Please check your credentials.');
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.message || 'Connection error');
     } finally {
       setLoading(false);
@@ -44,8 +39,7 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Inject font style */}
-      <style>{fontStyle}</style>
+      {/* No custom font injected */}
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-orange-900 to-yellow-900">
         {/* Floating orbs */}
@@ -102,7 +96,7 @@ const AdminLogin = () => {
                 <div className="absolute -inset-1 bg-gradient-to-r from-amber-400/20 to-orange-400/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
               <div className="relative">
-                <p className="text-lg text-amber-200 font-medium animate-in slide-in-from-top duration-700 delay-400" style={{ fontFamily: "'BankGothic Lt BT', Arial, sans-serif", letterSpacing: '2px', textTransform: 'uppercase' }}>
+                <p className="text-lg text-amber-200 font-medium animate-in slide-in-from-top duration-700 delay-400" style={{ letterSpacing: '2px', textTransform: 'uppercase', fontFamily: 'Arial, sans-serif' }}>
                   JOSEN NAIROBI Management
                 </p>
                 <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-16 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-in slide-in-from-bottom duration-700 delay-600"></div>

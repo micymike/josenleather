@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getOrders } from '../../../lib/api';
+import { getOrders, getOrderById } from '../../../lib/api';
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
@@ -13,6 +13,7 @@ const OrderList = () => {
       try {
         const token = localStorage.getItem('adminToken');
         const data = await getOrders(token);
+        const data_id = await getOrderById(data[0].id, token);
         setOrders(data);
       } catch (err) {
         setError('Failed to fetch orders');

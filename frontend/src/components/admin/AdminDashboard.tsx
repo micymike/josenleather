@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { getAdmins, getProducts, getOrders, getBlogs, getProductCount } from '../../lib/api';
+import { getAdmins, getOrders, getBlogs, getProductCount } from '../../lib/api';
+import { useProducts } from '../../hooks/useProducts';
 import FeedbackList from "./FeedbackList";
 
 const AdminDashboard = () => {
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const { products } = useProducts();
   const [stats, setStats] = useState([
     { title: 'Total Products', value: '0', icon: '📦', color: 'from-amber-500 to-amber-600', bg: 'bg-amber-50' },
     { title: 'Pending Orders', value: '0', icon: '📋', color: 'from-orange-500 to-orange-600', bg: 'bg-orange-50' },
@@ -31,16 +33,8 @@ const AdminDashboard = () => {
 
     // Fetch dashboard stats from backend APIs
     const fetchStats = async () => {
-      let productCount = 0;
       let orders: any[] = [];
       let blogs: any[] = [];
-
-      try {
-        productCount = await getProductCount();
-        console.log('Received product count:', productCount);
-      } catch (err) {
-        console.error('Failed to fetch product count:', err);
-      }
 
       try {
         const token = localStorage.getItem('adminToken');
@@ -58,14 +52,14 @@ const AdminDashboard = () => {
       }
 
       setStats([
-        { title: 'Total Products', value: productCount.toString(), icon: '📦', color: 'from-amber-500 to-amber-600', bg: 'bg-amber-50' },
+        { title: 'Total Products', value: products.length.toString(), icon: '📦', color: 'from-amber-500 to-amber-600', bg: 'bg-amber-50' },
         { title: 'Pending Orders', value: orders.filter((o: any) => o.status === 'pending').length.toString(), icon: '📋', color: 'from-orange-500 to-orange-600', bg: 'bg-orange-50' },
         { title: 'Total Revenue', value: '$' + orders.reduce((sum: number, o: any) => sum + (o.total || 0), 0).toLocaleString(), icon: '💰', color: 'from-yellow-500 to-yellow-600', bg: 'bg-yellow-50' },
         { title: 'Blog Posts', value: blogs.length.toString(), icon: '📝', color: 'from-amber-600 to-orange-600', bg: 'bg-amber-50' }
       ]);
     };
     fetchStats();
-  }, []);
+  }, [products]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">

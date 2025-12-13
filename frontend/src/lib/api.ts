@@ -5,6 +5,27 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Axios request interceptor to add admin token to headers
+api.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('adminToken');
+    if (token && window.location.pathname.startsWith('/admin')) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => Promise.reject(error)
+);
+
+// Axios response interceptor to handle expired/invalid token
+api.interceptors.response.use(
+  response => response,
+  error => {
+    // No redirect logic on 401, just reject the error
+    return Promise.reject(error);
+  }
+);
+
 export const login = async (email: string, password: string) => {
     try{
         const response = await api.post('/auth/admin/login', { email, password });
@@ -44,6 +65,8 @@ export const getProducts = async () => {
         throw error;
     }
 };
+
+// Products now fetched client-side via useProducts hook
 
 export const getProductCount = async () => {
     try {
@@ -105,21 +128,34 @@ export const deleteProduct = async (id: string, token: string) => {
     }
 };
 
-export const getOrders = async (token?: string) => {
-    const authToken = token || localStorage.getItem('adminToken');
-    if (!authToken) {
+export const getOrders = async (token: string) => {
+    
+    if (!token) {
         throw new Error('No admin token found. Please log in as admin.');
     }
-    console.log('Using admin token for orders:', authToken);
+    //console.log('Using admin token for orders:', token);
     try {
         const response = await api.get('/orders', {
             headers: {
-                Authorization: `Bearer ${authToken}`,
+                Authorization: `Bearer ${token}`,
             }
         });
         return response.data;
     } catch (error) {
         console.error('Get orders error:', error);
+        throw error;
+    }
+};
+export const getOrderById = async (id: string, token: string) => {
+    try {
+        const response = await api.get(`/orders/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Get order by ID error:', error);
         throw error;
     }
 };
