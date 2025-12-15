@@ -1,12 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import { sendNotification } from '../lib/firebase-admin';
+import { SupabaseService } from '../supabase/supabase.client';
 
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
   private mailTransporter: nodemailer.Transporter;
+  private readonly supabaseService: SupabaseService;
 
-  constructor() {
+  constructor(supabaseService: SupabaseService) {
+    this.supabaseService = supabaseService;
     // Nodemailer setup (use your SMTP or a transactional email service)
     this.mailTransporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -20,204 +24,163 @@ export class NotificationService {
   }
 
   /**
-   * Send a push notification to admin(s) using OneSignal when a new order is created.
-   * @param orderDetails - The order details object
+   * Send a test push notification to a given FCM token
    */
-  async sendAdminPushNotification(orderDetails: any) {
-    const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
-    const ONESIGNAL_API_KEY = process.env.ONESIGNAL_API_KEY;
-    if (!ONESIGNAL_APP_ID || !ONESIGNAL_API_KEY) {
-      this.logger.warn('OneSignal credentials not set. Push notification skipped.');
-      return;
-    }
-    const payload = {
-      app_id: ONESIGNAL_APP_ID,
-      headings: { en: "New Order Received" },
-      contents: { en: `Order #${orderDetails.orderRef} placed. Check admin dashboard for details.` },
-      included_segments: ["Admins"], // You can use tags or segments to target admin users
-      url: "https://www.josenleather.com/admin/orders",
-      data: { orderRef: orderDetails.orderRef },
-    };
+  async sendTestNotification(fcmToken: string, title: string, message: string, data: any) {
     try {
-      const res = await fetch("https://onesignal.com/api/v1/notifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Basic ${ONESIGNAL_API_KEY}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        this.logger.error("Failed to send OneSignal push notification", await res.text());
-      } else {
-        this.logger.log("Admin push notification sent via OneSignal");
+      if (!fcmToken) {
+        this.logger.warn('No FCM token provided for test notification');
+        return { success: false, error: 'No FCM token provided' };
       }
-    } catch (e) {
-      this.logger.error("Error sending OneSignal push notification", e);
-    }
-  }
-
-  async sendOrderConfirmation(
-    to: { email: string },
-    orderDetails: any,
-    isAdmin: boolean
-  ) {
-    const subject = isAdmin
-      ? `New Order Received: #${orderDetails.orderRef}`
-      : `Order Confirmation: #${orderDetails.orderRef}`;
-    const message = isAdmin
-      ? `A new order has been placed. Order Ref: ${orderDetails.orderRef}.`
-      : `Thank you for your order! Your order reference is ${orderDetails.orderRef}.`;
-
-    // Send Email
-    if (to.email) {
-      try {
-        await this.mailTransporter.sendMail({
-          from: process.env.SMTP_FROM || 'no-reply@josenleather.com',
-          to: to.email,
-          subject,
-          text: message,
-          html: `
-            <div style="font-family: 'Segoe UI', Arial, sans-serif; background: #fffbe6; border-radius: 16px; border: 1px solid #ffe0b2; padding: 32px; max-width: 480px; margin: 24px auto;">
-              <img src="https://www.josenleather.com/public/logo.jpg" alt="Josen Leather Logo" style="height: 48px; margin-bottom: 16px;" />
-              <h2 style="color: #d97706; font-size: 1.5rem; margin-bottom: 8px;">Order Received!</h2>
-              <p style="color: #444; font-size: 1rem; margin-bottom: 16px;">
-                Thank you for your order!<br>
-                Your order reference is <b style="color: #256029;">${orderDetails.orderRef}</b>.<br>
-                Your order has been received and is being processed.<br>
-                Please check your email for tracking information.
-              </p>
-              <div style="margin: 24px 0;">
-                <h3 style="color: #b45309; font-size: 1.1rem; margin-bottom: 8px;">Order Tracking</h3>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 16px;">
-                  <div style="text-align: center;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:#d97706;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;">1</div>
-                    <div style="font-size:0.85rem;color:#d97706;margin-top:4px;">Received</div>
-                  </div>
-                  <div style="width:48px;height:4px;background:#d97706;"></div>
-                  <div style="text-align: center;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:#ffe0b2;color:#b45309;display:flex;align-items:center;justify-content:center;font-weight:bold;">2</div>
-                    <div style="font-size:0.85rem;color:#b45309;margin-top:4px;">Processing</div>
-                  </div>
-                  <div style="width:48px;height:4px;background:#ffe0b2;"></div>
-                  <div style="text-align: center;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:#ffe0b2;color:#b45309;display:flex;align-items:center;justify-content:center;font-weight:bold;">3</div>
-                    <div style="font-size:0.85rem;color:#b45309;margin-top:4px;">Shipped</div>
-                  </div>
-                  <div style="width:48px;height:4px;background:#ffe0b2;"></div>
-                  <div style="text-align: center;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:#ffe0b2;color:#b45309;display:flex;align-items:center;justify-content:center;font-weight:bold;">4</div>
-                    <div style="font-size:0.85rem;color:#b45309;margin-top:4px;">Delivered</div>
-                  </div>
-                </div>
-                <p style="margin-top:12px;color:#444;font-size:0.95rem;">
-                  Your order is <b style="color:#d97706;">Received</b>.
-                </p>
-              </div>
-              <div style="margin-top: 24px; color: #888; font-size: 0.9rem;">
-                Josen Nairobi &mdash; Premium Leather Goods
-              </div>
-            </div>
-          `,
-        });
-      } catch (e) {
-        this.logger.error('Failed to send email', e);
-      }
-    }
-  }
-
-  async sendOrderStatusUpdate(
-    to: { email: string },
-    orderId: string,
-    status: string
-  ) {
-    const subject = `Order #${orderId} Status Update`;
-    const message = `Your order #${orderId} status has been updated: ${status}`;
-
-    // Send Email
-    if (to.email) {
-      try {
-        await this.mailTransporter.sendMail({
-          from: process.env.SMTP_FROM || 'no-reply@josenleather.com',
-          to: to.email,
-          subject,
-          text: message,
-          html: `
-            <div style="font-family: 'Segoe UI', Arial, sans-serif; background: #fffbe6; border-radius: 16px; border: 1px solid #ffe0b2; padding: 32px; max-width: 480px; margin: 24px auto;">
-              <img src="https://www.josenleather.com/public/logo.jpg" alt="Josen Leather Logo" style="height: 48px; margin-bottom: 16px;" />
-              <h2 style="color: #d97706; font-size: 1.5rem; margin-bottom: 8px;">Order Status Update</h2>
-              <p style="color: #444; font-size: 1rem; margin-bottom: 16px;">
-                Your order <b style="color: #256029;">#${orderId}</b> status has been updated to <b style="color: #d97706;">${status}</b>.
-              </p>
-              <div style="margin: 24px 0;">
-                <h3 style="color: #b45309; font-size: 1.1rem; margin-bottom: 8px;">Order Tracking</h3>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 16px;">
-                  <div style="text-align: center;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:${status === "Received" ? "#d97706" : "#ffe0b2"};color:${status === "Received" ? "#fff" : "#b45309"};display:flex;align-items:center;justify-content:center;font-weight:bold;">1</div>
-                    <div style="font-size:0.85rem;color:${status === "Received" ? "#d97706" : "#b45309"};margin-top:4px;">Received</div>
-                  </div>
-                  <div style="width:48px;height:4px;background:${["Processing", "Shipped", "Delivered"].includes(status) ? "#d97706" : "#ffe0b2"};"></div>
-                  <div style="text-align: center;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:${status === "Processing" ? "#d97706" : "#ffe0b2"};color:${status === "Processing" ? "#fff" : "#b45309"};display:flex;align-items:center;justify-content:center;font-weight:bold;">2</div>
-                    <div style="font-size:0.85rem;color:${status === "Processing" ? "#d97706" : "#b45309"};margin-top:4px;">Processing</div>
-                  </div>
-                  <div style="width:48px;height:4px;background:${["Shipped", "Delivered"].includes(status) ? "#d97706" : "#ffe0b2"};"></div>
-                  <div style="text-align: center;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:${status === "Shipped" ? "#d97706" : "#ffe0b2"};color:${status === "Shipped" ? "#fff" : "#b45309"};display:flex;align-items:center;justify-content:center;font-weight:bold;">3</div>
-                    <div style="font-size:0.85rem;color:${status === "Shipped" ? "#d97706" : "#b45309"};margin-top:4px;">Shipped</div>
-                  </div>
-                  <div style="width:48px;height:4px;background:${status === "Delivered" ? "#d97706" : "#ffe0b2"};"></div>
-                  <div style="text-align: center;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:${status === "Delivered" ? "#d97706" : "#ffe0b2"};color:${status === "Delivered" ? "#fff" : "#b45309"};display:flex;align-items:center;justify-content:center;font-weight:bold;">4</div>
-                    <div style="font-size:0.85rem;color:${status === "Delivered" ? "#d97706" : "#b45309"};margin-top:4px;">Delivered</div>
-                  </div>
-                </div>
-                <p style="margin-top:12px;color:#444;font-size:0.95rem;">
-                  Your order is currently <b style="color:#d97706;">${status}</b>.
-                </p>
-              </div>
-              <div style="margin-top: 24px; color: #888; font-size: 0.9rem;">
-                Josen Nairobi &mdash; Premium Leather Goods
-              </div>
-            </div>
-          `,
-        });
-
-        // Send push notification to the user via OneSignal tag
-        const ONESIGNAL_APP_ID = process.env.ONESIGNAL_APP_ID;
-        const ONESIGNAL_API_KEY = process.env.ONESIGNAL_API_KEY;
-        if (ONESIGNAL_APP_ID && ONESIGNAL_API_KEY) {
-          const pushPayload = {
-            app_id: ONESIGNAL_APP_ID,
-            filters: [
-              { field: "tag", key: "user_email", relation: "=", value: to.email }
-            ],
-            headings: { en: "Order Status Update" },
-            contents: { en: `Your order #${orderId} status has been updated: ${status}` },
-            url: `https://www.josenleather.com/orders/${orderId}`,
-            data: { orderId, status }
-          };
-          try {
-            const res = await fetch("https://onesignal.com/api/v1/notifications", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Basic ${ONESIGNAL_API_KEY}`,
-              },
-              body: JSON.stringify(pushPayload),
-            });
-            if (!res.ok) {
-              this.logger.error("Failed to send user push notification", await res.text());
-            } else {
-              this.logger.log("User push notification sent via OneSignal");
-            }
-          } catch (e) {
-            this.logger.error("Error sending user push notification", e);
-          }
+      await sendNotification(
+        [fcmToken],
+        title,
+        message,
+        {
+          type: 'TEST_NOTIFICATION',
+          ...data,
+          timestamp: new Date().toISOString()
         }
-      } catch (e) {
-        this.logger.error('Failed to send email', e);
-      }
+      );
+      return { success: true };
+    } catch (error) {
+      this.logger.error('Error in sendTestNotification:', error);
+      return { success: false, error: error.message };
     }
   }
+  /**
+   * Send push notification to admins about new order
+   */
+  async notifyAdminsNewOrder(orderDetails: any) {
+    try {
+      // Get admin FCM tokens from your admin service
+      const adminTokens = await this.getAdminFcmTokens();
+      
+      if (adminTokens && adminTokens.length > 0) {
+        await sendNotification(
+          adminTokens,
+          'New Order Placed 🛒',
+          `Order #${orderDetails.orderRef} has been placed`,
+          { 
+            type: 'NEW_ORDER',
+            orderId: orderDetails.id,
+            orderRef: orderDetails.orderRef,
+            timestamp: new Date().toISOString()
+          }
+        );
+      }
+
+      return { success: true };
+    } catch (error) {
+      this.logger.error('Error in notifyAdminsNewOrder:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send order confirmation to customer
+   */
+  async sendOrderConfirmation(userFcmToken: string, orderDetails: any) {
+    try {
+      if (!userFcmToken) {
+        this.logger.warn('No FCM token for user, skipping push notification');
+        return { success: false, error: 'No FCM token available' };
+      }
+
+      await sendNotification(
+        [userFcmToken],
+        'Order Confirmed ✅',
+        `Your order #${orderDetails.orderRef} was placed successfully`,
+        {
+          type: 'ORDER_CONFIRMATION',
+          orderId: orderDetails.id,
+          orderRef: orderDetails.orderRef,
+          status: 'confirmed',
+          timestamp: new Date().toISOString()
+        }
+      );
+
+      return { success: true };
+    } catch (error) {
+      this.logger.error('Error in sendOrderConfirmation:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Send order status update to customer
+   */
+  async sendOrderStatusUpdate(userFcmToken: string, orderDetails: any, status: string) {
+    try {
+      if (!userFcmToken) {
+        this.logger.warn('No FCM token for user, skipping status update notification');
+        return { success: false, error: 'No FCM token available' };
+      }
+
+      const statusMessages = {
+        processing: {
+          title: 'Order Processing ⚙️',
+          message: `Your order #${orderDetails.orderRef} is being processed`
+        },
+        shipped: {
+          title: 'Order Shipped 🚚',
+          message: `Your order #${orderDetails.orderRef} has been shipped`
+        },
+        delivered: {
+          title: 'Order Delivered 🎉',
+          message: `Your order #${orderDetails.orderRef} has been delivered`
+        },
+        cancelled: {
+          title: 'Order Cancelled ❌',
+          message: `Your order #${orderDetails.orderRef} has been cancelled`
+        }
+      };
+
+      const { title, message } = statusMessages[status] || {
+        title: 'Order Updated',
+        message: `Your order #${orderDetails.orderRef} status has been updated to ${status}`
+      };
+
+      await sendNotification(
+        [userFcmToken],
+        title,
+        message,
+        {
+          type: 'ORDER_STATUS_UPDATE',
+          orderId: orderDetails.id,
+          orderRef: orderDetails.orderRef,
+          status,
+          timestamp: new Date().toISOString()
+        }
+      );
+
+      return { success: true };
+    } catch (error) {
+      this.logger.error('Error in sendOrderStatusUpdate:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
+   * Helper method to get admin FCM tokens
+   * Replace this with your actual implementation
+   */
+  private async getAdminFcmTokens(): Promise<string[]> {
+    // Fetch admin FCM tokens from auth table using Supabase
+    const { data, error } = await this.supabaseService.client
+      .from('User')
+      .select('fcm_token')
+      .eq('role', 'admin')
+      .not('fcm_token', 'is', null);
+
+    if (error) {
+      this.logger.error('Error fetching admin FCM tokens:', error);
+      return [];
+    }
+    // Return array of non-null tokens
+    return (data || [])
+      .map((row: { fcm_token?: string }) => row.fcm_token)
+      .filter((token): token is string => typeof token === 'string');
+  }
+
 }

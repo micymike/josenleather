@@ -30,7 +30,7 @@ const OrderList = () => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Orders</h1>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-lg shadow overflow-hidden sm:overflow-y-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>

@@ -25,12 +25,12 @@ export const useProducts = () => {
           }
         }
 
-        // Fetch from Supabase
-        const { data, error } = await supabase
-          .from('product')
-          .select('*');
-        
-        if (error) throw error;
+        // Fetch from backend API
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/products`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
         
         const products = data?.map(product => ({
           ...product,
@@ -63,11 +63,11 @@ export const useProducts = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase
-        .from('product')
-        .select('*');
-      
-      if (error) throw error;
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/products`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
       
       const products = data?.map(product => ({
         ...product,

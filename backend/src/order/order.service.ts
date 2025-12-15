@@ -73,12 +73,12 @@ export class OrderService {
       if (itemsError) throw new BadRequestException(itemsError.message);
     }
 
-    // Notify buyer and admin
-    const orderRef = order.id;
-    const adminContact = { email: 'uniconnect693@gmail.com', phone: '' };
-    const buyerContact = { email: order.guestEmail || '', phone: order.guestPhone || '' };
-    await this.notificationService.sendOrderConfirmation(buyerContact, { orderRef }, false);
-    await this.notificationService.sendOrderConfirmation(adminContact, { orderRef }, true);
+    // Send Firebase notifications
+    await this.notificationService.notifyAdminsNewOrder({
+      id: order.id,
+      orderRef: order.id,
+      guestEmail: order.guestEmail,
+      total: order.total    });
 
     return order;
   }
@@ -141,12 +141,13 @@ export class OrderService {
 
     await this.cartService.remove(cart.id);
 
-    // Notify buyer and admin
-    const orderRef = order.id;
-    const adminContact = { email: 'uniconnect693@gmail.com', phone: '' };
-    const buyerContact = { email: order.guestEmail || '', phone: order.guestPhone || '' };
-    await this.notificationService.sendOrderConfirmation(buyerContact, { orderRef }, false);
-    await this.notificationService.sendOrderConfirmation(adminContact, { orderRef }, true);
+    // Send Firebase notifications
+    await this.notificationService.notifyAdminsNewOrder({
+      id: order.id,
+      orderRef: order.id,
+      guestEmail: order.guestEmail,
+      total: order.total
+    });
 
     return order;
   }
@@ -207,9 +208,10 @@ export class OrderService {
     }
 
     // Notify buyer of status update
-    const buyerContact = { email: order.guestEmail || '', phone: order.guestPhone || '' };
+    // TODO: Pass user FCM token if available, otherwise skip notification
+    const userFcmToken = ''; // Replace with actual token if available
     if (rest.status) {
-      await this.notificationService.sendOrderStatusUpdate(buyerContact, order.id, rest.status);
+      await this.notificationService.sendOrderStatusUpdate(userFcmToken, order, rest.status);
     }
 
     return order;
