@@ -1,2 +1,5 @@
 uniconnect
 uniconnect.pub
+
+# Firebase service account key (never commit secrets!)
+backend/src/josenleather-firebase-adminsdk-fbsvc-5d6c711192.json

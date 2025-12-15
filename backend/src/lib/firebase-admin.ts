@@ -1,21 +1,15 @@
 import * as admin from 'firebase-admin';
-import * as path from 'path';
-import * as fs from 'fs';
 
- // Path to your service account key JSON file
-const serviceAccountPath = path.join(__dirname, '../josenleather-firebase-adminsdk-fbsvc-5d6c711192.json');
-
-// Check if service account file exists
-if (!fs.existsSync(serviceAccountPath)) {
-  console.warn('Firebase service account key file not found at:', serviceAccountPath);
-  // Don't throw error in development, just warn
-}
-
-let serviceAccount;
-try {
-  serviceAccount = require(serviceAccountPath);
-} catch (error) {
-  console.warn('Could not load Firebase service account key:', error.message);
+// Load service account from environment variable
+let serviceAccount: any = undefined;
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  try {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } catch (error) {
+    console.warn('Could not parse FIREBASE_SERVICE_ACCOUNT env variable:', error.message);
+  }
+} else {
+  console.warn('FIREBASE_SERVICE_ACCOUNT env variable not set');
 }
 
 // Initialize Firebase Admin if not already initialized and service account is available
