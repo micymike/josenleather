@@ -21,10 +21,22 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => response,
   error => {
-    // No redirect logic on 401, just reject the error
+    const status = error?.response?.status;
+
+    if (status === 401 || status === 403) {
+      // Token expired or invalid
+      localStorage.removeItem('adminToken');
+
+      // Avoid infinite redirect loop
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
+    }
+
     return Promise.reject(error);
   }
 );
+
 
 export const login = async (email: string, password: string) => {
     try{
@@ -128,31 +140,14 @@ export const deleteProduct = async (id: string, token: string) => {
     }
 };
 
-export const getOrders = async (token: string) => {
-    
-    if (!token) {
-        throw new Error('No admin token found. Please log in as admin.');
-    }
-    //console.log('Using admin token for orders:', token);
-    try {
-        const response = await api.get('/orders', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Get orders error:', error);
-        throw error;
-    }
+export const getOrders = async () => {
+  const response = await api.get('/orders');
+  return response.data;
 };
-export const getOrderById = async (id: string, token: string) => {
+
+export const getOrderById = async (id: string) => {
     try {
-        const response = await api.get(`/orders/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        });
+        const response = await api.get(`/orders/${id}`);
         return response.data;
     } catch (error) {
         console.error('Get order by ID error:', error);

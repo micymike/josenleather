@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getOrders, getOrderById } from '../../../lib/api';
+import {  getOrders, getOrderById } from '../../../lib/api';
+//import { getOrders } from '../../../lib/supabase';
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
@@ -10,8 +11,10 @@ const OrderList = () => {
     const fetchOrders = async () => {
       setLoading(true);
       setError('');
+      
       try {
         const token = localStorage.getItem('adminToken');
+     
         const data = await getOrders(token);
         const data_id = await getOrderById(data[0].id, token);
         setOrders(data);
