@@ -39,7 +39,7 @@ const AdminDashboard = () => {
       try {
         const token = localStorage.getItem('adminToken');
         if (token) {
-          orders = await getOrders(token);
+          orders = await getOrders();
         }
       } catch (err) {
         console.error('Failed to fetch orders:', err);

@@ -15,8 +15,8 @@ const OrderList = () => {
       try {
         const token = localStorage.getItem('adminToken');
      
-        const data = await getOrders(token);
-        const data_id = await getOrderById(data[0].id, token);
+        const data = await getOrders();
+        const data_id = await getOrderById(data[0].id);
         setOrders(data);
       } catch (err) {
         setError('Failed to fetch orders');
